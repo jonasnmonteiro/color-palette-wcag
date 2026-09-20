@@ -2,158 +2,133 @@
 ---
 
 <div class="studio-wrapper" id="aura-studio-app">
-  <!-- Top Section: Chromatic Wheel & Harmonies -->
-  <div class="glass-panel wheel-harmony-panel">
-    <div class="panel-header-row">
-      <div>
-        <h2 class="section-title">Color Harmony & Chromatic Wheel</h2>
-        <p class="section-subtitle">Interactive multi-handle color wheel powered by OKLCH perceptual color space</p>
+  <!-- Top Split Section: Cor Base (Color Wheel) & A Paleta (Swatch Cards) -->
+  <div class="studio-main-grid">
+    <!-- Left Card: COR BASE / Chromatic Wheel -->
+    <div class="glass-panel wheel-card-box">
+      <div class="card-top-title">
+        <span class="card-tag-title">COR BASE</span>
+        <div class="harmony-rule-pill" id="current-harmony-label">Análogo</div>
       </div>
-      <div class="top-action-bar">
-        <button class="btn-secondary" id="randomize-palette-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 3 21 3 21 8"></polyline>
-            <line x1="4" y1="20" x2="21" y2="3"></line>
-            <polyline points="21 16 21 21 16 21"></polyline>
-            <line x1="15" y1="15" x2="21" y2="21"></line>
-            <line x1="4" y1="4" x2="9" y2="9"></line>
-          </svg>
-          Shuffle Palette
-        </button>
-        <button class="btn-primary" id="add-swatch-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Add Color
-        </button>
-      </div>
-    </div>
 
-    <div class="wheel-section-grid">
-      <!-- Left: Harmony Rules & Global Sliders -->
-      <div class="harmony-sidebar">
-        <label class="field-label">Harmony Rule</label>
-        <div class="harmony-selector-grid" id="harmony-buttons">
-          <button class="harmony-btn active" data-mode="analogous">
-            <span class="harmony-icon">◐</span>
-            Analogous
-          </button>
-          <button class="harmony-btn" data-mode="monochromatic">
-            <span class="harmony-icon">◒</span>
-            Monochromatic
-          </button>
-          <button class="harmony-btn" data-mode="triadic">
-            <span class="harmony-icon">▲</span>
-            Triad
-          </button>
-          <button class="harmony-btn" data-mode="complementary">
-            <span class="harmony-icon">◓</span>
-            Complementary
-          </button>
-          <button class="harmony-btn" data-mode="split-complementary">
-            <span class="harmony-icon">⋔</span>
-            Split Complementary
-          </button>
-          <button class="harmony-btn" data-mode="tetradic">
-            <span class="harmony-icon">◆</span>
-            Tetradic (Double Split)
-          </button>
-          <button class="harmony-btn" data-mode="square">
-            <span class="harmony-icon">■</span>
-            Square
-          </button>
-          <button class="harmony-btn" data-mode="custom">
-            <span class="harmony-icon">✦</span>
-            Custom (Freeform)
-          </button>
+      <!-- Color Wheel Canvas & Interactive Pins -->
+      <div class="wheel-outer-container">
+        <div class="wheel-interactive-stage" id="wheel-interactive-stage">
+          <canvas id="wheel-canvas" width="600" height="600" class="chromatic-canvas"></canvas>
+          <svg id="wheel-svg-lines" class="chromatic-svg-overlay" width="300" height="300"></svg>
+          <div id="wheel-pins-layer" class="chromatic-pins-layer"></div>
         </div>
+      </div>
 
-        <div class="base-sliders-card">
-          <div class="base-badge-row">
-            <span class="field-label">Active Base Color</span>
-            <span class="badge badge-pass" id="base-color-badge">#3B82F6</span>
+      <!-- Active Base Hex Readout & Quick Actions -->
+      <div class="base-control-bar">
+        <div class="base-swatch-box">
+          <div class="base-color-square" id="base-color-square">
+            <input type="color" id="base-native-picker" value="#3B82F6" class="hidden-native-picker" />
           </div>
-
-          <div class="slider-group">
-            <div class="slider-label-row">
-              <span class="slider-name">Lightness (L)</span>
-              <span class="slider-value" id="val-l">0.62</span>
-            </div>
-            <input type="range" id="slider-l" min="0.05" max="0.98" step="0.01" value="0.62" class="custom-range" />
-          </div>
-
-          <div class="slider-group">
-            <div class="slider-label-row">
-              <span class="slider-name">Chroma (C)</span>
-              <span class="slider-value" id="val-c">0.19</span>
-            </div>
-            <input type="range" id="slider-c" min="0" max="0.37" step="0.005" value="0.19" class="custom-range" />
-          </div>
-
-          <div class="slider-group">
-            <div class="slider-label-row">
-              <span class="slider-name">Hue Angle (H)</span>
-              <span class="slider-value" id="val-h">254°</span>
-            </div>
-            <input type="range" id="slider-h" min="0" max="360" step="1" value="254" class="custom-range" />
+          <div class="base-hex-display">
+            <span class="base-hex-hash">#</span>
+            <input type="text" id="base-hex-input" value="3B82F6" class="base-hex-field" spellcheck="false" maxlength="6" />
           </div>
         </div>
 
-        <!-- Image Extractor -->
-        <label class="image-dropzone" for="image-file-input" id="image-dropzone">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="base-buttons-row">
+          <button class="btn-action-pill" id="eyedropper-btn" title="Pick color from screen">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 11l-8-8-8.5 8.5a2.12 2.12 0 0 0 0 3l2 2a2.12 2.12 0 0 0 3 0L16 8l3 3z"></path>
+              <path d="M18 13l4 4-2 2-4-4"></path>
+              <circle cx="2" cy="22" r="1"></circle>
+            </svg>
+            Conta-gotas
+          </button>
+          <button class="btn-action-pill" id="randomize-palette-btn" title="Generate random harmonic palette">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+              <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+            Aleatória
+          </button>
+        </div>
+      </div>
+
+      <!-- Harmony Mode Buttons -->
+      <div class="harmony-modes-wrapper">
+        <label class="sub-label">Regra Harmônica (OKLCH)</label>
+        <div class="harmony-tags-grid" id="harmony-buttons">
+          <button class="harmony-tag-btn active" data-mode="analogous">Análogo</button>
+          <button class="harmony-tag-btn" data-mode="monochromatic">Monocromático</button>
+          <button class="harmony-tag-btn" data-mode="triadic">Tríade</button>
+          <button class="harmony-tag-btn" data-mode="complementary">Complementar</button>
+          <button class="harmony-tag-btn" data-mode="split-complementary">Split-Comp</button>
+          <button class="harmony-tag-btn" data-mode="tetradic">Tetradic</button>
+          <button class="harmony-tag-btn" data-mode="square">Quadrado</button>
+          <button class="harmony-tag-btn" data-mode="custom">Livre (Custom)</button>
+        </div>
+      </div>
+
+      <!-- Image Extraction Dropzone -->
+      <div class="image-extractor-box">
+        <label class="image-dropzone-pill" for="image-file-input">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
             <circle cx="8.5" cy="8.5" r="1.5"></circle>
             <polyline points="21 15 16 10 5 21"></polyline>
           </svg>
-          <span>Extract from Image</span>
+          <span>Carregar Imagem para Extrair Paleta</span>
           <input type="file" id="image-file-input" accept="image/*" class="file-hidden-input" />
         </label>
         <canvas id="extract-canvas" style="display:none;"></canvas>
       </div>
+    </div>
 
-      <!-- Center / Right: Interactive Color Wheel -->
-      <div class="wheel-stage-container">
-        <div class="wheel-wrapper" id="wheel-wrapper">
-          <canvas id="wheel-canvas" width="360" height="360" class="wheel-canvas"></canvas>
-          <svg id="wheel-svg-lines" class="wheel-lines-svg" width="360" height="360"></svg>
-          <div id="wheel-pins-layer" class="wheel-pins-layer"></div>
+    <!-- Right Card: A PALETA / Swatches List -->
+    <div class="glass-panel palette-card-box">
+      <div class="card-top-title">
+        <span class="card-tag-title">A PALETA</span>
+        <div class="palette-top-tools">
+          <button class="btn-action-pill" id="add-swatch-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Adicionar Cor
+          </button>
+          <span class="swatches-count-pill" id="swatches-count-badge">5 Cores</span>
         </div>
-        <div class="wheel-legend">
-          <span class="legend-item"><span class="legend-dot base-dot"></span> Base Anchor (Rotating drives harmony)</span>
-          <span class="legend-item"><span class="legend-dot harmonic-dot"></span> Harmonic Nodes</span>
-          <span class="legend-item"><span class="legend-dot locked-dot"></span> Locked Nodes</span>
-        </div>
+      </div>
+
+      <!-- Vertical List of Swatches Cards -->
+      <div class="palette-swatches-list" id="palette-swatches-list"></div>
+
+      <!-- Footer Action -->
+      <div class="palette-footer-row">
+        <a href="#token-exporter-section" class="btn-primary export-anchor-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Exportar Tokens de Design
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- Middle Section: Rich Palette Cards Bar -->
-  <div class="glass-panel palette-cards-panel">
-    <div class="panel-header-row">
-      <div>
-        <h2 class="section-title">Color Palette Manager</h2>
-        <p class="section-subtitle">Lock swatches, fine-tune individual tones, reorder, delete, and copy hex codes</p>
-      </div>
-      <div class="palette-counter" id="palette-count-text">5 Swatches</div>
-    </div>
-
-    <div class="palette-cards-row" id="palette-cards-row"></div>
-  </div>
-
-  <!-- Bottom Section: Auditor, Preview, and Token Exporter Grid -->
-  <div class="studio-bottom-grid">
+  <!-- Bottom Section: Auditor Gates, UI Preview, and Multi-Format Token Exporter -->
+  <div class="studio-bottom-grid" id="token-exporter-section">
     <!-- Left Column: Contrast Auditor Gates & Dual Inks -->
     <div class="glass-panel studio-card">
       <div class="card-header">
-        <h2 class="card-title">Accessibility & Contrast Gates</h2>
+        <h2 class="card-title">Auditoria de Acessibilidade & APCA</h2>
         <span class="badge badge-pass" id="global-wcag-badge">WCAG 2.1 AA</span>
       </div>
 
       <div class="contrast-gates-grid">
         <div class="contrast-gate-box" id="gate-on-white">
-          <div class="gate-title">Contrast on White (#FFFFFF)</div>
+          <div class="gate-title">Contraste no Branco (#FFFFFF)</div>
           <div class="gate-metrics">
             <div class="gate-metric">
               <span class="metric-val" id="metric-wcag-white">4.5:1</span>
@@ -168,7 +143,7 @@
         </div>
 
         <div class="contrast-gate-box" id="gate-on-black">
-          <div class="gate-title">Contrast on Dark (#0A0D14)</div>
+          <div class="gate-title">Contraste no Escuro (#0A0D14)</div>
           <div class="gate-metrics">
             <div class="gate-metric">
               <span class="metric-val" id="metric-wcag-black">8.4:1</span>
@@ -185,12 +160,12 @@
 
       <div class="ink-recommendation-box">
         <div class="ink-meta">
-          <span class="ink-label">Optimal Text Ink for Base Color</span>
-          <span class="ink-reason" id="ink-reason-text">Highest perceptual readability score</span>
+          <span class="ink-label">Tinta de Texto Ideal (Dual Inks)</span>
+          <span class="ink-reason" id="ink-reason-text">Maior legibilidade perceptual calculada</span>
         </div>
         <div class="ink-pill" id="recommended-ink-pill">
           <span class="ink-pill-dot" id="ink-dot"></span>
-          <span id="ink-name-text">White Ink (#FFFFFF)</span>
+          <span id="ink-name-text">Tinta Branca (#FFFFFF)</span>
         </div>
       </div>
     </div>
@@ -198,22 +173,22 @@
     <!-- Middle Column: Live Component Preview -->
     <div class="glass-panel studio-card">
       <div class="card-header">
-        <h2 class="card-title">Live Semantic UI Preview</h2>
+        <h2 class="card-title">Preview de Componentes Semânticos</h2>
         <span class="badge badge-neutral">Design System</span>
       </div>
 
       <div class="preview-surface" id="preview-surface">
         <div class="preview-row">
-          <button class="preview-btn-primary" id="preview-btn-brand">Primary Button</button>
-          <button class="preview-btn-secondary" id="preview-btn-subtle">Secondary Action</button>
+          <button class="preview-btn-primary" id="preview-btn-brand">Botão Principal</button>
+          <button class="preview-btn-secondary" id="preview-btn-subtle">Ação Secundária</button>
         </div>
 
         <div class="preview-card" id="preview-card-box">
           <div class="preview-card-header">
             <span class="preview-card-badge" id="preview-card-badge">PRO THEME</span>
-            <span class="preview-card-title">Live Token Canvas</span>
+            <span class="preview-card-title">Canvas de Componente</span>
           </div>
-          <p class="preview-card-desc">Theme tokens synthesized dynamically using uniform OKLCH perceptual lightness.</p>
+          <p class="preview-card-desc">Tokens semânticos sincronizados em tempo real com o disco cromático OKLCH.</p>
         </div>
       </div>
     </div>
@@ -221,13 +196,13 @@
     <!-- Right Column: Token Exporter -->
     <div class="glass-panel studio-card">
       <div class="card-header">
-        <h2 class="card-title">Token Exporter</h2>
+        <h2 class="card-title">Exportador de Tokens</h2>
         <button class="btn-secondary copy-btn" id="copy-tokens-btn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
-          Copy Code
+          Copiar Código
         </button>
       </div>
 
@@ -252,7 +227,7 @@
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Download Tokens
+          Baixar Tokens
         </button>
       </div>
     </div>
@@ -283,25 +258,24 @@
   let currentHarmony = 'analogous';
   let currentFormat = 'css';
   let baseIndex = 0;
+  let activeDragIndex: number | null = null;
 
   const wheelCanvas = document.getElementById('wheel-canvas') as HTMLCanvasElement;
   const wheelSvgLines = document.getElementById('wheel-svg-lines') as unknown as SVGSVGElement;
   const wheelPinsLayer = document.getElementById('wheel-pins-layer') as HTMLDivElement;
-  const wheelWrapper = document.getElementById('wheel-wrapper') as HTMLDivElement;
+  const wheelInteractiveStage = document.getElementById('wheel-interactive-stage') as HTMLDivElement;
 
-  const sliderL = document.getElementById('slider-l') as HTMLInputElement;
-  const sliderC = document.getElementById('slider-c') as HTMLInputElement;
-  const sliderH = document.getElementById('slider-h') as HTMLInputElement;
-  const valL = document.getElementById('val-l') as HTMLElement;
-  const valC = document.getElementById('val-c') as HTMLElement;
-  const valH = document.getElementById('val-h') as HTMLElement;
-  const baseColorBadge = document.getElementById('base-color-badge') as HTMLElement;
+  const baseColorSquare = document.getElementById('base-color-square') as HTMLElement;
+  const baseNativePicker = document.getElementById('base-native-picker') as HTMLInputElement;
+  const baseHexInput = document.getElementById('base-hex-input') as HTMLInputElement;
+  const currentHarmonyLabel = document.getElementById('current-harmony-label') as HTMLElement;
 
-  const harmonyButtons = document.querySelectorAll('.harmony-btn');
-  const paletteCardsRow = document.getElementById('palette-cards-row') as HTMLDivElement;
-  const paletteCountText = document.getElementById('palette-count-text') as HTMLElement;
-  const addSwatchBtn = document.getElementById('add-swatch-btn') as HTMLButtonElement;
+  const eyedropperBtn = document.getElementById('eyedropper-btn') as HTMLButtonElement;
   const randomizeBtn = document.getElementById('randomize-palette-btn') as HTMLButtonElement;
+  const addSwatchBtn = document.getElementById('add-swatch-btn') as HTMLButtonElement;
+  const swatchesCountBadge = document.getElementById('swatches-count-badge') as HTMLElement;
+  const paletteSwatchesList = document.getElementById('palette-swatches-list') as HTMLDivElement;
+  const harmonyButtons = document.querySelectorAll('.harmony-tag-btn');
 
   const metricWcagWhite = document.getElementById('metric-wcag-white') as HTMLElement;
   const metricApcaWhite = document.getElementById('metric-apca-white') as HTMLElement;
@@ -336,14 +310,14 @@
       l: s.l,
       c: s.c,
       h: s.h,
-      isBase: idx === 2,
+      isBase: idx === 0,
       isLocked: false,
     }));
-    baseIndex = 2;
+    baseIndex = 0;
     renderAll();
   }
 
-  function drawWheelBackground() {
+  function drawWheelCanvas() {
     const ctx = wheelCanvas.getContext('2d');
     if (!ctx) return;
 
@@ -351,20 +325,20 @@
     const height = wheelCanvas.height;
     const cx = width / 2;
     const cy = height / 2;
-    const radius = width / 2 - 12;
+    const radius = width / 2 - 16;
 
     ctx.clearRect(0, 0, width, height);
 
     for (let angle = 0; angle < 360; angle += 1) {
-      const startAngle = ((angle - 1) * Math.PI) / 180;
-      const endAngle = ((angle + 1) * Math.PI) / 180;
+      const startAngle = ((angle - 1.5) * Math.PI) / 180;
+      const endAngle = ((angle + 1.5) * Math.PI) / 180;
 
       const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-      const hexOuter = oklchToHex(0.68, 0.25, angle);
-      const hexInner = oklchToHex(0.92, 0.02, angle);
+      const hexOuter = oklchToHex(0.68, 0.28, angle);
+      const hexInner = oklchToHex(0.95, 0.01, angle);
 
       grad.addColorStop(0, hexInner);
-      grad.addColorStop(0.5, oklchToHex(0.78, 0.16, angle));
+      grad.addColorStop(0.4, oklchToHex(0.82, 0.14, angle));
       grad.addColorStop(1, hexOuter);
 
       ctx.beginPath();
@@ -377,24 +351,26 @@
 
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 3;
     ctx.stroke();
 
-    for (let rFrac of [0.33, 0.66, 1.0]) {
+    for (let frac of [0.33, 0.66, 1.0]) {
       ctx.beginPath();
-      ctx.arc(cx, cy, radius * rFrac, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius * frac, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
     }
   }
 
-  function polarToCanvas(h: number, c: number) {
-    const cx = wheelCanvas.width / 2;
-    const cy = wheelCanvas.height / 2;
-    const maxRadius = wheelCanvas.width / 2 - 12;
-    const r = Math.min(1.0, c / 0.30) * maxRadius;
+  function polarToStageCoords(h: number, c: number) {
+    const stageWidth = 300;
+    const stageHeight = 300;
+    const cx = stageWidth / 2;
+    const cy = stageHeight / 2;
+    const maxRadius = stageWidth / 2 - 14;
+    const r = Math.min(1.0, Math.max(0.05, c / 0.30)) * maxRadius;
     const rad = (h * Math.PI) / 180;
     return {
       x: cx + r * Math.cos(rad),
@@ -402,10 +378,12 @@
     };
   }
 
-  function canvasToPolar(x: number, y: number) {
-    const cx = wheelCanvas.width / 2;
-    const cy = wheelCanvas.height / 2;
-    const maxRadius = wheelCanvas.width / 2 - 12;
+  function stageCoordsToPolar(x: number, y: number) {
+    const stageWidth = 300;
+    const stageHeight = 300;
+    const cx = stageWidth / 2;
+    const cy = stageHeight / 2;
+    const maxRadius = stageWidth / 2 - 14;
     const dx = x - cx;
     const dy = y - cy;
     let rad = Math.atan2(dy, dx);
@@ -421,154 +399,209 @@
     wheelSvgLines.innerHTML = '';
 
     const baseItem = palette[baseIndex] || palette[0];
-    const basePos = polarToCanvas(baseItem.h, baseItem.c);
+    const basePos = polarToStageCoords(baseItem.h, baseItem.c);
 
-    let linesSvg = '';
+    let linesHtml = '';
     palette.forEach((item, idx) => {
-      const pos = polarToCanvas(item.h, item.c);
+      const pos = polarToStageCoords(item.h, item.c);
       if (idx !== baseIndex) {
-        linesSvg += `<line x1="${basePos.x}" y1="${basePos.y}" x2="${pos.x}" y2="${pos.y}" stroke="${item.isLocked ? '#F59E0B' : 'rgba(255, 255, 255, 0.4)'}" stroke-width="1.5" stroke-dasharray="${item.isLocked ? '4 3' : 'none'}" />`;
+        linesHtml += `<line x1="${basePos.x}" y1="${basePos.y}" x2="${pos.x}" y2="${pos.y}" stroke="${item.isLocked ? '#F59E0B' : 'rgba(255, 255, 255, 0.45)'}" stroke-width="2" stroke-dasharray="${item.isLocked ? '4 3' : 'none'}" />`;
       }
     });
-    wheelSvgLines.innerHTML = linesSvg;
+    wheelSvgLines.innerHTML = linesHtml;
 
     palette.forEach((item, idx) => {
-      const pos = polarToCanvas(item.h, item.c);
+      const pos = polarToStageCoords(item.h, item.c);
       const pin = document.createElement('div');
-      pin.className = `wheel-pin ${item.isBase ? 'is-base' : ''} ${item.isLocked ? 'is-locked' : ''}`;
+      pin.className = `chroma-pin ${item.isBase ? 'pin-is-base' : ''} ${item.isLocked ? 'pin-is-locked' : ''}`;
       pin.style.left = `${pos.x}px`;
       pin.style.top = `${pos.y}px`;
       pin.style.backgroundColor = item.hex;
+      pin.setAttribute('data-index', idx.toString());
 
       if (item.isBase) {
-        pin.innerHTML = `<span class="base-pin-star">★</span>`;
+        pin.innerHTML = `<span class="pin-inner-dot"></span>`;
       } else if (item.isLocked) {
-        pin.innerHTML = `<span class="lock-pin-icon">🔒</span>`;
+        pin.innerHTML = `<span class="pin-lock-symbol">🔒</span>`;
       }
 
-      let isDragging = false;
-
-      const onMouseDown = (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        isDragging = true;
-
-        const onMouseMove = (moveEvent: MouseEvent) => {
-          if (!isDragging) return;
-          const rect = wheelWrapper.getBoundingClientRect();
-          const scaleX = wheelCanvas.width / rect.width;
-          const scaleY = wheelCanvas.height / rect.height;
-          const clickX = (moveEvent.clientX - rect.left) * scaleX;
-          const clickY = (moveEvent.clientY - rect.top) * scaleY;
-
-          const { h, c } = canvasToPolar(clickX, clickY);
-
-          if (item.isBase) {
-            const deltaH = h - item.h;
-            palette.forEach((p, pIdx) => {
-              if (pIdx === idx) {
-                p.h = h;
-                p.c = c;
-                p.hex = oklchToHex(p.l, p.c, p.h);
-              } else if (!p.isLocked) {
-                p.h = (p.h + deltaH + 360) % 360;
-                p.hex = oklchToHex(p.l, p.c, p.h);
-              }
-            });
-          } else {
-            item.h = h;
-            item.c = c;
-            item.hex = oklchToHex(item.l, item.c, item.h);
-          }
-
-          renderAll();
-        };
-
-        const onMouseUp = () => {
-          isDragging = false;
-          window.removeEventListener('mousemove', onMouseMove);
-          window.removeEventListener('mouseup', onMouseUp);
-        };
-
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
-      };
-
-      pin.addEventListener('mousedown', onMouseDown);
       wheelPinsLayer.appendChild(pin);
     });
   }
 
+  function setupWheelDragListeners() {
+    let isDragging = false;
+    let draggedIndex = 0;
+
+    const handlePointerDown = (clientX: number, clientY: number) => {
+      const rect = wheelInteractiveStage.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      let closestIdx = -1;
+      let minDistance = 28;
+
+      palette.forEach((item, idx) => {
+        const pos = polarToStageCoords(item.h, item.c);
+        const dist = Math.hypot(x - pos.x, y - pos.y);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestIdx = idx;
+        }
+      });
+
+      if (closestIdx !== -1) {
+        draggedIndex = closestIdx;
+      } else {
+        draggedIndex = baseIndex;
+      }
+
+      isDragging = true;
+      activeDragIndex = draggedIndex;
+
+      handlePointerMove(clientX, clientY);
+    };
+
+    const handlePointerMove = (clientX: number, clientY: number) => {
+      if (!isDragging) return;
+
+      const rect = wheelInteractiveStage.getBoundingClientRect();
+      const x = Math.max(0, Math.min(300, clientX - rect.left));
+      const y = Math.max(0, Math.min(300, clientY - rect.top));
+
+      const { h, c } = stageCoordsToPolar(x, y);
+      const targetItem = palette[draggedIndex];
+
+      if (targetItem.isBase) {
+        const deltaH = h - targetItem.h;
+        palette.forEach((p, pIdx) => {
+          if (pIdx === draggedIndex) {
+            p.h = h;
+            p.c = c;
+            p.hex = oklchToHex(p.l, p.c, p.h);
+          } else if (!p.isLocked) {
+            p.h = (p.h + deltaH + 360) % 360;
+            p.hex = oklchToHex(p.l, p.c, p.h);
+          }
+        });
+      } else {
+        targetItem.h = h;
+        targetItem.c = c;
+        targetItem.hex = oklchToHex(targetItem.l, targetItem.c, targetItem.h);
+      }
+
+      renderAll();
+    };
+
+    const handlePointerUp = () => {
+      isDragging = false;
+      activeDragIndex = null;
+    };
+
+    wheelInteractiveStage.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      handlePointerDown(e.clientX, e.clientY);
+
+      const onMouseMove = (moveEvent: MouseEvent) => {
+        handlePointerMove(moveEvent.clientX, moveEvent.clientY);
+      };
+
+      const onMouseUp = () => {
+        handlePointerUp();
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    });
+
+    wheelInteractiveStage.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        handlePointerDown(touch.clientX, touch.clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches.length === 1) {
+        const touch = e.touches[0];
+        handlePointerMove(touch.clientX, touch.clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', handlePointerUp);
+  }
+
   function renderPaletteCards() {
-    paletteCardsRow.innerHTML = '';
-    paletteCountText.textContent = `${palette.length} Swatches`;
+    paletteSwatchesList.innerHTML = '';
+    swatchesCountBadge.textContent = `${palette.length} Cores`;
 
     palette.forEach((item, idx) => {
       const card = document.createElement('div');
-      card.className = `swatch-manage-card ${item.isBase ? 'is-base-card' : ''}`;
-
-      const isLight = item.l > 0.6;
-      const textContrastColor = isLight ? '#000000' : '#FFFFFF';
+      card.className = `swatch-row-card ${item.isBase ? 'swatch-row-base' : ''}`;
 
       const whiteAudit = auditContrastHex('#FFFFFF', item.hex);
       const apcaScore = whiteAudit ? Math.abs(whiteAudit.apca.lc).toFixed(0) : '0';
 
       card.innerHTML = `
-        <div class="swatch-card-toolbar">
-          <button class="card-tool-btn ${item.isLocked ? 'tool-active-lock' : ''}" data-action="lock" title="${item.isLocked ? 'Unlock Swatch' : 'Lock Swatch'}">
+        <div class="swatch-left-group">
+          <div class="swatch-square-thumb" style="background-color: ${item.hex}">
+            <input type="color" value="${item.hex}" class="hidden-native-picker" data-action="pick-color" />
+          </div>
+          <div class="swatch-meta-text">
+            <div class="swatch-hex-title">
+              <span class="swatch-hex-label">${item.hex}</span>
+              <span class="swatch-lc-pill">Lc ${apcaScore}</span>
+            </div>
+            <div class="swatch-tone-wrapper">
+              <span class="tone-label">Tom: ${(item.l * 100).toFixed(0)}%</span>
+              <input type="range" min="0.05" max="0.98" step="0.01" value="${item.l}" class="custom-range mini-tone-range" data-action="slider-tone" />
+            </div>
+          </div>
+        </div>
+
+        <div class="swatch-right-actions">
+          <button class="swatch-action-link ${item.isBase ? 'action-is-base' : ''}" data-action="base">
+            ${item.isBase ? '★ Cor Base' : 'Usar como base'}
+          </button>
+          <button class="swatch-action-link" data-action="copy">
+            Copiar
+          </button>
+          <button class="swatch-icon-btn ${item.isLocked ? 'btn-is-locked' : ''}" data-action="lock" title="${item.isLocked ? 'Desbloquear tom' : 'Bloquear tom'}">
             ${item.isLocked ? '🔒' : '🔓'}
           </button>
-          <button class="card-tool-btn ${item.isBase ? 'tool-active-base' : ''}" data-action="base" title="Set as Base Color">
-            ${item.isBase ? '★ Base' : '☆ Base'}
-          </button>
-          <div class="reorder-group">
-            <button class="card-tool-btn" data-action="move-left" ${idx === 0 ? 'disabled' : ''} title="Move Left">‹</button>
-            <button class="card-tool-btn" data-action="move-right" ${idx === palette.length - 1 ? 'disabled' : ''} title="Move Right">›</button>
+          <div class="reorder-btns-duo">
+            <button class="swatch-icon-btn" data-action="move-left" ${idx === 0 ? 'disabled' : ''} title="Mover para cima/esquerda">▲</button>
+            <button class="swatch-icon-btn" data-action="move-right" ${idx === palette.length - 1 ? 'disabled' : ''} title="Mover para baixo/direita">▼</button>
           </div>
-          <button class="card-tool-btn delete-tool-btn" data-action="delete" ${palette.length <= 2 ? 'disabled' : ''} title="Delete Swatch">
+          <button class="swatch-icon-btn delete-btn" data-action="delete" ${palette.length <= 2 ? 'disabled' : ''} title="Excluir cor">
             ✕
           </button>
         </div>
-
-        <div class="swatch-color-fill" style="background-color: ${item.hex}">
-          <input type="color" value="${item.hex}" class="swatch-native-input" data-action="pick-color" />
-          <div class="swatch-fill-info" style="color: ${textContrastColor}">
-            <span class="swatch-fill-lc">Lc ${apcaScore}</span>
-            <button class="copy-hex-chip" data-action="copy" title="Copy Hex">
-              ${item.hex}
-            </button>
-          </div>
-        </div>
-
-        <div class="swatch-controls-block">
-          <div class="card-slider-row">
-            <span class="card-slider-name">Tone (L)</span>
-            <span class="card-slider-val">${(item.l * 100).toFixed(0)}%</span>
-          </div>
-          <input type="range" min="0.05" max="0.98" step="0.01" value="${item.l}" class="custom-range card-tone-slider" data-action="slider-tone" />
-
-          <div class="hex-edit-box">
-            <span class="hex-hash">#</span>
-            <input type="text" value="${item.hex.replace(/^#/, '')}" class="card-hex-input" spellcheck="false" data-action="hex-input" />
-          </div>
-
-          <div class="swatch-meta-readouts">
-            <span>C: ${item.c.toFixed(2)}</span>
-            <span>H: ${Math.round(item.h)}°</span>
-          </div>
-        </div>
       `;
-
-      card.querySelector('[data-action="lock"]')?.addEventListener('click', () => {
-        item.isLocked = !item.isLocked;
-        renderAll();
-      });
 
       card.querySelector('[data-action="base"]')?.addEventListener('click', () => {
         palette.forEach((p) => (p.isBase = false));
         item.isBase = true;
         baseIndex = idx;
         renderAll();
+      });
+
+      card.querySelector('[data-action="lock"]')?.addEventListener('click', () => {
+        item.isLocked = !item.isLocked;
+        renderAll();
+      });
+
+      card.querySelector('[data-action="copy"]')?.addEventListener('click', () => {
+        navigator.clipboard.writeText(item.hex);
+        const btn = card.querySelector('[data-action="copy"]') as HTMLElement;
+        const prev = btn.textContent;
+        btn.textContent = 'Copiado!';
+        setTimeout(() => {
+          btn.textContent = prev;
+        }, 1500);
       });
 
       card.querySelector('[data-action="move-left"]')?.addEventListener('click', () => {
@@ -605,28 +638,18 @@
         }
       });
 
-      card.querySelector('[data-action="copy"]')?.addEventListener('click', () => {
-        navigator.clipboard.writeText(item.hex);
-        const chip = card.querySelector('[data-action="copy"]') as HTMLElement;
-        const prev = chip.textContent;
-        chip.textContent = 'Copied!';
-        setTimeout(() => {
-          chip.textContent = prev;
-        }, 1500);
-      });
-
-      const toneSlider = card.querySelector('[data-action="slider-tone"]') as HTMLInputElement;
-      toneSlider?.addEventListener('input', () => {
-        item.l = parseFloat(toneSlider.value);
+      const toneRange = card.querySelector('[data-action="slider-tone"]') as HTMLInputElement;
+      toneRange?.addEventListener('input', () => {
+        item.l = parseFloat(toneRange.value);
         item.hex = oklchToHex(item.l, item.c, item.h);
         renderAll();
       });
 
-      const nativePick = card.querySelector('[data-action="pick-color"]') as HTMLInputElement;
-      nativePick?.addEventListener('input', () => {
-        const ok = hexToOklch(nativePick.value);
+      const nativePicker = card.querySelector('[data-action="pick-color"]') as HTMLInputElement;
+      nativePicker?.addEventListener('input', () => {
+        const ok = hexToOklch(nativePicker.value);
         if (ok) {
-          item.hex = nativePick.value.toUpperCase();
+          item.hex = nativePicker.value.toUpperCase();
           item.l = ok.l;
           item.c = ok.c;
           item.h = ok.h;
@@ -634,38 +657,27 @@
         }
       });
 
-      const hexInput = card.querySelector('[data-action="hex-input"]') as HTMLInputElement;
-      hexInput?.addEventListener('input', () => {
-        const val = hexInput.value.trim();
-        if (/^[0-9A-Fa-f]{6}$/.test(val)) {
-          const fullHex = `#${val}`.toUpperCase();
-          const ok = hexToOklch(fullHex);
-          if (ok) {
-            item.hex = fullHex;
-            item.l = ok.l;
-            item.c = ok.c;
-            item.h = ok.h;
-            renderAll();
-          }
-        }
-      });
-
-      paletteCardsRow.appendChild(card);
+      paletteSwatchesList.appendChild(card);
     });
   }
 
-  function updateSidebarSliders() {
+  function updateBaseControls() {
     const base = palette[baseIndex] || palette[0];
-    sliderL.value = base.l.toFixed(2);
-    sliderC.value = base.c.toFixed(3);
-    sliderH.value = Math.round(base.h).toString();
+    baseColorSquare.style.backgroundColor = base.hex;
+    baseNativePicker.value = base.hex;
+    baseHexInput.value = base.hex.replace(/^#/, '');
 
-    valL.textContent = base.l.toFixed(2);
-    valC.textContent = base.c.toFixed(3);
-    valH.textContent = `${Math.round(base.h)}°`;
-    baseColorBadge.textContent = base.hex;
-    baseColorBadge.style.backgroundColor = base.hex;
-    baseColorBadge.style.color = base.l > 0.6 ? '#000000' : '#FFFFFF';
+    const harmonyNameMap: Record<string, string> = {
+      analogous: 'Análogo',
+      monochromatic: 'Monocromático',
+      triadic: 'Tríade',
+      complementary: 'Complementar',
+      'split-complementary': 'Split-Comp',
+      tetradic: 'Tetradic',
+      square: 'Quadrado',
+      custom: 'Livre (Custom)',
+    };
+    currentHarmonyLabel.textContent = harmonyNameMap[currentHarmony] || currentHarmony;
   }
 
   function updateBottomPanels() {
@@ -699,10 +711,10 @@
     const blackScore = blackAudit ? Math.abs(blackAudit.apca.lc) : 0;
 
     if (whiteScore >= blackScore) {
-      inkNameText.textContent = `White Ink (#FFFFFF) — Lc ${whiteScore.toFixed(1)}`;
+      inkNameText.textContent = `Tinta Branca (#FFFFFF) — Lc ${whiteScore.toFixed(1)}`;
       inkDot.style.backgroundColor = '#FFFFFF';
     } else {
-      inkNameText.textContent = `Dark Ink (#0A0D14) — Lc ${blackScore.toFixed(1)}`;
+      inkNameText.textContent = `Tinta Escura (#0A0D14) — Lc ${blackScore.toFixed(1)}`;
       inkDot.style.backgroundColor = '#0A0D14';
     }
 
@@ -738,71 +750,71 @@
   }
 
   function renderAll() {
-    drawWheelBackground();
+    drawWheelCanvas();
     renderWheelPins();
     renderPaletteCards();
-    updateSidebarSliders();
+    updateBaseControls();
     updateBottomPanels();
   }
 
-  sliderL.addEventListener('input', () => {
-    const base = palette[baseIndex] || palette[0];
-    base.l = parseFloat(sliderL.value);
-    base.hex = oklchToHex(base.l, base.c, base.h);
-    renderAll();
-  });
-
-  sliderC.addEventListener('input', () => {
-    const base = palette[baseIndex] || palette[0];
-    base.c = parseFloat(sliderC.value);
-    base.hex = oklchToHex(base.l, base.c, base.h);
-    renderAll();
-  });
-
-  sliderH.addEventListener('input', () => {
-    const base = palette[baseIndex] || palette[0];
-    const newH = parseFloat(sliderH.value);
-    const deltaH = newH - base.h;
-    base.h = newH;
-    base.hex = oklchToHex(base.l, base.c, base.h);
-
-    palette.forEach((p, idx) => {
-      if (idx !== baseIndex && !p.isLocked) {
-        p.h = (p.h + deltaH + 360) % 360;
-        p.hex = oklchToHex(p.l, p.c, p.h);
+  baseHexInput.addEventListener('input', () => {
+    const val = baseHexInput.value.trim();
+    if (/^[0-9A-Fa-f]{6}$/.test(val)) {
+      const fullHex = `#${val}`.toUpperCase();
+      const ok = hexToOklch(fullHex);
+      if (ok) {
+        const base = palette[baseIndex] || palette[0];
+        base.hex = fullHex;
+        base.l = ok.l;
+        base.c = ok.c;
+        base.h = ok.h;
+        if (currentHarmony !== 'custom') {
+          applyHarmonyRule();
+        }
+        renderAll();
       }
-    });
-
-    renderAll();
+    }
   });
 
-  harmonyButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      harmonyButtons.forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentHarmony = btn.getAttribute('data-mode') || 'analogous';
+  baseNativePicker.addEventListener('input', () => {
+    const ok = hexToOklch(baseNativePicker.value);
+    if (ok) {
+      const base = palette[baseIndex] || palette[0];
+      base.hex = baseNativePicker.value.toUpperCase();
+      base.l = ok.l;
+      base.c = ok.c;
+      base.h = ok.h;
       if (currentHarmony !== 'custom') {
         applyHarmonyRule();
       }
       renderAll();
-    });
+    }
   });
 
-  addSwatchBtn.addEventListener('click', () => {
-    if (palette.length < 10) {
-      const base = palette[baseIndex] || palette[0];
-      const newH = (base.h + palette.length * 36 + 360) % 360;
-      const hex = oklchToHex(base.l, base.c, newH);
-      palette.push({
-        id: Math.random().toString(36).substring(2, 9),
-        hex,
-        l: base.l,
-        c: base.c,
-        h: newH,
-        isBase: false,
-        isLocked: false,
-      });
-      renderAll();
+  eyedropperBtn.addEventListener('click', async () => {
+    if ('EyeDropper' in window) {
+      try {
+        const eyeDropper = new (window as any).EyeDropper();
+        const result = await eyeDropper.open();
+        if (result?.sRGBHex) {
+          const ok = hexToOklch(result.sRGBHex);
+          if (ok) {
+            const base = palette[baseIndex] || palette[0];
+            base.hex = result.sRGBHex.toUpperCase();
+            base.l = ok.l;
+            base.c = ok.c;
+            base.h = ok.h;
+            if (currentHarmony !== 'custom') {
+              applyHarmonyRule();
+            }
+            renderAll();
+          }
+        }
+      } catch {
+        // User cancelled eyedropper
+      }
+    } else {
+      baseNativePicker.click();
     }
   });
 
@@ -829,6 +841,36 @@
     renderAll();
   });
 
+  addSwatchBtn.addEventListener('click', () => {
+    if (palette.length < 10) {
+      const base = palette[baseIndex] || palette[0];
+      const newH = (base.h + palette.length * 40 + 360) % 360;
+      const hex = oklchToHex(base.l, base.c, newH);
+      palette.push({
+        id: Math.random().toString(36).substring(2, 9),
+        hex,
+        l: base.l,
+        c: base.c,
+        h: newH,
+        isBase: false,
+        isLocked: false,
+      });
+      renderAll();
+    }
+  });
+
+  harmonyButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      harmonyButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentHarmony = btn.getAttribute('data-mode') || 'analogous';
+      if (currentHarmony !== 'custom') {
+        applyHarmonyRule();
+      }
+      renderAll();
+    });
+  });
+
   tokenTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       tokenTabs.forEach((t) => t.classList.remove('active'));
@@ -841,7 +883,7 @@
   copyTokensBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(tokensCodeOutput.textContent || '');
     const prev = copyTokensBtn.innerHTML;
-    copyTokensBtn.innerHTML = `<span>Copied!</span>`;
+    copyTokensBtn.innerHTML = `<span>Copiado!</span>`;
     setTimeout(() => {
       copyTokensBtn.innerHTML = prev;
     }, 2000);
@@ -904,7 +946,9 @@
           base.l = ok.l;
           base.c = ok.c;
           base.h = ok.h;
-          applyHarmonyRule();
+          if (currentHarmony !== 'custom') {
+            applyHarmonyRule();
+          }
           renderAll();
         }
       };
@@ -913,395 +957,176 @@
     reader.readAsDataURL(file);
   });
 
+  setupWheelDragListeners();
   initDefaultPalette();
 </script>
 
-<style>
+<style is:global>
   .studio-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 32px;
     margin: 32px 0 64px 0;
   }
 
-  .wheel-harmony-panel {
+  .studio-main-grid {
+    display: grid;
+    grid-template-columns: 440px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .wheel-card-box, .palette-card-box {
     padding: 28px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 22px;
   }
 
-  .panel-header-row {
+  .card-top-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #FFFFFF;
-  }
-
-  .section-subtitle {
+  .card-tag-title {
     font-size: 13px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-  }
-
-  .top-action-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .wheel-section-grid {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 32px;
-    align-items: center;
-  }
-
-  .harmony-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .field-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-weight: 800;
+    letter-spacing: 0.08em;
     color: var(--text-muted);
+    text-transform: uppercase;
   }
 
-  .harmony-selector-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .harmony-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
+  .harmony-rule-pill {
     font-size: 12px;
-    font-weight: 600;
-    transition: all 0.15s ease;
-    text-align: left;
-  }
-
-  .harmony-icon {
-    font-size: 14px;
-    color: var(--brand-primary);
-  }
-
-  .harmony-btn:hover {
-    background: rgba(255, 255, 255, 0.07);
-    color: #FFFFFF;
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-
-  .harmony-btn.active {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: var(--brand-primary);
-    color: #FFFFFF;
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
-  }
-
-  .base-sliders-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .base-badge-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .slider-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .slider-label-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-  }
-
-  .slider-name {
-    color: var(--text-secondary);
-  }
-
-  .slider-value {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: #FFFFFF;
-  }
-
-  .image-dropzone {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .image-dropzone:hover {
-    border-color: var(--brand-primary);
-    color: #FFFFFF;
-    background: rgba(59, 130, 246, 0.05);
-  }
-
-  .file-hidden-input {
-    display: none;
-  }
-
-  .wheel-stage-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 16px;
-  }
-
-  .wheel-wrapper {
-    position: relative;
-    width: 360px;
-    height: 360px;
-    border-radius: 50%;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    user-select: none;
-  }
-
-  .wheel-canvas {
-    width: 360px;
-    height: 360px;
-    border-radius: 50%;
-    display: block;
-  }
-
-  .wheel-lines-svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 360px;
-    height: 360px;
-    pointer-events: none;
-  }
-
-  .wheel-pins-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 360px;
-    height: 360px;
-    pointer-events: none;
-  }
-
-  .wheel-pin {
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    border: 2.5px solid #FFFFFF;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    cursor: grab;
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.1s ease;
-  }
-
-  .wheel-pin:hover {
-    transform: translate(-50%, -50%) scale(1.2);
-  }
-
-  .wheel-pin.is-base {
-    width: 30px;
-    height: 30px;
-    border-width: 3px;
-    border-color: #FBBF24;
-    box-shadow: 0 0 16px rgba(251, 191, 36, 0.8), 0 4px 12px rgba(0, 0, 0, 0.5);
-    z-index: 10;
-  }
-
-  .base-pin-star {
-    font-size: 14px;
-    color: #FBBF24;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  }
-
-  .wheel-pin.is-locked {
-    border-color: #F59E0B;
-  }
-
-  .lock-pin-icon {
-    font-size: 11px;
-  }
-
-  .wheel-legend {
-    display: flex;
-    gap: 20px;
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  .base-dot {
-    background: #FBBF24;
-    box-shadow: 0 0 6px #FBBF24;
-  }
-
-  .harmonic-dot {
-    background: #FFFFFF;
-    border: 1px solid var(--text-muted);
-  }
-
-  .locked-dot {
-    background: #F59E0B;
-  }
-
-  .palette-cards-panel {
-    padding: 24px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .palette-counter {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--brand-primary);
+    font-weight: 700;
+    color: #60A5FA;
     background: rgba(59, 130, 246, 0.15);
     padding: 4px 12px;
     border-radius: var(--radius-full);
     border: 1px solid rgba(59, 130, 246, 0.3);
   }
 
-  .palette-cards-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-  }
-
-  .swatch-manage-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    overflow: hidden;
+  .wheel-outer-container {
     display: flex;
-    flex-direction: column;
-    transition: all 0.2s ease;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
   }
 
-  .swatch-manage-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  .wheel-interactive-stage {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    cursor: crosshair;
+    user-select: none;
+    touch-action: none;
   }
 
-  .swatch-manage-card.is-base-card {
-    border-color: rgba(251, 191, 36, 0.5);
-    box-shadow: 0 0 16px rgba(251, 191, 36, 0.15);
+  .chromatic-canvas {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    display: block;
+    pointer-events: none;
   }
 
-  .swatch-card-toolbar {
+  .chromatic-svg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 300px;
+    pointer-events: none;
+  }
+
+  .chromatic-pins-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 300px;
+    pointer-events: none;
+  }
+
+  /* PINS STYLING */
+  .chroma-pin {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 2.5px solid #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    transition: transform 0.1s ease;
+    box-sizing: border-box;
+  }
+
+  .chroma-pin:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    z-index: 20;
+  }
+
+  .chroma-pin.pin-is-base {
+    width: 28px;
+    height: 28px;
+    border-width: 3px;
+    border-color: #FFFFFF;
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.9), 0 4px 12px rgba(0, 0, 0, 0.6);
+    z-index: 15;
+  }
+
+  .pin-inner-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  }
+
+  .chroma-pin.pin-is-locked {
+    border-color: #F59E0B;
+  }
+
+  .pin-lock-symbol {
+    font-size: 10px;
+  }
+
+  .base-control-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 10px;
-    background: rgba(0, 0, 0, 0.25);
-    border-bottom: 1px solid var(--border-subtle);
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
   }
 
-  .card-tool-btn {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    padding: 3px 6px;
+  .base-swatch-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .base-color-square {
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
-    transition: all 0.15s ease;
-  }
-
-  .card-tool-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.12);
-    color: #FFFFFF;
-  }
-
-  .card-tool-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .tool-active-lock {
-    background: rgba(245, 158, 11, 0.2);
-    color: #FBBF24;
-  }
-
-  .tool-active-base {
-    background: rgba(251, 191, 36, 0.25);
-    color: #FBBF24;
-    font-weight: 700;
-  }
-
-  .reorder-group {
-    display: flex;
-    gap: 2px;
-  }
-
-  .delete-tool-btn:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.25);
-    color: #EF4444;
-  }
-
-  .swatch-color-fill {
-    height: 120px;
     position: relative;
-    display: flex;
-    align-items: flex-end;
-    padding: 12px;
-    box-shadow: inset 0 -12px 24px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
   }
 
-  .swatch-native-input {
+  .hidden-native-picker {
     position: absolute;
     top: 0;
     left: 0;
@@ -1311,103 +1136,315 @@
     cursor: pointer;
   }
 
-  .swatch-fill-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    z-index: 2;
-  }
-
-  .swatch-fill-lc {
-    font-size: 11px;
-    font-weight: 700;
-    background: rgba(0, 0, 0, 0.5);
-    color: #FFFFFF;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    backdrop-filter: blur(4px);
-  }
-
-  .copy-hex-chip {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 700;
-    background: rgba(0, 0, 0, 0.6);
-    color: #FFFFFF;
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    backdrop-filter: blur(4px);
-    transition: transform 0.1s ease;
-  }
-
-  .copy-hex-chip:hover {
-    transform: scale(1.05);
-    background: rgba(0, 0, 0, 0.8);
-  }
-
-  .swatch-controls-block {
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.15);
-  }
-
-  .card-slider-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-  }
-
-  .card-slider-name {
-    color: var(--text-secondary);
-  }
-
-  .card-slider-val {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: #FFFFFF;
-  }
-
-  .card-tone-slider {
-    height: 4px;
-  }
-
-  .hex-edit-box {
+  .base-hex-display {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-    padding: 4px 8px;
   }
 
-  .hex-hash {
+  .base-hex-hash {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--text-muted);
-    font-weight: 600;
   }
 
-  .card-hex-input {
-    width: 100%;
+  .base-hex-field {
+    width: 80px;
     border: none;
     background: transparent;
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: #FFFFFF;
     outline: none;
-    padding-left: 4px;
+    text-transform: uppercase;
   }
 
-  .swatch-meta-readouts {
+  .base-buttons-row {
     display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-action-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+
+  .btn-action-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .sub-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .harmony-tags-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .harmony-tag-btn {
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+
+  .harmony-tag-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+  }
+
+  .harmony-tag-btn.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--brand-primary);
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+  }
+
+  .image-dropzone-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 12px;
+    transition: all 0.15s ease;
+  }
+
+  .image-dropzone-pill:hover {
+    border-color: var(--brand-primary);
+    color: #FFFFFF;
+    background: rgba(59, 130, 246, 0.05);
+  }
+
+  .palette-top-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .swatches-count-pill {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--brand-primary);
+    background: rgba(59, 130, 246, 0.15);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .palette-swatches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* PALETTE SWATCH ROW CARD */
+  .swatch-row-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 16px;
+    transition: all 0.2s ease;
+  }
+
+  .swatch-row-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .swatch-row-card.swatch-row-base {
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(59, 130, 246, 0.06);
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.12);
+  }
+
+  .swatch-left-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .swatch-square-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .swatch-meta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    max-width: 240px;
+  }
+
+  .swatch-hex-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .swatch-hex-label {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .swatch-lc-pill {
     font-size: 10px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.5);
+    color: #94A3B8;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+  }
+
+  .swatch-tone-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tone-label {
+    font-size: 11px;
     color: var(--text-muted);
     font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .mini-tone-range {
+    height: 4px;
+    flex: 1;
+  }
+
+  .swatch-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .swatch-action-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .swatch-action-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+  }
+
+  .swatch-action-link.action-is-base {
+    background: rgba(59, 130, 246, 0.25);
+    border-color: var(--brand-primary);
+    color: #60A5FA;
+    font-weight: 700;
+  }
+
+  .swatch-icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+    transition: all 0.15s ease;
+  }
+
+  .swatch-icon-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+  }
+
+  .swatch-icon-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .swatch-icon-btn.btn-is-locked {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #F59E0B;
+    color: #FBBF24;
+  }
+
+  .reorder-btns-duo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .reorder-btns-duo .swatch-icon-btn {
+    width: 20px;
+    height: 14px;
+    font-size: 8px;
+  }
+
+  .swatch-icon-btn.delete-btn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.25);
+    color: #EF4444;
+  }
+
+  .palette-footer-row {
+    margin-top: 8px;
+  }
+
+  .export-anchor-btn {
+    width: 100%;
+    text-align: center;
   }
 
   .studio-bottom-grid {
@@ -1644,8 +1681,8 @@
     width: 100%;
   }
 
-  @media (max-width: 1200px) {
-    .wheel-section-grid {
+  @media (max-width: 1100px) {
+    .studio-main-grid {
       grid-template-columns: 1fr;
     }
     .studio-bottom-grid {
