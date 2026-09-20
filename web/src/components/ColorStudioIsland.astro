@@ -11,12 +11,13 @@
         <div class="harmony-rule-pill" id="current-harmony-label">Análogo</div>
       </div>
 
-      <!-- Color Wheel Canvas & Interactive Pins -->
+      <!-- Color Wheel Canvas, Center Hub & Interactive Pins -->
       <div class="wheel-outer-container">
         <div class="wheel-interactive-stage" id="wheel-interactive-stage">
           <canvas id="wheel-canvas" width="600" height="600" class="chromatic-canvas"></canvas>
           <svg id="wheel-svg-lines" class="chromatic-svg-overlay" width="300" height="300"></svg>
           <div id="wheel-pins-layer" class="chromatic-pins-layer"></div>
+          <div class="wheel-center-hub"></div>
         </div>
       </div>
 
@@ -89,6 +90,7 @@
       <div class="card-top-title">
         <span class="card-tag-title">A PALETA</span>
         <div class="palette-top-tools">
+          <span class="drag-hint-pill">Arraste os cards para reordenar</span>
           <button class="btn-action-pill" id="add-swatch-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -100,7 +102,7 @@
         </div>
       </div>
 
-      <!-- Vertical List of Swatches Cards -->
+      <!-- Vertical List of Swatches Cards with Drag and Drop -->
       <div class="palette-swatches-list" id="palette-swatches-list"></div>
 
       <!-- Footer Action -->
@@ -258,7 +260,7 @@
   let currentHarmony = 'analogous';
   let currentFormat = 'css';
   let baseIndex = 0;
-  let activeDragIndex: number | null = null;
+  let draggedCardIndex: number | null = null;
 
   const wheelCanvas = document.getElementById('wheel-canvas') as HTMLCanvasElement;
   const wheelSvgLines = document.getElementById('wheel-svg-lines') as unknown as SVGSVGElement;
@@ -303,17 +305,16 @@
 
   function initDefaultPalette() {
     const baseHex = '#3B82F6';
-    const swatches = generateHarmony(baseHex, currentHarmony as any, 5);
-    palette = swatches.map((s, idx) => ({
-      id: Math.random().toString(36).substring(2, 9),
-      hex: s.hex,
-      l: s.l,
-      c: s.c,
-      h: s.h,
-      isBase: idx === 0,
-      isLocked: false,
-    }));
-    baseIndex = 0;
+    const baseOk = hexToOklch(baseHex)!;
+
+    palette = [
+      { id: 'p0', hex: '#009FCA', l: 0.62, c: 0.18, h: (baseOk.h - 30 + 360) % 360, isBase: false, isLocked: false },
+      { id: 'p1', hex: '#238FF0', l: 0.62, c: 0.19, h: (baseOk.h - 15 + 360) % 360, isBase: false, isLocked: false },
+      { id: 'p2', hex: '#3B82F6', l: 0.62, c: 0.19, h: baseOk.h, isBase: true, isLocked: false },
+      { id: 'p3', hex: '#6374F5', l: 0.62, c: 0.19, h: (baseOk.h + 15 + 360) % 360, isBase: false, isLocked: false },
+      { id: 'p4', hex: '#8762EE', l: 0.62, c: 0.18, h: (baseOk.h + 30 + 360) % 360, isBase: false, isLocked: false },
+    ];
+    baseIndex = 2;
     renderAll();
   }
 
@@ -370,7 +371,7 @@
     const cx = stageWidth / 2;
     const cy = stageHeight / 2;
     const maxRadius = stageWidth / 2 - 14;
-    const r = Math.min(1.0, Math.max(0.05, c / 0.30)) * maxRadius;
+    const r = Math.min(1.0, Math.max(0.05, c / 0.28)) * maxRadius;
     const rad = (h * Math.PI) / 180;
     return {
       x: cx + r * Math.cos(rad),
@@ -390,7 +391,7 @@
     let h = (rad * 180) / Math.PI;
     if (h < 0) h += 360;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    const c = Math.min(0.37, Math.max(0.01, (dist / maxRadius) * 0.30));
+    const c = Math.min(0.37, Math.max(0.01, (dist / maxRadius) * 0.28));
     return { h, c };
   }
 
@@ -398,16 +399,38 @@
     wheelPinsLayer.innerHTML = '';
     wheelSvgLines.innerHTML = '';
 
-    const baseItem = palette[baseIndex] || palette[0];
-    const basePos = polarToStageCoords(baseItem.h, baseItem.c);
+    const stageWidth = 300;
+    const stageHeight = 300;
+    const cx = stageWidth / 2;
+    const cy = stageHeight / 2;
 
     let linesHtml = '';
-    palette.forEach((item, idx) => {
+
+    palette.forEach((item) => {
       const pos = polarToStageCoords(item.h, item.c);
-      if (idx !== baseIndex) {
-        linesHtml += `<line x1="${basePos.x}" y1="${basePos.y}" x2="${pos.x}" y2="${pos.y}" stroke="${item.isLocked ? '#F59E0B' : 'rgba(255, 255, 255, 0.45)'}" stroke-width="2" stroke-dasharray="${item.isLocked ? '4 3' : 'none'}" />`;
-      }
+      const strokeColor = item.isLocked ? '#F59E0B' : item.isBase ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.45)';
+      const strokeWidth = item.isBase ? '2.5' : '1.5';
+      const dashArray = item.isLocked ? '4 3' : 'none';
+
+      linesHtml += `<line x1="${cx}" y1="${cy}" x2="${pos.x}" y2="${pos.y}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-dasharray="${dashArray}" />`;
     });
+
+    if (currentHarmony === 'analogous') {
+      const sorted = [...palette].sort((a, b) => a.h - b.h);
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const p1 = polarToStageCoords(sorted[i].h, sorted[i].c);
+        const p2 = polarToStageCoords(sorted[i + 1].h, sorted[i + 1].c);
+        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.5" stroke-dasharray="2 2" />`;
+      }
+    } else if (currentHarmony === 'triadic' || currentHarmony === 'tetradic' || currentHarmony === 'square') {
+      const sorted = [...palette].sort((a, b) => a.h - b.h);
+      for (let i = 0; i < sorted.length; i++) {
+        const p1 = polarToStageCoords(sorted[i].h, sorted[i].c);
+        const p2 = polarToStageCoords(sorted[(i + 1) % sorted.length].h, sorted[(i + 1) % sorted.length].c);
+        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.5" />`;
+      }
+    }
+
     wheelSvgLines.innerHTML = linesHtml;
 
     palette.forEach((item, idx) => {
@@ -427,6 +450,84 @@
 
       wheelPinsLayer.appendChild(pin);
     });
+  }
+
+  function applyHarmonyConstellation(newBaseH: number, newBaseC: number) {
+    const base = palette[baseIndex] || palette[0];
+    base.h = newBaseH;
+    base.c = newBaseC;
+    base.hex = oklchToHex(base.l, base.c, base.h);
+
+    const N = palette.length;
+
+    if (currentHarmony === 'analogous') {
+      const step = 15;
+      palette.forEach((p, idx) => {
+        if (!p.isLocked && idx !== baseIndex) {
+          const offset = (idx - baseIndex) * step;
+          p.h = (base.h + offset + 360) % 360;
+          p.c = base.c;
+          p.hex = oklchToHex(p.l, p.c, p.h);
+        }
+      });
+    } else if (currentHarmony === 'monochromatic') {
+      palette.forEach((p, idx) => {
+        if (!p.isLocked && idx !== baseIndex) {
+          p.h = base.h;
+          const radialScale = 0.3 + (idx / Math.max(1, N - 1)) * 0.7;
+          p.c = Math.min(0.37, Math.max(0.02, base.c * radialScale));
+          p.hex = oklchToHex(p.l, p.c, p.h);
+        }
+      });
+    } else if (currentHarmony === 'triadic') {
+      palette.forEach((p, idx) => {
+        if (!p.isLocked && idx !== baseIndex) {
+          const slot = idx % 3;
+          p.h = (base.h + slot * 120 + 360) % 360;
+          p.c = base.c;
+          p.hex = oklchToHex(p.l, p.c, p.h);
+        }
+      });
+    } else if (currentHarmony === 'complementary') {
+      palette.forEach((p, idx) => {
+        if (!p.isLocked && idx !== baseIndex) {
+          const isOpposite = idx % 2 === 1;
+          p.h = isOpposite ? (base.h + 180 + 360) % 360 : base.h;
+          p.c = base.c;
+          p.hex = oklchToHex(p.l, p.c, p.h);
+        }
+      });
+    } else if (currentHarmony === 'split-complementary') {
+      const offsets = [0, 150, 210, 150, 210];
+      palette.forEach((p, idx) => {
+        if (!p.isLocked && idx !== baseIndex) {
+          const off = offsets[idx % offsets.length];
+          p.h = (base.h + off + 360) % 360;
+          p.c = base.c;
+          p.hex = oklchToHex(p.l, p.c, p.h);
+        }
+      });
+    } else if (currentHarmony === 'tetradic') {
+      const offsets = [0, 60, 180, 240, 60];
+      palette.forEach((p, idx) => {
+        if (!p.isLocked && idx !== baseIndex) {
+          const off = offsets[idx % offsets.length];
+          p.h = (base.h + off + 360) % 360;
+          p.c = base.c;
+          p.hex = oklchToHex(p.l, p.c, p.h);
+        }
+      });
+    } else if (currentHarmony === 'square') {
+      const offsets = [0, 90, 180, 270, 90];
+      palette.forEach((p, idx) => {
+        if (!p.isLocked && idx !== baseIndex) {
+          const off = offsets[idx % offsets.length];
+          p.h = (base.h + off + 360) % 360;
+          p.c = base.c;
+          p.hex = oklchToHex(p.l, p.c, p.h);
+        }
+      });
+    }
   }
 
   function setupWheelDragListeners() {
@@ -457,8 +558,6 @@
       }
 
       isDragging = true;
-      activeDragIndex = draggedIndex;
-
       handlePointerMove(clientX, clientY);
     };
 
@@ -470,24 +569,16 @@
       const y = Math.max(0, Math.min(300, clientY - rect.top));
 
       const { h, c } = stageCoordsToPolar(x, y);
-      const targetItem = palette[draggedIndex];
 
-      if (targetItem.isBase) {
-        const deltaH = h - targetItem.h;
-        palette.forEach((p, pIdx) => {
-          if (pIdx === draggedIndex) {
-            p.h = h;
-            p.c = c;
-            p.hex = oklchToHex(p.l, p.c, p.h);
-          } else if (!p.isLocked) {
-            p.h = (p.h + deltaH + 360) % 360;
-            p.hex = oklchToHex(p.l, p.c, p.h);
-          }
-        });
+      if (currentHarmony === 'custom') {
+        const target = palette[draggedIndex];
+        if (!target.isLocked) {
+          target.h = h;
+          target.c = c;
+          target.hex = oklchToHex(target.l, target.c, target.h);
+        }
       } else {
-        targetItem.h = h;
-        targetItem.c = c;
-        targetItem.hex = oklchToHex(targetItem.l, targetItem.c, targetItem.h);
+        applyHarmonyConstellation(h, c);
       }
 
       renderAll();
@@ -495,7 +586,6 @@
 
     const handlePointerUp = () => {
       isDragging = false;
-      activeDragIndex = null;
     };
 
     wheelInteractiveStage.addEventListener('mousedown', (e) => {
@@ -541,11 +631,24 @@
     palette.forEach((item, idx) => {
       const card = document.createElement('div');
       card.className = `swatch-row-card ${item.isBase ? 'swatch-row-base' : ''}`;
+      card.setAttribute('draggable', 'true');
+      card.setAttribute('data-index', idx.toString());
 
       const whiteAudit = auditContrastHex('#FFFFFF', item.hex);
       const apcaScore = whiteAudit ? Math.abs(whiteAudit.apca.lc).toFixed(0) : '0';
 
       card.innerHTML = `
+        <div class="drag-handle-grip" title="Arrastar para reordenar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="8" cy="6" r="2"></circle>
+            <circle cx="16" cy="6" r="2"></circle>
+            <circle cx="8" cy="12" r="2"></circle>
+            <circle cx="16" cy="12" r="2"></circle>
+            <circle cx="8" cy="18" r="2"></circle>
+            <circle cx="16" cy="18" r="2"></circle>
+          </svg>
+        </div>
+
         <div class="swatch-left-group">
           <div class="swatch-square-thumb" style="background-color: ${item.hex}">
             <input type="color" value="${item.hex}" class="hidden-native-picker" data-action="pick-color" />
@@ -555,14 +658,14 @@
               <span class="swatch-hex-label">${item.hex}</span>
               <span class="swatch-lc-pill">Lc ${apcaScore}</span>
             </div>
-            <div class="swatch-tone-wrapper">
+            <div class="swatch-tone-wrapper" data-stop-drag="true">
               <span class="tone-label">Tom: ${(item.l * 100).toFixed(0)}%</span>
               <input type="range" min="0.05" max="0.98" step="0.01" value="${item.l}" class="custom-range mini-tone-range" data-action="slider-tone" />
             </div>
           </div>
         </div>
 
-        <div class="swatch-right-actions">
+        <div class="swatch-right-actions" data-stop-drag="true">
           <button class="swatch-action-link ${item.isBase ? 'action-is-base' : ''}" data-action="base">
             ${item.isBase ? '★ Cor Base' : 'Usar como base'}
           </button>
@@ -572,15 +675,54 @@
           <button class="swatch-icon-btn ${item.isLocked ? 'btn-is-locked' : ''}" data-action="lock" title="${item.isLocked ? 'Desbloquear tom' : 'Bloquear tom'}">
             ${item.isLocked ? '🔒' : '🔓'}
           </button>
-          <div class="reorder-btns-duo">
-            <button class="swatch-icon-btn" data-action="move-left" ${idx === 0 ? 'disabled' : ''} title="Mover para cima/esquerda">▲</button>
-            <button class="swatch-icon-btn" data-action="move-right" ${idx === palette.length - 1 ? 'disabled' : ''} title="Mover para baixo/direita">▼</button>
-          </div>
           <button class="swatch-icon-btn delete-btn" data-action="delete" ${palette.length <= 2 ? 'disabled' : ''} title="Excluir cor">
             ✕
           </button>
         </div>
       `;
+
+      card.addEventListener('dragstart', (e) => {
+        draggedCardIndex = idx;
+        card.classList.add('is-dragging-card');
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', idx.toString());
+        }
+      });
+
+      card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = 'move';
+        }
+        card.classList.add('drag-over-target');
+      });
+
+      card.addEventListener('dragleave', () => {
+        card.classList.remove('drag-over-target');
+      });
+
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        card.classList.remove('drag-over-target');
+        if (draggedCardIndex !== null && draggedCardIndex !== idx) {
+          const movedItem = palette.splice(draggedCardIndex, 1)[0];
+          palette.splice(idx, 0, movedItem);
+          baseIndex = palette.findIndex((p) => p.isBase);
+          renderAll();
+        }
+        draggedCardIndex = null;
+      });
+
+      card.addEventListener('dragend', () => {
+        card.classList.remove('is-dragging-card');
+        draggedCardIndex = null;
+      });
+
+      card.querySelectorAll('[data-stop-drag="true"]').forEach((el) => {
+        el.addEventListener('mousedown', (e) => e.stopPropagation());
+        el.addEventListener('touchstart', (e) => e.stopPropagation());
+      });
 
       card.querySelector('[data-action="base"]')?.addEventListener('click', () => {
         palette.forEach((p) => (p.isBase = false));
@@ -604,26 +746,6 @@
         }, 1500);
       });
 
-      card.querySelector('[data-action="move-left"]')?.addEventListener('click', () => {
-        if (idx > 0) {
-          const temp = palette[idx];
-          palette[idx] = palette[idx - 1];
-          palette[idx - 1] = temp;
-          baseIndex = palette.findIndex((p) => p.isBase);
-          renderAll();
-        }
-      });
-
-      card.querySelector('[data-action="move-right"]')?.addEventListener('click', () => {
-        if (idx < palette.length - 1) {
-          const temp = palette[idx];
-          palette[idx] = palette[idx + 1];
-          palette[idx + 1] = temp;
-          baseIndex = palette.findIndex((p) => p.isBase);
-          renderAll();
-        }
-      });
-
       card.querySelector('[data-action="delete"]')?.addEventListener('click', () => {
         if (palette.length > 2) {
           const wasBase = item.isBase;
@@ -639,7 +761,7 @@
       });
 
       const toneRange = card.querySelector('[data-action="slider-tone"]') as HTMLInputElement;
-      toneRange?.addEventListener('input', () => {
+      toneRange?.addEventListener('input', (e) => {
         item.l = parseFloat(toneRange.value);
         item.hex = oklchToHex(item.l, item.c, item.h);
         renderAll();
@@ -735,20 +857,6 @@
     }
   }
 
-  function applyHarmonyRule() {
-    const base = palette[baseIndex] || palette[0];
-    const swatches = generateHarmony(base.hex, currentHarmony as any, palette.length);
-
-    palette.forEach((p, idx) => {
-      if (!p.isLocked && idx !== baseIndex && swatches[idx]) {
-        p.hex = swatches[idx].hex;
-        p.l = swatches[idx].l;
-        p.c = swatches[idx].c;
-        p.h = swatches[idx].h;
-      }
-    });
-  }
-
   function renderAll() {
     drawWheelCanvas();
     renderWheelPins();
@@ -763,13 +871,14 @@
       const fullHex = `#${val}`.toUpperCase();
       const ok = hexToOklch(fullHex);
       if (ok) {
-        const base = palette[baseIndex] || palette[0];
-        base.hex = fullHex;
-        base.l = ok.l;
-        base.c = ok.c;
-        base.h = ok.h;
-        if (currentHarmony !== 'custom') {
-          applyHarmonyRule();
+        if (currentHarmony === 'custom') {
+          const base = palette[baseIndex] || palette[0];
+          base.hex = fullHex;
+          base.l = ok.l;
+          base.c = ok.c;
+          base.h = ok.h;
+        } else {
+          applyHarmonyConstellation(ok.h, ok.c);
         }
         renderAll();
       }
@@ -779,13 +888,14 @@
   baseNativePicker.addEventListener('input', () => {
     const ok = hexToOklch(baseNativePicker.value);
     if (ok) {
-      const base = palette[baseIndex] || palette[0];
-      base.hex = baseNativePicker.value.toUpperCase();
-      base.l = ok.l;
-      base.c = ok.c;
-      base.h = ok.h;
-      if (currentHarmony !== 'custom') {
-        applyHarmonyRule();
+      if (currentHarmony === 'custom') {
+        const base = palette[baseIndex] || palette[0];
+        base.hex = baseNativePicker.value.toUpperCase();
+        base.l = ok.l;
+        base.c = ok.c;
+        base.h = ok.h;
+      } else {
+        applyHarmonyConstellation(ok.h, ok.c);
       }
       renderAll();
     }
@@ -799,19 +909,20 @@
         if (result?.sRGBHex) {
           const ok = hexToOklch(result.sRGBHex);
           if (ok) {
-            const base = palette[baseIndex] || palette[0];
-            base.hex = result.sRGBHex.toUpperCase();
-            base.l = ok.l;
-            base.c = ok.c;
-            base.h = ok.h;
-            if (currentHarmony !== 'custom') {
-              applyHarmonyRule();
+            if (currentHarmony === 'custom') {
+              const base = palette[baseIndex] || palette[0];
+              base.hex = result.sRGBHex.toUpperCase();
+              base.l = ok.l;
+              base.c = ok.c;
+              base.h = ok.h;
+            } else {
+              applyHarmonyConstellation(ok.h, ok.c);
             }
             renderAll();
           }
         }
       } catch {
-        // User cancelled eyedropper
+        // User cancelled
       }
     } else {
       baseNativePicker.click();
@@ -820,31 +931,15 @@
 
   randomizeBtn.addEventListener('click', () => {
     const randomH = Math.floor(Math.random() * 360);
-    const randomL = 0.45 + Math.random() * 0.35;
-    const randomC = 0.12 + Math.random() * 0.15;
-    const base = palette[baseIndex] || palette[0];
-    base.l = randomL;
-    base.c = randomC;
-    base.h = randomH;
-    base.hex = oklchToHex(base.l, base.c, base.h);
-
-    const swatches = generateHarmony(base.hex, currentHarmony as any, palette.length);
-    palette.forEach((p, idx) => {
-      if (!p.isLocked && idx !== baseIndex && swatches[idx]) {
-        p.hex = swatches[idx].hex;
-        p.l = swatches[idx].l;
-        p.c = swatches[idx].c;
-        p.h = swatches[idx].h;
-      }
-    });
-
+    const randomC = 0.12 + Math.random() * 0.14;
+    applyHarmonyConstellation(randomH, randomC);
     renderAll();
   });
 
   addSwatchBtn.addEventListener('click', () => {
     if (palette.length < 10) {
       const base = palette[baseIndex] || palette[0];
-      const newH = (base.h + palette.length * 40 + 360) % 360;
+      const newH = (base.h + palette.length * 35 + 360) % 360;
       const hex = oklchToHex(base.l, base.c, newH);
       palette.push({
         id: Math.random().toString(36).substring(2, 9),
@@ -865,7 +960,8 @@
       btn.classList.add('active');
       currentHarmony = btn.getAttribute('data-mode') || 'analogous';
       if (currentHarmony !== 'custom') {
-        applyHarmonyRule();
+        const base = palette[baseIndex] || palette[0];
+        applyHarmonyConstellation(base.h, base.c);
       }
       renderAll();
     });
@@ -941,13 +1037,14 @@
 
         const ok = hexToOklch(extractedHex);
         if (ok) {
-          const base = palette[baseIndex] || palette[0];
-          base.hex = extractedHex;
-          base.l = ok.l;
-          base.c = ok.c;
-          base.h = ok.h;
-          if (currentHarmony !== 'custom') {
-            applyHarmonyRule();
+          if (currentHarmony === 'custom') {
+            const base = palette[baseIndex] || palette[0];
+            base.hex = extractedHex;
+            base.l = ok.l;
+            base.c = ok.c;
+            base.h = ok.h;
+          } else {
+            applyHarmonyConstellation(ok.h, ok.c);
           }
           renderAll();
         }
@@ -1011,7 +1108,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 12px 0;
+    padding: 8px 0;
   }
 
   .wheel-interactive-stage {
@@ -1051,6 +1148,20 @@
     pointer-events: none;
   }
 
+  .wheel-center-hub {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 4px #FFFFFF;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 5;
+  }
+
   /* PINS STYLING */
   .chroma-pin {
     position: absolute;
@@ -1067,6 +1178,7 @@
     cursor: grab;
     transition: transform 0.1s ease;
     box-sizing: border-box;
+    z-index: 10;
   }
 
   .chroma-pin:hover {
@@ -1246,10 +1358,19 @@
     background: rgba(59, 130, 246, 0.05);
   }
 
+  .file-hidden-input {
+    display: none;
+  }
+
   .palette-top-tools {
     display: flex;
     align-items: center;
     gap: 10px;
+  }
+
+  .drag-hint-pill {
+    font-size: 11px;
+    color: var(--text-muted);
   }
 
   .swatches-count-pill {
@@ -1265,20 +1386,22 @@
   .palette-swatches-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
-  /* PALETTE SWATCH ROW CARD */
+  /* PALETTE SWATCH ROW CARD WITH DRAG & DROP */
   .swatch-row-card {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
-    padding: 12px 16px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    transition: all 0.2s ease;
+    gap: 14px;
+    transition: all 0.15s ease;
+    cursor: default;
+    user-select: none;
   }
 
   .swatch-row-card:hover {
@@ -1294,16 +1417,41 @@
     box-shadow: 0 0 16px rgba(59, 130, 246, 0.12);
   }
 
+  .swatch-row-card.is-dragging-card {
+    opacity: 0.4;
+    border-style: dashed;
+  }
+
+  .swatch-row-card.drag-over-target {
+    border-color: var(--brand-primary);
+    background: rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+  }
+
+  .drag-handle-grip {
+    cursor: grab;
+    color: var(--text-muted);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+  }
+
+  .drag-handle-grip:hover {
+    color: #FFFFFF;
+  }
+
   .swatch-left-group {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     flex: 1;
   }
 
   .swatch-square-thumb {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-sm);
     position: relative;
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -1315,7 +1463,7 @@
   .swatch-meta-text {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
     flex: 1;
     max-width: 240px;
   }
@@ -1323,12 +1471,12 @@
   .swatch-hex-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
 
   .swatch-hex-label {
     font-family: var(--font-mono);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: #FFFFFF;
   }
@@ -1354,17 +1502,19 @@
     color: var(--text-muted);
     font-family: var(--font-mono);
     white-space: nowrap;
+    min-width: 58px;
   }
 
   .mini-tone-range {
-    height: 4px;
+    height: 6px;
     flex: 1;
+    cursor: pointer;
   }
 
   .swatch-right-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
 
   .swatch-action-link {
@@ -1419,18 +1569,6 @@
     background: rgba(245, 158, 11, 0.2);
     border-color: #F59E0B;
     color: #FBBF24;
-  }
-
-  .reorder-btns-duo {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .reorder-btns-duo .swatch-icon-btn {
-    width: 20px;
-    height: 14px;
-    font-size: 8px;
   }
 
   .swatch-icon-btn.delete-btn:hover:not(:disabled) {
