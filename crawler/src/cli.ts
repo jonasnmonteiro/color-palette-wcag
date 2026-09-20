@@ -1,3 +1,4 @@
+import process from 'node:process';
 import { auditUrl, generateMarkdownReport } from './auditor';
 
 async function run() {
