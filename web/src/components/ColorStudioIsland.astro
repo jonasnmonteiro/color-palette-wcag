@@ -102,6 +102,21 @@
         </div>
       </div>
 
+      <!-- Vision Mode / CVD Simulator Bar -->
+      <div class="cvd-selector-container">
+        <div class="cvd-header-meta">
+          <span class="sub-label">Simulação de Daltonismo (CVD)</span>
+          <span class="cvd-active-status" id="cvd-active-label">Visão Padrão</span>
+        </div>
+        <div class="cvd-modes-buttons" id="cvd-mode-buttons">
+          <button class="cvd-mode-btn active" data-cvd="normal">Padrão</button>
+          <button class="cvd-mode-btn" data-cvd="protanopia">Protanopia <span class="cvd-sub-badge">Sem L</span></button>
+          <button class="cvd-mode-btn" data-cvd="deuteranopia">Deuteranopia <span class="cvd-sub-badge">Sem M</span></button>
+          <button class="cvd-mode-btn" data-cvd="tritanopia">Tritanopia <span class="cvd-sub-badge">Sem S</span></button>
+          <button class="cvd-mode-btn" data-cvd="achromatopsia">Acromatopsia <span class="cvd-sub-badge">Mono</span></button>
+        </div>
+      </div>
+
       <!-- Vertical List of Swatches Cards with Drag and Drop -->
       <div class="palette-swatches-list" id="palette-swatches-list"></div>
 
@@ -117,6 +132,18 @@
         </a>
       </div>
     </div>
+  </div>
+
+  <!-- CVD Multimodal Spectral Matrix Comparison Panel -->
+  <div class="glass-panel cvd-matrix-panel">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Matriz Multimodal de Daltonismo (Machado 2009 / Brettel 1997)</h2>
+        <p class="card-subtitle">Auditoria visual e espectral simultânea de toda a paleta ativa nos 4 espaços de deficiência visual</p>
+      </div>
+      <span class="badge badge-neutral" id="cvd-matrix-badge">Simulação 100% Espectral</span>
+    </div>
+    <div class="cvd-matrix-grid" id="cvd-matrix-grid"></div>
   </div>
 
   <!-- Bottom Section: Auditor Gates, UI Preview, and Multi-Format Token Exporter -->
@@ -239,11 +266,19 @@
 <script>
   import {
     auditContrastHex,
+    auditCvdContrast,
     exportTokens,
+    findGamutCusp,
     generateDesignTokens,
     generateHarmony,
     hexToOklch,
+    isInGamut,
     oklchToHex,
+    parseHex,
+    quantizeImage,
+    rgbToHex,
+    simulateCvd,
+    CvdType,
   } from '../../../wasm/src/index';
 
   interface PaletteItem {
@@ -259,6 +294,7 @@
   let palette: PaletteItem[] = [];
   let currentHarmony = 'analogous';
   let currentFormat = 'css';
+  let currentCvdMode: 'normal' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia' = 'normal';
   let baseIndex = 0;
   let draggedCardIndex: number | null = null;
 
@@ -278,6 +314,10 @@
   const swatchesCountBadge = document.getElementById('swatches-count-badge') as HTMLElement;
   const paletteSwatchesList = document.getElementById('palette-swatches-list') as HTMLDivElement;
   const harmonyButtons = document.querySelectorAll('.harmony-tag-btn');
+
+  const cvdModeButtons = document.querySelectorAll('.cvd-mode-btn');
+  const cvdActiveLabel = document.getElementById('cvd-active-label') as HTMLElement;
+  const cvdMatrixGrid = document.getElementById('cvd-matrix-grid') as HTMLDivElement;
 
   const metricWcagWhite = document.getElementById('metric-wcag-white') as HTMLElement;
   const metricApcaWhite = document.getElementById('metric-apca-white') as HTMLElement;
@@ -634,7 +674,19 @@
       card.setAttribute('draggable', 'true');
       card.setAttribute('data-index', idx.toString());
 
-      const whiteAudit = auditContrastHex('#FFFFFF', item.hex);
+      const inGamut = isInGamut({ l: item.l, c: item.c, h: item.h }, 'srgb');
+      const cusp = findGamutCusp(item.h, 'srgb');
+
+      let displayHex = item.hex;
+      let isCvdActive = false;
+      if (currentCvdMode !== 'normal') {
+        const rgb = parseHex(item.hex) || { r: 0, g: 0, b: 0 };
+        const simRgb = simulateCvd(rgb, currentCvdMode as CvdType, 1.0);
+        displayHex = rgbToHex(simRgb);
+        isCvdActive = true;
+      }
+
+      const whiteAudit = auditContrastHex('#FFFFFF', displayHex);
       const apcaScore = whiteAudit ? Math.abs(whiteAudit.apca.lc).toFixed(0) : '0';
 
       card.innerHTML = `
@@ -650,13 +702,15 @@
         </div>
 
         <div class="swatch-left-group">
-          <div class="swatch-square-thumb" style="background-color: ${item.hex}">
+          <div class="swatch-square-thumb" style="background-color: ${displayHex}; ${isCvdActive ? `box-shadow: inset 0 0 0 2px ${item.hex};` : ''}" title="${isCvdActive ? `Original: ${item.hex} | Simulado: ${displayHex}` : item.hex}">
             <input type="color" value="${item.hex}" class="hidden-native-picker" data-action="pick-color" />
           </div>
           <div class="swatch-meta-text">
             <div class="swatch-hex-title">
-              <span class="swatch-hex-label">${item.hex}</span>
+              <span class="swatch-hex-label">${displayHex}</span>
+              ${isCvdActive ? `<span class="swatch-orig-label">orig: ${item.hex}</span>` : ''}
               <span class="swatch-lc-pill">Lc ${apcaScore}</span>
+              <span class="swatch-gamut-pill ${inGamut ? 'gamut-srgb' : 'gamut-p3'}" title="Cusp Max Chroma: ${cusp.max_chroma.toFixed(2)}">${inGamut ? 'sRGB' : 'P3 Wide'}</span>
             </div>
             <div class="swatch-tone-wrapper" data-stop-drag="true">
               <span class="tone-label">Tom: ${(item.l * 100).toFixed(0)}%</span>
@@ -737,7 +791,7 @@
       });
 
       card.querySelector('[data-action="copy"]')?.addEventListener('click', () => {
-        navigator.clipboard.writeText(item.hex);
+        navigator.clipboard.writeText(displayHex);
         const btn = card.querySelector('[data-action="copy"]') as HTMLElement;
         const prev = btn.textContent;
         btn.textContent = 'Copiado!';
@@ -804,7 +858,13 @@
 
   function updateBottomPanels() {
     const base = palette[baseIndex] || palette[0];
-    const baseHex = base.hex;
+    let baseHex = base.hex;
+
+    if (currentCvdMode !== 'normal') {
+      const rgb = parseHex(base.hex) || { r: 0, g: 0, b: 0 };
+      const sim = simulateCvd(rgb, currentCvdMode as CvdType, 1.0);
+      baseHex = rgbToHex(sim);
+    }
 
     const onWhite = auditContrastHex(baseHex, '#FFFFFF');
     const onBlack = auditContrastHex(baseHex, '#0A0D14');
@@ -857,13 +917,87 @@
     }
   }
 
+  function renderCvdMatrix() {
+    if (!cvdMatrixGrid) return;
+    cvdMatrixGrid.innerHTML = '';
+
+    const modes: { key: string; label: string; sub: string }[] = [
+      { key: 'normal', label: 'Visão Padrão', sub: 'Tricromata' },
+      { key: 'protanopia', label: 'Protanopia', sub: 'Sem Cones L (Vermelho)' },
+      { key: 'deuteranopia', label: 'Deuteranopia', sub: 'Sem Cones M (Verde)' },
+      { key: 'tritanopia', label: 'Tritanopia', sub: 'Sem Cones S (Azul)' },
+      { key: 'achromatopsia', label: 'Acromatopsia', sub: 'Monocromático (Hastes)' },
+    ];
+
+    modes.forEach((mode) => {
+      const col = document.createElement('div');
+      col.className = `cvd-matrix-col ${currentCvdMode === mode.key ? 'cvd-matrix-col-active' : ''}`;
+
+      let swatchesHtml = '';
+      palette.forEach((p) => {
+        let hex = p.hex;
+        if (mode.key !== 'normal') {
+          const rgb = parseHex(p.hex) || { r: 0, g: 0, b: 0 };
+          const sim = simulateCvd(rgb, mode.key as CvdType, 1.0);
+          hex = rgbToHex(sim);
+        }
+
+        const onWhite = auditContrastHex(hex, '#FFFFFF');
+        const lc = onWhite ? Math.abs(onWhite.apca.lc).toFixed(0) : '0';
+        const isAA = onWhite?.wcag.normal_aa;
+
+        swatchesHtml += `
+          <div class="cvd-swatch-item">
+            <div class="cvd-swatch-chip" style="background-color: ${hex}"></div>
+            <div class="cvd-swatch-info">
+              <span class="cvd-swatch-hex">${hex}</span>
+              <span class="badge ${isAA ? 'badge-pass' : 'badge-fail'}">AA / Lc ${lc}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      col.innerHTML = `
+        <div class="cvd-col-header">
+          <div class="cvd-col-title">${mode.label}</div>
+          <div class="cvd-col-sub">${mode.sub}</div>
+        </div>
+        <div class="cvd-col-items">
+          ${swatchesHtml}
+        </div>
+      `;
+
+      cvdMatrixGrid.appendChild(col);
+    });
+  }
+
   function renderAll() {
     drawWheelCanvas();
     renderWheelPins();
     renderPaletteCards();
+    renderCvdMatrix();
     updateBaseControls();
     updateBottomPanels();
   }
+
+  cvdModeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      cvdModeButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCvdMode = (btn.getAttribute('data-cvd') as any) || 'normal';
+      const labelMap: Record<string, string> = {
+        normal: 'Visão Padrão',
+        protanopia: 'Protanopia Ativa (Sem L)',
+        deuteranopia: 'Deuteranopia Ativa (Sem M)',
+        tritanopia: 'Tritanopia Ativa (Sem S)',
+        achromatopsia: 'Acromatopsia Ativa (Mono)',
+      };
+      if (cvdActiveLabel) {
+        cvdActiveLabel.textContent = labelMap[currentCvdMode] || currentCvdMode;
+      }
+      renderAll();
+    });
+  });
 
   baseHexInput.addEventListener('input', () => {
     const val = baseHexInput.value.trim();
@@ -1001,7 +1135,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `auracolor-tokens.${ext}`;
+    a.download = `colorust-tokens.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
   });
@@ -1016,36 +1150,31 @@
       img.onload = () => {
         const ctx = extractCanvas.getContext('2d');
         if (!ctx) return;
-        extractCanvas.width = 100;
-        extractCanvas.height = 100;
-        ctx.drawImage(img, 0, 0, 100, 100);
-        const data = ctx.getImageData(0, 0, 100, 100).data;
+        extractCanvas.width = 120;
+        extractCanvas.height = 120;
+        ctx.drawImage(img, 0, 0, 120, 120);
+        const imgData = ctx.getImageData(0, 0, 120, 120).data;
 
-        let rSum = 0, gSum = 0, bSum = 0, count = 0;
-        for (let i = 0; i < data.length; i += 16) {
-          rSum += data[i];
-          gSum += data[i + 1];
-          bSum += data[i + 2];
-          count++;
-        }
-
-        const r = Math.round(rSum / count);
-        const g = Math.round(gSum / count);
-        const b = Math.round(bSum / count);
-        const toHex = (n: number) => n.toString(16).padStart(2, '0');
-        const extractedHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
-
-        const ok = hexToOklch(extractedHex);
-        if (ok) {
-          if (currentHarmony === 'custom') {
-            const base = palette[baseIndex] || palette[0];
-            base.hex = extractedHex;
-            base.l = ok.l;
-            base.c = ok.c;
-            base.h = ok.h;
-          } else {
-            applyHarmonyConstellation(ok.h, ok.c);
-          }
+        const quantized = quantizeImage(imgData, 5, 15);
+        if (quantized && quantized.length > 0) {
+          palette = quantized.map((q, idx) => ({
+            id: Math.random().toString(36).substring(2, 9),
+            hex: rgbToHex(q.rgb),
+            l: q.oklch.l,
+            c: q.oklch.c,
+            h: q.oklch.h,
+            isBase: idx === 0,
+            isLocked: false,
+          }));
+          baseIndex = 0;
+          currentHarmony = 'custom';
+          harmonyButtons.forEach((b) => {
+            if (b.getAttribute('data-mode') === 'custom') {
+              b.classList.add('active');
+            } else {
+              b.classList.remove('active');
+            }
+          });
           renderAll();
         }
       };
@@ -1819,11 +1948,199 @@
     width: 100%;
   }
 
+  .cvd-selector-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cvd-header-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cvd-active-status {
+    font-size: 11px;
+    font-weight: 700;
+    color: #60A5FA;
+    background: rgba(59, 130, 246, 0.15);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .cvd-modes-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .cvd-mode-btn {
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .cvd-mode-btn:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .cvd-mode-btn.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--brand-primary);
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+
+  .cvd-sub-badge {
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  .swatch-orig-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .swatch-gamut-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+  }
+
+  .gamut-srgb {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ADE80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .gamut-p3 {
+    background: rgba(168, 85, 247, 0.15);
+    color: #C084FC;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+  }
+
+  .cvd-matrix-panel {
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .cvd-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .cvd-matrix-col {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.2s ease;
+  }
+
+  .cvd-matrix-col-active {
+    border-color: rgba(59, 130, 246, 0.6);
+    background: rgba(59, 130, 246, 0.05);
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
+  }
+
+  .cvd-col-header {
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 8px;
+  }
+
+  .cvd-col-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .cvd-col-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .cvd-col-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cvd-swatch-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+  }
+
+  .cvd-swatch-chip {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+  }
+
+  .cvd-swatch-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+
+  .cvd-swatch-hex {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
   @media (max-width: 1100px) {
     .studio-main-grid {
       grid-template-columns: 1fr;
     }
     .studio-bottom-grid {
+      grid-template-columns: 1fr;
+    }
+    .cvd-modes-buttons {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .cvd-matrix-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .cvd-modes-buttons {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .cvd-matrix-grid {
       grid-template-columns: 1fr;
     }
   }

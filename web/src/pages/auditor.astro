@@ -119,10 +119,23 @@ import '../styles/global.css';
         </div>
       </div>
     </div>
+
+    <!-- CVD Contrast Simulation Section -->
+    <div class="glass-panel cvd-auditor-panel">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Simulação de Daltonismo & Degradação de Contraste (CVD)</h2>
+          <p class="card-subtitle">Auditoria das razões de contraste quando texto e fundo são percebidos sob deficiências de fotorreceptores cônicos</p>
+        </div>
+        <span class="badge badge-neutral">Modelo Machado (2009)</span>
+      </div>
+
+      <div class="cvd-audit-cards-grid" id="cvd-audit-cards-grid"></div>
+    </div>
   </main>
 
   <script>
-    import { auditContrastHex } from '../../../wasm/src/index';
+    import { auditContrastHex, auditCvdContrast, CvdType } from '../../../wasm/src/index';
 
     const fgInput = document.getElementById('fg-input') as HTMLInputElement;
     const bgInput = document.getElementById('bg-input') as HTMLInputElement;
@@ -145,6 +158,8 @@ import '../styles/global.css';
     const badgeApcaFluent = document.getElementById('badge-apca-fluent') as HTMLElement;
     const badgeApcaLarge = document.getElementById('badge-apca-large') as HTMLElement;
     const badgeApcaNonText = document.getElementById('badge-apca-nontext') as HTMLElement;
+
+    const cvdAuditCardsGrid = document.getElementById('cvd-audit-cards-grid') as HTMLElement;
 
     function renderAudit() {
       const fg = fgInput.value;
@@ -174,6 +189,58 @@ import '../styles/global.css';
       updateBadge(badgeApcaFluent, result.apca.fluent_text);
       updateBadge(badgeApcaLarge, result.apca.large_text);
       updateBadge(badgeApcaNonText, result.apca.non_text);
+
+      // Render CVD Matrix Cards
+      if (cvdAuditCardsGrid) {
+        cvdAuditCardsGrid.innerHTML = '';
+        const cvdList: { type: CvdType; name: string; desc: string; pop: string }[] = [
+          { type: 'protanopia', name: 'Protanopia', desc: 'Perda do cone L (vermelho)', pop: '1.0% dos homens' },
+          { type: 'deuteranopia', name: 'Deuteranopia', desc: 'Perda do cone M (verde)', pop: '5.0% dos homens' },
+          { type: 'tritanopia', name: 'Tritanopia', desc: 'Perda do cone S (azul)', pop: '<0.01% da população' },
+          { type: 'achromatopsia', name: 'Acromatopsia', desc: 'Monocromacia total (luminância)', pop: '0.003% da população' },
+        ];
+
+        cvdList.forEach((cvd) => {
+          const cvdRes = auditCvdContrast(fg, bg, cvd.type, 1.0);
+          if (!cvdRes) return;
+
+          const card = document.createElement('div');
+          card.className = 'cvd-audit-card';
+          card.innerHTML = `
+            <div class="cvd-card-top">
+              <div>
+                <div class="cvd-card-title">${cvd.name}</div>
+                <div class="cvd-card-desc">${cvd.desc} (${cvd.pop})</div>
+              </div>
+              <span class="badge ${cvdRes.wcag.normal_aa ? 'badge-pass' : 'badge-fail'}">
+                ${cvdRes.wcag.normal_aa ? 'AA PASS' : 'AA FAIL'}
+              </span>
+            </div>
+
+            <div class="cvd-sample-box" style="background-color: ${cvdRes.simulated_bg}; color: ${cvdRes.simulated_fg}">
+              <div class="cvd-sample-head">Aa Texto Simulado</div>
+              <div class="cvd-sample-body">Legibilidade perceptual sob ${cvd.name}.</div>
+            </div>
+
+            <div class="cvd-metrics-row">
+              <div class="cvd-metric-box">
+                <span class="cvd-m-label">Simulado</span>
+                <span class="cvd-m-val">${cvdRes.simulated_fg} / ${cvdRes.simulated_bg}</span>
+              </div>
+              <div class="cvd-metric-box">
+                <span class="cvd-m-label">Razão WCAG</span>
+                <span class="cvd-m-val">${cvdRes.wcag.ratio.toFixed(2)}:1</span>
+              </div>
+              <div class="cvd-metric-box">
+                <span class="cvd-m-label">APCA Lc</span>
+                <span class="cvd-m-val">${cvdRes.apca.lc > 0 ? '+' : ''}${cvdRes.apca.lc.toFixed(1)}</span>
+              </div>
+            </div>
+          `;
+
+          cvdAuditCardsGrid.appendChild(card);
+        });
+      }
     }
 
     fgInput.addEventListener('input', () => {
@@ -338,8 +405,111 @@ import '../styles/global.css';
       color: var(--text-secondary);
     }
 
+    .cvd-auditor-panel {
+      padding: 28px;
+      margin-bottom: 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .cvd-audit-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .cvd-audit-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cvd-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    .cvd-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .cvd-card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .cvd-sample-box {
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cvd-sample-head {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .cvd-sample-body {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .cvd-metrics-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .cvd-metric-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cvd-m-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .cvd-m-val {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    @media (max-width: 1100px) {
+      .cvd-audit-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     @media (max-width: 960px) {
       .auditor-grid, .metrics-split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .cvd-audit-cards-grid {
         grid-template-columns: 1fr;
       }
     }
