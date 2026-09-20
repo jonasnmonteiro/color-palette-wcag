@@ -2,6 +2,61 @@
 ---
 
 <div class="studio-wrapper" id="aura-studio-app">
+  <!-- Toast Notification -->
+  <div id="studio-toast" class="studio-toast">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 6L9 17l-5-5"></path>
+    </svg>
+    <span id="studio-toast-msg">Link copiado com sucesso!</span>
+  </div>
+
+  <!-- Top Global Header Bar: Compliance Score, Presets Toggle & Share -->
+  <div class="studio-top-toolbar glass-panel">
+    <div class="toolbar-left">
+      <div class="health-status-badge" id="global-health-badge">
+        <span class="health-dot"></span>
+        <span id="global-health-text">Paleta 100% WCAG AA & APCA Otimizada</span>
+      </div>
+      <div class="gamut-summary-pill" id="gamut-summary-badge">
+        <span>Display P3 & sRGB Validado</span>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <button class="btn-action-pill" id="toggle-presets-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span>Paletas de Tendência</span>
+      </button>
+      <button class="btn-action-pill btn-share-pill" id="share-palette-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        <span>Compartilhar Paleta</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Expandable Curated Trend Presets Drawer -->
+  <div class="glass-panel presets-drawer" id="presets-drawer">
+    <div class="presets-header">
+      <div>
+        <h3 class="presets-title">Paletas de Tendência Curadas (OKLCH Perceptual)</h3>
+        <p class="presets-sub">Selecione uma harmonia balanceada para carregar instantaneamente no estúdio e nos testes de contraste</p>
+      </div>
+      <button class="close-presets-btn" id="close-presets-btn">✕</button>
+    </div>
+    <div class="presets-grid" id="presets-grid"></div>
+  </div>
+
   <!-- Top Split Section: Cor Base (Color Wheel) & A Paleta (Swatch Cards) -->
   <div class="studio-main-grid">
     <!-- Left Card: COR BASE / Chromatic Wheel -->
@@ -78,7 +133,7 @@
             <circle cx="8.5" cy="8.5" r="1.5"></circle>
             <polyline points="21 15 16 10 5 21"></polyline>
           </svg>
-          <span>Carregar Imagem para Extrair Paleta</span>
+          <span>Carregar Imagem para Extrair Paleta (K-Means)</span>
           <input type="file" id="image-file-input" accept="image/*" class="file-hidden-input" />
         </label>
         <canvas id="extract-canvas" style="display:none;"></canvas>
@@ -90,7 +145,7 @@
       <div class="card-top-title">
         <span class="card-tag-title">A PALETA</span>
         <div class="palette-top-tools">
-          <span class="drag-hint-pill">Arraste os cards para reordenar</span>
+          <span class="drag-hint-pill">Arraste para reordenar</span>
           <button class="btn-action-pill" id="add-swatch-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -146,7 +201,142 @@
     <div class="cvd-matrix-grid" id="cvd-matrix-grid"></div>
   </div>
 
-  <!-- Bottom Section: Auditor Gates, UI Preview, and Multi-Format Token Exporter -->
+  <!-- Interactive Live UI Component Mockup Showcase (Light/Dark Mode Sync) -->
+  <div class="glass-panel ui-showcase-panel">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Preview de UI & Design System ao Vivo</h2>
+        <p class="card-subtitle">Aplicação dinâmica em componentes reais de interface com suporte a Dark/Light Mode e simulação espectral de Daltonismo</p>
+      </div>
+      <div class="ui-mockup-controls">
+        <div class="theme-toggle-group">
+          <button class="theme-toggle-btn active" id="mockup-theme-dark" data-theme="dark">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            Dark Mode
+          </button>
+          <button class="theme-toggle-btn" id="mockup-theme-light" data-theme="light">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            Light Mode
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI Mockup Canvas Area -->
+    <div class="mockup-canvas-wrapper" id="mockup-canvas-container">
+      <!-- App Header Bar -->
+      <div class="mockup-app-bar" id="mockup-app-bar">
+        <div class="mockup-brand-logo">
+          <div class="mockup-logo-mark" id="mockup-logo-dot"></div>
+          <span class="mockup-brand-title">Apexmira Analytics</span>
+        </div>
+        <div class="mockup-nav-links">
+          <span class="mockup-nav-item active" id="mockup-nav-active">Overview</span>
+          <span class="mockup-nav-item">Vendas</span>
+          <span class="mockup-nav-item">Clientes</span>
+        </div>
+        <div class="mockup-user-avatar" id="mockup-avatar">AD</div>
+      </div>
+
+      <!-- KPI Metrics Cards Row -->
+      <div class="mockup-kpi-grid">
+        <div class="mockup-kpi-card" id="mockup-kpi-1">
+          <span class="kpi-label">Receita Líquida (MRR)</span>
+          <div class="kpi-value-row">
+            <span class="kpi-num">R$ 148.920</span>
+            <span class="kpi-growth-badge" id="mockup-growth-badge">+24.5%</span>
+          </div>
+          <div class="kpi-bar-track">
+            <div class="kpi-bar-fill" id="mockup-bar-fill-1" style="width: 78%;"></div>
+          </div>
+        </div>
+
+        <div class="mockup-kpi-card" id="mockup-kpi-2">
+          <span class="kpi-label">Acessibilidade Média</span>
+          <div class="kpi-value-row">
+            <span class="kpi-num" id="mockup-wcag-ratio-display">9.4 : 1</span>
+            <span class="kpi-status-badge" id="mockup-status-badge">AAA Pass</span>
+          </div>
+          <div class="kpi-bar-track">
+            <div class="kpi-bar-fill" id="mockup-bar-fill-2" style="width: 94%;"></div>
+          </div>
+        </div>
+
+        <div class="mockup-kpi-card" id="mockup-kpi-3">
+          <span class="kpi-label">Taxa de Conversão PDV</span>
+          <div class="kpi-value-row">
+            <span class="kpi-num">18.6%</span>
+            <span class="kpi-growth-badge" id="mockup-accent-badge">+5.2%</span>
+          </div>
+          <div class="kpi-bar-track">
+            <div class="kpi-bar-fill" id="mockup-bar-fill-3" style="width: 62%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Split: E-Commerce / Feature Card + Form Controls -->
+      <div class="mockup-content-grid">
+        <!-- Card 1: Interactive Product Feature Card -->
+        <div class="mockup-feature-box" id="mockup-feature-box">
+          <div class="feature-tag-row">
+            <span class="mockup-pill-badge" id="mockup-pill-tag">DESTAQUE PRO</span>
+            <span class="feature-stars">★★★★★ (4.9)</span>
+          </div>
+          <h4 class="feature-card-heading">Colorust Perceptual Studio</h4>
+          <p class="feature-card-summary">
+            Design tokens padronizados em OKLCH com conformidade legal WCAG 2.1 AA e WCAG 3.0 APCA Lc garantidos em tempo de compilação.
+          </p>
+          <div class="feature-action-row">
+            <button class="mockup-btn-brand" id="mockup-main-btn">
+              Ação Primária
+            </button>
+            <button class="mockup-btn-outline" id="mockup-sec-btn">
+              Secundário
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2: Interactive Form & Input Controls -->
+        <div class="mockup-form-box" id="mockup-form-box">
+          <div class="form-row-group">
+            <label class="form-field-label">Token Semântico</label>
+            <div class="form-input-wrapper">
+              <input type="text" value="--color-brand-primary" class="mockup-text-input" id="mockup-text-input" readonly />
+              <button class="mockup-input-btn" id="mockup-input-btn">Copiar</button>
+            </div>
+          </div>
+
+          <div class="form-switches-row">
+            <div class="mockup-badge-pill" id="mockup-pill-active">Ativo</div>
+            <div class="mockup-badge-pill" id="mockup-pill-neutral">Pendente</div>
+            <div class="mockup-badge-pill" id="mockup-pill-accent">Verificado</div>
+          </div>
+
+          <div class="form-progress-box">
+            <div class="progress-label-row">
+              <span>Saturação de Gamut sRGB</span>
+              <span id="mockup-gamut-val">99.8%</span>
+            </div>
+            <div class="mockup-gradient-bar" id="mockup-gradient-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Section: Auditor Gates, Dual Inks, and Multi-Format Token Exporter -->
   <div class="studio-bottom-grid" id="token-exporter-section">
     <!-- Left Column: Contrast Auditor Gates & Dual Inks -->
     <div class="glass-panel studio-card">
@@ -199,33 +389,13 @@
       </div>
     </div>
 
-    <!-- Middle Column: Live Component Preview -->
-    <div class="glass-panel studio-card">
+    <!-- Middle & Right Columns Combined: Token Exporter -->
+    <div class="glass-panel studio-card exporter-card-span">
       <div class="card-header">
-        <h2 class="card-title">Preview de Componentes Semânticos</h2>
-        <span class="badge badge-neutral">Design System</span>
-      </div>
-
-      <div class="preview-surface" id="preview-surface">
-        <div class="preview-row">
-          <button class="preview-btn-primary" id="preview-btn-brand">Botão Principal</button>
-          <button class="preview-btn-secondary" id="preview-btn-subtle">Ação Secundária</button>
+        <div>
+          <h2 class="card-title">Exportador de Tokens de Design</h2>
+          <p class="card-subtitle">Formatos prontos para produção em CSS, Tailwind v3/v4, Figma DTCG, SwiftUI e Android XML</p>
         </div>
-
-        <div class="preview-card" id="preview-card-box">
-          <div class="preview-card-header">
-            <span class="preview-card-badge" id="preview-card-badge">PRO THEME</span>
-            <span class="preview-card-title">Canvas de Componente</span>
-          </div>
-          <p class="preview-card-desc">Tokens semânticos sincronizados em tempo real com o disco cromático OKLCH.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column: Token Exporter -->
-    <div class="glass-panel studio-card">
-      <div class="card-header">
-        <h2 class="card-title">Exportador de Tokens</h2>
         <button class="btn-secondary copy-btn" id="copy-tokens-btn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -236,12 +406,12 @@
       </div>
 
       <div class="token-tabs" id="token-format-tabs">
-        <button class="token-tab active" data-format="css">CSS</button>
-        <button class="token-tab" data-format="tailwind-v4">Tailwind v4</button>
+        <button class="token-tab active" data-format="css">CSS Variables</button>
+        <button class="token-tab" data-format="tailwind-v4">Tailwind v4 (@theme)</button>
         <button class="token-tab" data-format="tailwind-v3">Tailwind v3</button>
-        <button class="token-tab" data-format="figma-tokens">Figma DTCG</button>
-        <button class="token-tab" data-format="style-dictionary">Style Dict</button>
-        <button class="token-tab" data-format="swift">SwiftUI</button>
+        <button class="token-tab" data-format="figma-tokens">Figma DTCG (JSON)</button>
+        <button class="token-tab" data-format="style-dictionary">Style Dictionary</button>
+        <button class="token-tab" data-format="swift">SwiftUI Color</button>
         <button class="token-tab" data-format="android-xml">Android XML</button>
       </div>
 
@@ -256,7 +426,7 @@
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Baixar Tokens
+          Baixar Arquivo de Tokens
         </button>
       </div>
     </div>
@@ -291,13 +461,96 @@
     isLocked: boolean;
   }
 
+  interface CuratedPreset {
+    name: string;
+    category: string;
+    harmony: string;
+    hexes: string[];
+    tag: string;
+  }
+
+  const CURATED_PRESETS: CuratedPreset[] = [
+    {
+      name: 'Apexmira Cyber Neon',
+      category: 'Cyberpunk / Tech',
+      harmony: 'custom',
+      hexes: ['#00F0FF', '#7000FF', '#FF007A', '#00FF66', '#181824'],
+      tag: 'Tech Neon',
+    },
+    {
+      name: 'Tailwind Modern SaaS',
+      category: 'SaaS / Enterprise',
+      harmony: 'analogous',
+      hexes: ['#0284C7', '#2563EB', '#4F46E5', '#0D9488', '#059669'],
+      tag: 'SaaS Blue',
+    },
+    {
+      name: 'Nord Frost Minimal',
+      category: 'Nordic / Minimal',
+      harmony: 'custom',
+      hexes: ['#88C0D0', '#81A1C1', '#5E81AC', '#8FBCBB', '#4C566A'],
+      tag: 'Clean Minimal',
+    },
+    {
+      name: 'Catppuccin Macchiato',
+      category: 'Pastel / Modern',
+      harmony: 'custom',
+      hexes: ['#8AADF4', '#F5BDE6', '#C6A0F6', '#ED8796', '#EED49F'],
+      tag: 'Aesthetic Soft',
+    },
+    {
+      name: 'Radix Dark Slate',
+      category: 'Design Systems',
+      harmony: 'custom',
+      hexes: ['#6E56CF', '#0091FF', '#30A46C', '#E5484D', '#F76808'],
+      tag: 'Design System',
+    },
+    {
+      name: 'Sunset Glow & Coral',
+      category: 'Warm / Vibrant',
+      harmony: 'analogous',
+      hexes: ['#FF5E57', '#FF793F', '#FFA801', '#FF3838', '#CD84F1'],
+      tag: 'Sunset Warm',
+    },
+    {
+      name: 'Emerald Bio Forest',
+      category: 'Eco / Finance',
+      harmony: 'analogous',
+      hexes: ['#10B981', '#059669', '#047857', '#34D399', '#064E3B'],
+      tag: 'Eco Finance',
+    },
+    {
+      name: 'Tokyo Night Synth',
+      category: 'Developer / Dark',
+      harmony: 'custom',
+      hexes: ['#BB9AF7', '#7AA2F7', '#7DCFFF', '#9ECE6A', '#F7768E'],
+      tag: 'Dark Synth',
+    },
+    {
+      name: 'Vitrines PDV Pastel',
+      category: 'Retail / Catalog',
+      harmony: 'analogous',
+      hexes: ['#F43F5E', '#FB7185', '#F472B6', '#FB923C', '#FBBF24'],
+      tag: 'PDV Retail',
+    },
+    {
+      name: 'Solar Luxury Gold',
+      category: 'Luxury / Gold',
+      harmony: 'analogous',
+      hexes: ['#F59E0B', '#D97706', '#B45309', '#FBBF24', '#78350F'],
+      tag: 'Luxury Gold',
+    },
+  ];
+
   let palette: PaletteItem[] = [];
   let currentHarmony = 'analogous';
   let currentFormat = 'css';
   let currentCvdMode: 'normal' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia' = 'normal';
+  let currentMockupTheme: 'dark' | 'light' = 'dark';
   let baseIndex = 0;
   let draggedCardIndex: number | null = null;
 
+  // DOM Elements
   const wheelCanvas = document.getElementById('wheel-canvas') as HTMLCanvasElement;
   const wheelSvgLines = document.getElementById('wheel-svg-lines') as unknown as SVGSVGElement;
   const wheelPinsLayer = document.getElementById('wheel-pins-layer') as HTMLDivElement;
@@ -329,12 +582,6 @@
   const inkNameText = document.getElementById('ink-name-text') as HTMLElement;
   const inkDot = document.getElementById('ink-dot') as HTMLElement;
 
-  const previewSurface = document.getElementById('preview-surface') as HTMLElement;
-  const previewBtnBrand = document.getElementById('preview-btn-brand') as HTMLElement;
-  const previewBtnSubtle = document.getElementById('preview-btn-subtle') as HTMLElement;
-  const previewCardBox = document.getElementById('preview-card-box') as HTMLElement;
-  const previewCardBadge = document.getElementById('preview-card-badge') as HTMLElement;
-
   const tokensCodeOutput = document.getElementById('tokens-code-output') as HTMLElement;
   const copyTokensBtn = document.getElementById('copy-tokens-btn') as HTMLButtonElement;
   const downloadTokensBtn = document.getElementById('download-tokens-btn') as HTMLButtonElement;
@@ -343,7 +590,202 @@
   const imageFileInput = document.getElementById('image-file-input') as HTMLInputElement;
   const extractCanvas = document.getElementById('extract-canvas') as HTMLCanvasElement;
 
+  // Header & Presets DOM
+  const togglePresetsBtn = document.getElementById('toggle-presets-btn') as HTMLButtonElement;
+  const closePresetsBtn = document.getElementById('close-presets-btn') as HTMLButtonElement;
+  const presetsDrawer = document.getElementById('presets-drawer') as HTMLDivElement;
+  const presetsGrid = document.getElementById('presets-grid') as HTMLDivElement;
+  const sharePaletteBtn = document.getElementById('share-palette-btn') as HTMLButtonElement;
+  const studioToast = document.getElementById('studio-toast') as HTMLDivElement;
+  const studioToastMsg = document.getElementById('studio-toast-msg') as HTMLElement;
+  const globalHealthText = document.getElementById('global-health-text') as HTMLElement;
+  const gamutSummaryBadge = document.getElementById('gamut-summary-badge') as HTMLElement;
+
+  // Mockup UI DOM Elements
+  const mockupCanvasContainer = document.getElementById('mockup-canvas-container') as HTMLElement;
+  const mockupThemeDarkBtn = document.getElementById('mockup-theme-dark') as HTMLButtonElement;
+  const mockupThemeLightBtn = document.getElementById('mockup-theme-light') as HTMLButtonElement;
+  const mockupAppBar = document.getElementById('mockup-app-bar') as HTMLElement;
+  const mockupLogoDot = document.getElementById('mockup-logo-dot') as HTMLElement;
+  const mockupNavActive = document.getElementById('mockup-nav-active') as HTMLElement;
+  const mockupAvatar = document.getElementById('mockup-avatar') as HTMLElement;
+  const mockupKpi1 = document.getElementById('mockup-kpi-1') as HTMLElement;
+  const mockupKpi2 = document.getElementById('mockup-kpi-2') as HTMLElement;
+  const mockupKpi3 = document.getElementById('mockup-kpi-3') as HTMLElement;
+  const mockupGrowthBadge = document.getElementById('mockup-growth-badge') as HTMLElement;
+  const mockupStatusBadge = document.getElementById('mockup-status-badge') as HTMLElement;
+  const mockupAccentBadge = document.getElementById('mockup-accent-badge') as HTMLElement;
+  const mockupBarFill1 = document.getElementById('mockup-bar-fill-1') as HTMLElement;
+  const mockupBarFill2 = document.getElementById('mockup-bar-fill-2') as HTMLElement;
+  const mockupBarFill3 = document.getElementById('mockup-bar-fill-3') as HTMLElement;
+  const mockupFeatureBox = document.getElementById('mockup-feature-box') as HTMLElement;
+  const mockupPillTag = document.getElementById('mockup-pill-tag') as HTMLElement;
+  const mockupMainBtn = document.getElementById('mockup-main-btn') as HTMLElement;
+  const mockupSecBtn = document.getElementById('mockup-sec-btn') as HTMLElement;
+  const mockupFormBox = document.getElementById('mockup-form-box') as HTMLElement;
+  const mockupTextInput = document.getElementById('mockup-text-input') as HTMLInputElement;
+  const mockupInputBtn = document.getElementById('mockup-input-btn') as HTMLElement;
+  const mockupPillActive = document.getElementById('mockup-pill-active') as HTMLElement;
+  const mockupPillNeutral = document.getElementById('mockup-pill-neutral') as HTMLElement;
+  const mockupPillAccent = document.getElementById('mockup-pill-accent') as HTMLElement;
+  const mockupGradientBar = document.getElementById('mockup-gradient-bar') as HTMLElement;
+  const mockupWcagRatioDisplay = document.getElementById('mockup-wcag-ratio-display') as HTMLElement;
+
+  function showToast(message: string) {
+    if (!studioToast || !studioToastMsg) return;
+    studioToastMsg.textContent = message;
+    studioToast.classList.add('toast-visible');
+    setTimeout(() => {
+      studioToast.classList.remove('toast-visible');
+    }, 2500);
+  }
+
+  function getEffectiveHex(hex: string): string {
+    if (currentCvdMode === 'normal') return hex;
+    const rgb = parseHex(hex) || { r: 0, g: 0, b: 0 };
+    const sim = simulateCvd(rgb, currentCvdMode as CvdType, 1.0);
+    return rgbToHex(sim);
+  }
+
+  function renderPresets() {
+    if (!presetsGrid) return;
+    presetsGrid.innerHTML = '';
+
+    CURATED_PRESETS.forEach((preset) => {
+      const card = document.createElement('div');
+      card.className = 'preset-card';
+
+      let swatchesHtml = '';
+      preset.hexes.forEach((hex) => {
+        swatchesHtml += `<div class="preset-swatch-dot" style="background-color: ${hex}"></div>`;
+      });
+
+      card.innerHTML = `
+        <div class="preset-card-top">
+          <span class="preset-name">${preset.name}</span>
+          <span class="preset-tag">${preset.tag}</span>
+        </div>
+        <div class="preset-swatches-row">
+          ${swatchesHtml}
+        </div>
+        <div class="preset-card-footer">
+          <span class="preset-cat">${preset.category}</span>
+          <span class="preset-action">Carregar →</span>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        loadPresetPalette(preset);
+        presetsDrawer?.classList.remove('drawer-open');
+        showToast(`Paleta "${preset.name}" carregada!`);
+      });
+
+      presetsGrid.appendChild(card);
+    });
+  }
+
+  function loadPresetPalette(preset: CuratedPreset) {
+    palette = preset.hexes.map((hex, idx) => {
+      const ok = hexToOklch(hex) || { l: 0.6, c: 0.15, h: 200 };
+      return {
+        id: `preset-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+        hex: hex.toUpperCase(),
+        l: ok.l,
+        c: ok.c,
+        h: ok.h,
+        isBase: idx === 0,
+        isLocked: false,
+      };
+    });
+
+    baseIndex = 0;
+    currentHarmony = preset.harmony;
+    harmonyButtons.forEach((b) => {
+      if (b.getAttribute('data-mode') === currentHarmony) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+
+    syncHashUrl();
+    renderAll();
+  }
+
+  function syncHashUrl() {
+    try {
+      const hexes = palette.map((p) => p.hex.replace('#', '')).join(',');
+      const hash = `harmony=${currentHarmony}&cvd=${currentCvdMode}&pins=${hexes}`;
+      history.replaceState(null, '', `#${hash}`);
+    } catch {
+      // Ignored
+    }
+  }
+
+  function parseHashUrl(): boolean {
+    try {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (!hash) return false;
+
+      const params = new URLSearchParams(hash);
+      const pinsStr = params.get('pins');
+      const harmonyStr = params.get('harmony');
+      const cvdStr = params.get('cvd');
+
+      if (cvdStr && ['normal', 'protanopia', 'deuteranopia', 'tritanopia', 'achromatopsia'].includes(cvdStr)) {
+        currentCvdMode = cvdStr as any;
+        cvdModeButtons.forEach((btn) => {
+          if (btn.getAttribute('data-cvd') === currentCvdMode) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+
+      if (harmonyStr) {
+        currentHarmony = harmonyStr;
+        harmonyButtons.forEach((b) => {
+          if (b.getAttribute('data-mode') === currentHarmony) {
+            b.classList.add('active');
+          } else {
+            b.classList.remove('active');
+          }
+        });
+      }
+
+      if (pinsStr) {
+        const hexList = pinsStr.split(',').map((h) => `#${h.trim().toUpperCase()}`);
+        if (hexList.length >= 2) {
+          palette = hexList.map((hex, idx) => {
+            const ok = hexToOklch(hex) || { l: 0.6, c: 0.15, h: 200 };
+            return {
+              id: `p${idx}-${Math.random().toString(36).substring(2, 6)}`,
+              hex,
+              l: ok.l,
+              c: ok.c,
+              h: ok.h,
+              isBase: idx === 0,
+              isLocked: false,
+            };
+          });
+          baseIndex = 0;
+          return true;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+    return false;
+  }
+
   function initDefaultPalette() {
+    const loadedFromHash = parseHashUrl();
+    if (loadedFromHash) {
+      renderAll();
+      return;
+    }
+
     const baseHex = '#3B82F6';
     const baseOk = hexToOklch(baseHex)!;
 
@@ -479,7 +921,7 @@
       pin.className = `chroma-pin ${item.isBase ? 'pin-is-base' : ''} ${item.isLocked ? 'pin-is-locked' : ''}`;
       pin.style.left = `${pos.x}px`;
       pin.style.top = `${pos.y}px`;
-      pin.style.backgroundColor = item.hex;
+      pin.style.backgroundColor = getEffectiveHex(item.hex);
       pin.setAttribute('data-index', idx.toString());
 
       if (item.isBase) {
@@ -568,6 +1010,8 @@
         }
       });
     }
+
+    syncHashUrl();
   }
 
   function setupWheelDragListeners() {
@@ -677,14 +1121,8 @@
       const inGamut = isInGamut({ l: item.l, c: item.c, h: item.h }, 'srgb');
       const cusp = findGamutCusp(item.h, 'srgb');
 
-      let displayHex = item.hex;
-      let isCvdActive = false;
-      if (currentCvdMode !== 'normal') {
-        const rgb = parseHex(item.hex) || { r: 0, g: 0, b: 0 };
-        const simRgb = simulateCvd(rgb, currentCvdMode as CvdType, 1.0);
-        displayHex = rgbToHex(simRgb);
-        isCvdActive = true;
-      }
+      const displayHex = getEffectiveHex(item.hex);
+      const isCvdActive = currentCvdMode !== 'normal';
 
       const whiteAudit = auditContrastHex('#FFFFFF', displayHex);
       const apcaScore = whiteAudit ? Math.abs(whiteAudit.apca.lc).toFixed(0) : '0';
@@ -763,6 +1201,7 @@
           const movedItem = palette.splice(draggedCardIndex, 1)[0];
           palette.splice(idx, 0, movedItem);
           baseIndex = palette.findIndex((p) => p.isBase);
+          syncHashUrl();
           renderAll();
         }
         draggedCardIndex = null;
@@ -782,6 +1221,7 @@
         palette.forEach((p) => (p.isBase = false));
         item.isBase = true;
         baseIndex = idx;
+        syncHashUrl();
         renderAll();
       });
 
@@ -810,6 +1250,7 @@
           } else {
             baseIndex = palette.findIndex((p) => p.isBase);
           }
+          syncHashUrl();
           renderAll();
         }
       });
@@ -818,6 +1259,7 @@
       toneRange?.addEventListener('input', (e) => {
         item.l = parseFloat(toneRange.value);
         item.hex = oklchToHex(item.l, item.c, item.h);
+        syncHashUrl();
         renderAll();
       });
 
@@ -829,6 +1271,7 @@
           item.l = ok.l;
           item.c = ok.c;
           item.h = ok.h;
+          syncHashUrl();
           renderAll();
         }
       });
@@ -839,7 +1282,7 @@
 
   function updateBaseControls() {
     const base = palette[baseIndex] || palette[0];
-    baseColorSquare.style.backgroundColor = base.hex;
+    baseColorSquare.style.backgroundColor = getEffectiveHex(base.hex);
     baseNativePicker.value = base.hex;
     baseHexInput.value = base.hex.replace(/^#/, '');
 
@@ -856,15 +1299,149 @@
     currentHarmonyLabel.textContent = harmonyNameMap[currentHarmony] || currentHarmony;
   }
 
+  function updateMockupUI() {
+    const base = palette[baseIndex] || palette[0];
+    const c0 = getEffectiveHex(palette[0]?.hex || base.hex);
+    const c1 = getEffectiveHex(palette[1]?.hex || palette[0]?.hex || base.hex);
+    const c2 = getEffectiveHex(palette[2]?.hex || palette[1]?.hex || base.hex);
+    const c3 = getEffectiveHex(palette[3]?.hex || palette[2]?.hex || base.hex);
+    const c4 = getEffectiveHex(palette[4]?.hex || palette[3]?.hex || base.hex);
+    const brandHex = getEffectiveHex(base.hex);
+
+    const isDark = currentMockupTheme === 'dark';
+
+    // Container & Background
+    if (mockupCanvasContainer) {
+      mockupCanvasContainer.style.background = isDark ? '#0F131C' : '#F8FAFC';
+      mockupCanvasContainer.style.color = isDark ? '#F1F5F9' : '#0F172A';
+      mockupCanvasContainer.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    }
+
+    // App Bar
+    if (mockupAppBar) {
+      mockupAppBar.style.background = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)';
+      mockupAppBar.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+    }
+
+    if (mockupLogoDot) {
+      mockupLogoDot.style.backgroundColor = brandHex;
+      mockupLogoDot.style.boxShadow = `0 0 10px ${brandHex}`;
+    }
+
+    if (mockupNavActive) {
+      mockupNavActive.style.color = brandHex;
+      mockupNavActive.style.borderBottomColor = brandHex;
+    }
+
+    if (mockupAvatar) {
+      mockupAvatar.style.backgroundColor = c1;
+      mockupAvatar.style.color = '#FFFFFF';
+    }
+
+    // KPI Cards
+    const kpiCards = [mockupKpi1, mockupKpi2, mockupKpi3];
+    kpiCards.forEach((kpi) => {
+      if (kpi) {
+        kpi.style.background = isDark ? 'rgba(255, 255, 255, 0.04)' : '#FFFFFF';
+        kpi.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+        kpi.style.boxShadow = isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.04)';
+      }
+    });
+
+    if (mockupGrowthBadge) {
+      mockupGrowthBadge.style.backgroundColor = `${c0}25`;
+      mockupGrowthBadge.style.color = c0;
+      mockupGrowthBadge.style.border = `1px solid ${c0}50`;
+    }
+
+    if (mockupStatusBadge) {
+      mockupStatusBadge.style.backgroundColor = `${brandHex}25`;
+      mockupStatusBadge.style.color = brandHex;
+      mockupStatusBadge.style.border = `1px solid ${brandHex}50`;
+    }
+
+    if (mockupAccentBadge) {
+      mockupAccentBadge.style.backgroundColor = `${c3}25`;
+      mockupAccentBadge.style.color = c3;
+      mockupAccentBadge.style.border = `1px solid ${c3}50`;
+    }
+
+    if (mockupBarFill1) mockupBarFill1.style.backgroundColor = c0;
+    if (mockupBarFill2) mockupBarFill2.style.backgroundColor = brandHex;
+    if (mockupBarFill3) mockupBarFill3.style.backgroundColor = c3;
+
+    // Feature Box
+    if (mockupFeatureBox) {
+      mockupFeatureBox.style.background = isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF';
+      mockupFeatureBox.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+    }
+
+    if (mockupPillTag) {
+      mockupPillTag.style.backgroundColor = `${brandHex}20`;
+      mockupPillTag.style.color = brandHex;
+      mockupPillTag.style.border = `1px solid ${brandHex}50`;
+    }
+
+    if (mockupMainBtn) {
+      mockupMainBtn.style.backgroundColor = brandHex;
+      mockupMainBtn.style.color = '#FFFFFF';
+      mockupMainBtn.style.boxShadow = `0 4px 14px ${brandHex}40`;
+    }
+
+    if (mockupSecBtn) {
+      mockupSecBtn.style.background = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)';
+      mockupSecBtn.style.color = isDark ? '#FFFFFF' : '#1E293B';
+      mockupSecBtn.style.border = isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.15)';
+    }
+
+    // Form Box
+    if (mockupFormBox) {
+      mockupFormBox.style.background = isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF';
+      mockupFormBox.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+    }
+
+    if (mockupTextInput) {
+      mockupTextInput.style.background = isDark ? 'rgba(0, 0, 0, 0.4)' : '#F1F5F9';
+      mockupTextInput.style.color = isDark ? '#F8FAFC' : '#0F172A';
+      mockupTextInput.style.borderColor = `${brandHex}60`;
+    }
+
+    if (mockupInputBtn) {
+      mockupInputBtn.style.backgroundColor = brandHex;
+      mockupInputBtn.style.color = '#FFFFFF';
+    }
+
+    if (mockupPillActive) {
+      mockupPillActive.style.backgroundColor = `${c0}20`;
+      mockupPillActive.style.color = c0;
+      mockupPillActive.style.border = `1px solid ${c0}40`;
+    }
+
+    if (mockupPillNeutral) {
+      mockupPillNeutral.style.backgroundColor = `${c1}20`;
+      mockupPillNeutral.style.color = c1;
+      mockupPillNeutral.style.border = `1px solid ${c1}40`;
+    }
+
+    if (mockupPillAccent) {
+      mockupPillAccent.style.backgroundColor = `${c4}20`;
+      mockupPillAccent.style.color = c4;
+      mockupPillAccent.style.border = `1px solid ${c4}40`;
+    }
+
+    if (mockupGradientBar) {
+      mockupGradientBar.style.background = `linear-gradient(90deg, ${c0}, ${c1}, ${brandHex}, ${c3}, ${c4})`;
+    }
+
+    const audit = auditContrastHex(brandHex, isDark ? '#0F131C' : '#FFFFFF');
+    if (audit && mockupWcagRatioDisplay) {
+      mockupWcagRatioDisplay.textContent = `${audit.wcag.ratio.toFixed(1)} : 1`;
+    }
+  }
+
   function updateBottomPanels() {
     const base = palette[baseIndex] || palette[0];
-    let baseHex = base.hex;
-
-    if (currentCvdMode !== 'normal') {
-      const rgb = parseHex(base.hex) || { r: 0, g: 0, b: 0 };
-      const sim = simulateCvd(rgb, currentCvdMode as CvdType, 1.0);
-      baseHex = rgbToHex(sim);
-    }
+    const baseHex = getEffectiveHex(base.hex);
 
     const onWhite = auditContrastHex(baseHex, '#FFFFFF');
     const onBlack = auditContrastHex(baseHex, '#0A0D14');
@@ -900,18 +1477,24 @@
       inkDot.style.backgroundColor = '#0A0D14';
     }
 
-    const tokens = generateDesignTokens(baseHex);
-    if (tokens) {
-      previewBtnBrand.style.backgroundColor = tokens.light['--brand'];
-      previewBtnBrand.style.color = '#FFFFFF';
-      previewBtnSubtle.style.backgroundColor = tokens.light['--surface-2'];
-      previewBtnSubtle.style.color = tokens.light['--ink'];
-      previewBtnSubtle.style.border = `1px solid ${tokens.light['--line']}`;
-      previewCardBox.style.backgroundColor = tokens.light['--surface'];
-      previewCardBox.style.border = `1px solid ${tokens.light['--line']}`;
-      previewCardBadge.style.backgroundColor = tokens.light['--brand'];
-      previewCardBadge.style.color = '#FFFFFF';
+    // Global Health Summary
+    const allInSrgb = palette.every((p) => isInGamut({ l: p.l, c: p.c, h: p.h }, 'srgb'));
+    const allPassAa = onWhite?.wcag.normal_aa || onBlack?.wcag.normal_aa;
 
+    if (globalHealthText) {
+      globalHealthText.textContent = allPassAa
+        ? `Paleta 100% WCAG AA Validada (APCA Lc ${Math.max(whiteScore, blackScore).toFixed(0)})`
+        : `Aviso: Contraste abaixo de 4.5:1 (Ajuste o tom)`;
+    }
+
+    if (gamutSummaryBadge) {
+      gamutSummaryBadge.innerHTML = allInSrgb
+        ? `<span>sRGB & Display P3 Safe</span>`
+        : `<span style="color:#C084FC;">Gamut Expandido (Display P3)</span>`;
+    }
+
+    const tokens = generateDesignTokens(base.hex);
+    if (tokens) {
       const formatted = exportTokens(tokens, currentFormat as any);
       tokensCodeOutput.textContent = formatted;
     }
@@ -977,9 +1560,11 @@
     renderPaletteCards();
     renderCvdMatrix();
     updateBaseControls();
+    updateMockupUI();
     updateBottomPanels();
   }
 
+  // Event Listeners
   cvdModeButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       cvdModeButtons.forEach((b) => b.classList.remove('active'));
@@ -995,6 +1580,7 @@
       if (cvdActiveLabel) {
         cvdActiveLabel.textContent = labelMap[currentCvdMode] || currentCvdMode;
       }
+      syncHashUrl();
       renderAll();
     });
   });
@@ -1014,6 +1600,7 @@
         } else {
           applyHarmonyConstellation(ok.h, ok.c);
         }
+        syncHashUrl();
         renderAll();
       }
     }
@@ -1031,6 +1618,7 @@
       } else {
         applyHarmonyConstellation(ok.h, ok.c);
       }
+      syncHashUrl();
       renderAll();
     }
   });
@@ -1052,6 +1640,7 @@
             } else {
               applyHarmonyConstellation(ok.h, ok.c);
             }
+            syncHashUrl();
             renderAll();
           }
         }
@@ -1067,6 +1656,7 @@
     const randomH = Math.floor(Math.random() * 360);
     const randomC = 0.12 + Math.random() * 0.14;
     applyHarmonyConstellation(randomH, randomC);
+    syncHashUrl();
     renderAll();
   });
 
@@ -1084,6 +1674,7 @@
         isBase: false,
         isLocked: false,
       });
+      syncHashUrl();
       renderAll();
     }
   });
@@ -1097,6 +1688,7 @@
         const base = palette[baseIndex] || palette[0];
         applyHarmonyConstellation(base.h, base.c);
       }
+      syncHashUrl();
       renderAll();
     });
   });
@@ -1175,7 +1767,9 @@
               b.classList.remove('active');
             }
           });
+          syncHashUrl();
           renderAll();
+          showToast('Paleta extraída com K-Means em OKLab!');
         }
       };
       img.src = event.target?.result as string;
@@ -1183,7 +1777,43 @@
     reader.readAsDataURL(file);
   });
 
+  // Presets & Share Handlers
+  togglePresetsBtn?.addEventListener('click', () => {
+    presetsDrawer?.classList.toggle('drawer-open');
+  });
+
+  closePresetsBtn?.addEventListener('click', () => {
+    presetsDrawer?.classList.remove('drawer-open');
+  });
+
+  sharePaletteBtn?.addEventListener('click', () => {
+    syncHashUrl();
+    navigator.clipboard.writeText(window.location.href);
+    showToast('Link da paleta copiado para a área de transferência!');
+  });
+
+  // Mockup Theme Switchers
+  mockupThemeDarkBtn?.addEventListener('click', () => {
+    currentMockupTheme = 'dark';
+    mockupThemeDarkBtn.classList.add('active');
+    mockupThemeLightBtn.classList.remove('active');
+    updateMockupUI();
+  });
+
+  mockupThemeLightBtn?.addEventListener('click', () => {
+    currentMockupTheme = 'light';
+    mockupThemeLightBtn.classList.add('active');
+    mockupThemeDarkBtn.classList.remove('active');
+    updateMockupUI();
+  });
+
+  mockupInputBtn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(mockupTextInput.value);
+    showToast('Token copiado!');
+  });
+
   setupWheelDragListeners();
+  renderPresets();
   initDefaultPalette();
 </script>
 
@@ -1191,10 +1821,219 @@
   .studio-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 32px;
-    margin: 32px 0 64px 0;
+    gap: 28px;
+    margin: 24px 0 64px 0;
+    position: relative;
   }
 
+  /* Toast Notification */
+  .studio-toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 16px rgba(59, 130, 246, 0.25);
+    backdrop-filter: blur(12px);
+    color: #FFFFFF;
+    padding: 12px 20px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .studio-toast.toast-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Top Toolbar */
+  .studio-top-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-radius: var(--radius-lg);
+  }
+
+  .toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .health-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4ADE80;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+  }
+
+  .health-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ADE80;
+    box-shadow: 0 0 8px #4ADE80;
+  }
+
+  .gamut-summary-pill {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+  }
+
+  .btn-share-pill {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
+    color: #60A5FA !important;
+  }
+
+  .btn-share-pill:hover {
+    background: rgba(59, 130, 246, 0.25) !important;
+    color: #FFFFFF !important;
+  }
+
+  /* Presets Drawer */
+  .presets-drawer {
+    display: none;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(15, 20, 32, 0.95);
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .presets-drawer.drawer-open {
+    display: block;
+  }
+
+  .presets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .presets-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+
+  .presets-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .close-presets-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .close-presets-btn:hover {
+    color: #FFFFFF;
+  }
+
+  .presets-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .preset-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .preset-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .preset-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .preset-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .preset-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    background: rgba(59, 130, 246, 0.15);
+    color: #60A5FA;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .preset-swatches-row {
+    display: flex;
+    height: 22px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .preset-swatch-dot {
+    flex: 1;
+    height: 100%;
+  }
+
+  .preset-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .preset-action {
+    color: #60A5FA;
+    font-weight: 600;
+  }
+
+  /* Main Grid */
   .studio-main-grid {
     display: grid;
     grid-template-columns: 440px 1fr;
@@ -1259,16 +2098,7 @@
     pointer-events: none;
   }
 
-  .chromatic-svg-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 300px;
-    height: 300px;
-    pointer-events: none;
-  }
-
-  .chromatic-pins-layer {
+  .chromatic-svg-overlay, .chromatic-pins-layer {
     position: absolute;
     top: 0;
     left: 0;
@@ -1418,6 +2248,7 @@
     color: var(--text-primary);
     font-size: 12px;
     font-weight: 600;
+    cursor: pointer;
     transition: all 0.15s ease;
   }
 
@@ -1451,6 +2282,7 @@
     color: var(--text-secondary);
     font-size: 11px;
     font-weight: 600;
+    cursor: pointer;
     transition: all 0.15s ease;
     text-align: center;
   }
@@ -1656,6 +2488,7 @@
     border: 1px solid var(--border-subtle);
     transition: all 0.15s ease;
     white-space: nowrap;
+    cursor: pointer;
   }
 
   .swatch-action-link:hover {
@@ -1681,6 +2514,7 @@
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 11px;
+    cursor: pointer;
     transition: all 0.15s ease;
   }
 
@@ -1714,9 +2548,489 @@
     text-align: center;
   }
 
+  /* CVD Selector Bar */
+  .cvd-selector-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cvd-header-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cvd-active-status {
+    font-size: 11px;
+    font-weight: 700;
+    color: #60A5FA;
+    background: rgba(59, 130, 246, 0.15);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .cvd-modes-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .cvd-mode-btn {
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .cvd-mode-btn:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .cvd-mode-btn.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--brand-primary);
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+
+  .cvd-sub-badge {
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  .swatch-orig-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .swatch-gamut-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+  }
+
+  .gamut-srgb {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ADE80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .gamut-p3 {
+    background: rgba(168, 85, 247, 0.15);
+    color: #C084FC;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+  }
+
+  /* CVD Multimodal Panel */
+  .cvd-matrix-panel {
+    padding: 24px;
+  }
+
+  .cvd-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .cvd-matrix-col {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.2s ease;
+  }
+
+  .cvd-matrix-col-active {
+    border-color: rgba(59, 130, 246, 0.6);
+    background: rgba(59, 130, 246, 0.05);
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
+  }
+
+  .cvd-col-header {
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 8px;
+  }
+
+  .cvd-col-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .cvd-col-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .cvd-col-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cvd-swatch-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+  }
+
+  .cvd-swatch-chip {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+  }
+
+  .cvd-swatch-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+
+  .cvd-swatch-hex {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  /* UI SHOWCASE PANEL & MOCKUP CANVAS */
+  .ui-showcase-panel {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ui-mockup-controls {
+    display: flex;
+    align-items: center;
+  }
+
+  .theme-toggle-group {
+    display: flex;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    padding: 3px;
+  }
+
+  .theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .theme-toggle-btn.active {
+    background: rgba(59, 130, 246, 0.25);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .mockup-canvas-wrapper {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .mockup-app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid;
+  }
+
+  .mockup-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mockup-logo-mark {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+
+  .mockup-brand-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .mockup-nav-links {
+    display: flex;
+    gap: 18px;
+  }
+
+  .mockup-nav-item {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.7;
+    cursor: pointer;
+    padding-bottom: 2px;
+  }
+
+  .mockup-nav-item.active {
+    opacity: 1;
+    border-bottom: 2px solid;
+  }
+
+  .mockup-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .mockup-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .mockup-kpi-card {
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .kpi-value-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .kpi-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+  }
+
+  .kpi-growth-badge, .kpi-status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+  }
+
+  .kpi-bar-track {
+    height: 6px;
+    background: rgba(128, 128, 128, 0.15);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+
+  .kpi-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+  }
+
+  .mockup-content-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+  }
+
+  .mockup-feature-box, .mockup-form-box {
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .feature-tag-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mockup-pill-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.06em;
+  }
+
+  .feature-stars {
+    font-size: 12px;
+    color: #FBBF24;
+    font-weight: 600;
+  }
+
+  .feature-card-heading {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .feature-card-summary {
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: 0.8;
+  }
+
+  .feature-action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .mockup-btn-brand {
+    padding: 9px 18px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .mockup-btn-brand:hover {
+    transform: translateY(-1px);
+  }
+
+  .mockup-btn-outline {
+    padding: 9px 18px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .form-row-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-field-label {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  .form-input-wrapper {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mockup-text-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    outline: none;
+  }
+
+  .mockup-input-btn {
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .form-switches-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mockup-badge-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  .form-progress-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .progress-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    opacity: 0.7;
+    font-weight: 600;
+  }
+
+  .mockup-gradient-bar {
+    height: 10px;
+    border-radius: var(--radius-full);
+  }
+
+  /* Bottom Section: Contrast Gates & Tokens */
   .studio-bottom-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 440px 1fr;
     gap: 24px;
   }
 
@@ -1833,66 +3147,6 @@
     border-radius: 50%;
   }
 
-  .preview-surface {
-    background: #FAFAFB;
-    border-radius: var(--radius-md);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    color: #1F242F;
-  }
-
-  .preview-row {
-    display: flex;
-    gap: 10px;
-  }
-
-  .preview-btn-primary {
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 13px;
-  }
-
-  .preview-btn-secondary {
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 13px;
-  }
-
-  .preview-card {
-    padding: 14px;
-    border-radius: var(--radius-md);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .preview-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .preview-card-badge {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-  }
-
-  .preview-card-title {
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .preview-card-desc {
-    font-size: 12px;
-    color: #647087;
-  }
-
   .token-tabs {
     display: flex;
     gap: 4px;
@@ -1909,6 +3163,7 @@
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
+    cursor: pointer;
     transition: all 0.15s ease;
   }
 
@@ -1948,177 +3203,9 @@
     width: 100%;
   }
 
-  .cvd-selector-container {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .cvd-header-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .cvd-active-status {
-    font-size: 11px;
-    font-weight: 700;
-    color: #60A5FA;
-    background: rgba(59, 130, 246, 0.15);
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-  }
-
-  .cvd-modes-buttons {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-  }
-
-  .cvd-mode-btn {
-    padding: 6px 8px;
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-  }
-
-  .cvd-mode-btn:hover {
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .cvd-mode-btn.active {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: var(--brand-primary);
-    color: #FFFFFF;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-  }
-
-  .cvd-sub-badge {
-    font-size: 9px;
-    opacity: 0.7;
-  }
-
-  .swatch-orig-label {
-    font-size: 10px;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-  }
-
-  .swatch-gamut-pill {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: var(--radius-full);
-  }
-
-  .gamut-srgb {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ADE80;
-    border: 1px solid rgba(34, 197, 94, 0.3);
-  }
-
-  .gamut-p3 {
-    background: rgba(168, 85, 247, 0.15);
-    color: #C084FC;
-    border: 1px solid rgba(168, 85, 247, 0.3);
-  }
-
-  .cvd-matrix-panel {
-    padding: 24px;
-    margin: 24px 0;
-  }
-
-  .cvd-matrix-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 14px;
-    margin-top: 16px;
-  }
-
-  .cvd-matrix-col {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    transition: all 0.2s ease;
-  }
-
-  .cvd-matrix-col-active {
-    border-color: rgba(59, 130, 246, 0.6);
-    background: rgba(59, 130, 246, 0.05);
-    box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
-  }
-
-  .cvd-col-header {
-    border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: 8px;
-  }
-
-  .cvd-col-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #FFFFFF;
-  }
-
-  .cvd-col-sub {
-    font-size: 10px;
-    color: var(--text-muted);
-  }
-
-  .cvd-col-items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .cvd-swatch-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(0, 0, 0, 0.25);
-    padding: 6px;
-    border-radius: var(--radius-sm);
-  }
-
-  .cvd-swatch-chip {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    flex-shrink: 0;
-  }
-
-  .cvd-swatch-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    overflow: hidden;
-  }
-
-  .cvd-swatch-hex {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: #FFFFFF;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @media (max-width: 1100px) {
@@ -2126,6 +3213,15 @@
       grid-template-columns: 1fr;
     }
     .studio-bottom-grid {
+      grid-template-columns: 1fr;
+    }
+    .presets-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .mockup-kpi-grid {
+      grid-template-columns: 1fr;
+    }
+    .mockup-content-grid {
       grid-template-columns: 1fr;
     }
     .cvd-modes-buttons {
@@ -2137,11 +3233,18 @@
   }
 
   @media (max-width: 700px) {
+    .presets-grid {
+      grid-template-columns: 1fr;
+    }
     .cvd-modes-buttons {
       grid-template-columns: repeat(2, 1fr);
     }
     .cvd-matrix-grid {
       grid-template-columns: 1fr;
+    }
+    .toolbar-left, .toolbar-right {
+      width: 100%;
+      justify-content: space-between;
     }
   }
 </style>
