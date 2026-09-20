@@ -1115,7 +1115,7 @@
     palette.forEach((item, idx) => {
       const card = document.createElement('div');
       card.className = `swatch-row-card ${item.isBase ? 'swatch-row-base' : ''}`;
-      card.setAttribute('draggable', 'true');
+      card.setAttribute('draggable', 'false');
       card.setAttribute('data-index', idx.toString());
 
       const inGamut = isInGamut({ l: item.l, c: item.c, h: item.h }, 'srgb');
@@ -1173,7 +1173,19 @@
         </div>
       `;
 
+      const grip = card.querySelector('.drag-handle-grip') as HTMLElement;
+      grip?.addEventListener('mousedown', () => {
+        card.setAttribute('draggable', 'true');
+      });
+      grip?.addEventListener('touchstart', () => {
+        card.setAttribute('draggable', 'true');
+      }, { passive: true });
+
       card.addEventListener('dragstart', (e) => {
+        if (card.getAttribute('draggable') !== 'true') {
+          e.preventDefault();
+          return;
+        }
         draggedCardIndex = idx;
         card.classList.add('is-dragging-card');
         if (e.dataTransfer) {
@@ -1209,12 +1221,19 @@
 
       card.addEventListener('dragend', () => {
         card.classList.remove('is-dragging-card');
+        card.setAttribute('draggable', 'false');
         draggedCardIndex = null;
       });
 
       card.querySelectorAll('[data-stop-drag="true"]').forEach((el) => {
-        el.addEventListener('mousedown', (e) => e.stopPropagation());
-        el.addEventListener('touchstart', (e) => e.stopPropagation());
+        el.addEventListener('mousedown', (e) => {
+          card.setAttribute('draggable', 'false');
+          e.stopPropagation();
+        });
+        el.addEventListener('touchstart', (e) => {
+          card.setAttribute('draggable', 'false');
+          e.stopPropagation();
+        });
       });
 
       card.querySelector('[data-action="base"]')?.addEventListener('click', () => {
@@ -1255,15 +1274,89 @@
         }
       });
 
+      const updateCardVisuals = () => {
+        const displayHex = getEffectiveHex(item.hex);
+        const isCvdActive = currentCvdMode !== 'normal';
+        const inGamut = isInGamut({ l: item.l, c: item.c, h: item.h }, 'srgb');
+        const cusp = findGamutCusp(item.h, 'srgb');
+        const whiteAudit = auditContrastHex('#FFFFFF', displayHex);
+        const apcaScore = whiteAudit ? Math.abs(whiteAudit.apca.lc).toFixed(0) : '0';
+
+        const thumb = card.querySelector('.swatch-square-thumb') as HTMLElement;
+        if (thumb) {
+          thumb.style.backgroundColor = displayHex;
+          thumb.title = isCvdActive ? `Original: ${item.hex} | Simulado: ${displayHex}` : item.hex;
+          if (isCvdActive) {
+            thumb.style.boxShadow = `inset 0 0 0 2px ${item.hex}`;
+          } else {
+            thumb.style.boxShadow = '';
+          }
+        }
+
+        const hexLabel = card.querySelector('.swatch-hex-label') as HTMLElement;
+        if (hexLabel) hexLabel.textContent = displayHex;
+
+        const origLabel = card.querySelector('.swatch-orig-label') as HTMLElement;
+        if (origLabel) {
+          origLabel.textContent = isCvdActive ? `orig: ${item.hex}` : '';
+          origLabel.style.display = isCvdActive ? 'inline' : 'none';
+        }
+
+        const lcPill = card.querySelector('.swatch-lc-pill') as HTMLElement;
+        if (lcPill) lcPill.textContent = `Lc ${apcaScore}`;
+
+        const gamutPill = card.querySelector('.swatch-gamut-pill') as HTMLElement;
+        if (gamutPill) {
+          gamutPill.className = `swatch-gamut-pill ${inGamut ? 'gamut-srgb' : 'gamut-p3'}`;
+          gamutPill.textContent = inGamut ? 'sRGB' : 'P3 Wide';
+          gamutPill.title = `Cusp Max Chroma: ${cusp.max_chroma.toFixed(2)}`;
+        }
+
+        const toneLabel = card.querySelector('.tone-label') as HTMLElement;
+        if (toneLabel) toneLabel.textContent = `Tom: ${(item.l * 100).toFixed(0)}%`;
+      };
+
       const toneRange = card.querySelector('[data-action="slider-tone"]') as HTMLInputElement;
-      toneRange?.addEventListener('input', (e) => {
+      toneRange?.setAttribute('draggable', 'false');
+      toneRange?.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      toneRange?.addEventListener('mousedown', (e) => {
+        card.setAttribute('draggable', 'false');
+        e.stopPropagation();
+      });
+      toneRange?.addEventListener('pointerdown', (e) => {
+        card.setAttribute('draggable', 'false');
+        e.stopPropagation();
+      });
+      toneRange?.addEventListener('input', () => {
         item.l = parseFloat(toneRange.value);
         item.hex = oklchToHex(item.l, item.c, item.h);
+        updateCardVisuals();
+        drawWheelCanvas();
+        renderWheelPins();
+        renderCvdMatrix();
+        updateBaseControls();
+        updateMockupUI();
+        updateBottomPanels();
         syncHashUrl();
-        renderAll();
       });
 
       const nativePicker = card.querySelector('[data-action="pick-color"]') as HTMLInputElement;
+      nativePicker?.setAttribute('draggable', 'false');
+      nativePicker?.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      nativePicker?.addEventListener('mousedown', (e) => {
+        card.setAttribute('draggable', 'false');
+        e.stopPropagation();
+      });
+      nativePicker?.addEventListener('pointerdown', (e) => {
+        card.setAttribute('draggable', 'false');
+        e.stopPropagation();
+      });
       nativePicker?.addEventListener('input', () => {
         const ok = hexToOklch(nativePicker.value);
         if (ok) {
@@ -1271,8 +1364,15 @@
           item.l = ok.l;
           item.c = ok.c;
           item.h = ok.h;
+          if (toneRange) toneRange.value = item.l.toString();
+          updateCardVisuals();
+          drawWheelCanvas();
+          renderWheelPins();
+          renderCvdMatrix();
+          updateBaseControls();
+          updateMockupUI();
+          updateBottomPanels();
           syncHashUrl();
-          renderAll();
         }
       });
 
@@ -2397,9 +2497,16 @@
     align-items: center;
     justify-content: center;
     transition: color 0.15s ease;
+    touch-action: none;
+    user-select: none;
   }
 
   .drag-handle-grip:hover {
+    color: #FFFFFF;
+  }
+
+  .drag-handle-grip:active {
+    cursor: grabbing;
     color: #FFFFFF;
   }
 
@@ -2470,6 +2577,8 @@
     height: 6px;
     flex: 1;
     cursor: pointer;
+    touch-action: pan-x;
+    accent-color: #3B82F6;
   }
 
   .swatch-right-actions {
