@@ -66,6 +66,16 @@ export type HarmonyMode =
   | 'monochromatic'
   | 'custom';
 
+export type CvdType = 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia';
+
+export interface CvdAuditResult {
+  cvd_type: CvdType;
+  simulated_fg: string;
+  simulated_bg: string;
+  wcag: WcagVerdict;
+  apca: ApcaVerdict;
+}
+
 export interface SwatchItem {
   hex: string;
   l: number;
@@ -77,3 +87,28 @@ export interface DesignSystemTokens {
   light: Record<string, string>;
   dark: Record<string, string>;
 }
+
+export type TargetGamut = 'srgb' | 'p3' | 'display-p3' | 'rec2020';
+
+export interface GamutCusp {
+  hue: number;
+  lightness: number;
+  max_chroma: number;
+}
+
+export interface GamutMappingResult {
+  original: OklchColor;
+  mapped: OklchColor;
+  in_gamut: boolean;
+  iterations: number;
+  target_gamut: TargetGamut;
+}
+
+export interface QuantizedColor {
+  rgb: RgbColor;
+  oklch: OklchColor;
+  pixel_count: number;
+  weight: number;
+}
+
+

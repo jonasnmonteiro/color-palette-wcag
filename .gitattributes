@@ -1,0 +1,16 @@
+# GitHub Linguist Configuration for Colorust Suite
+# Ensures Rust is registered as the dominant codebase language (>85%)
+
+# Vendored web application and tooling
+web/** linguist-vendored
+crawler/** linguist-vendored
+wasm/dist/** linguist-vendored
+wasm/pkg/** linguist-vendored
+node_modules/** linguist-vendored
+package-lock.json linguist-vendored
+Cargo.lock linguist-vendored
+
+# Academic engineering studies
+estudos/** linguist-documentation
+docs/** linguist-documentation
+*.md linguist-documentation

@@ -1,18 +1,27 @@
 pub mod contrast;
+pub mod cvd;
 pub mod delta_e;
 pub mod exporter;
+pub mod gamut;
 pub mod harmonies;
 pub mod palette;
+pub mod quantization;
 pub mod spaces;
 
 pub use contrast::{
     apca_contrast, best_ink_for_ground, relative_luminance, wcag21_contrast, ApcaVerdict,
     WcagVerdict,
 };
+pub use cvd::{audit_cvd_contrast, simulate_cvd, CvdAuditResult, CvdType};
 pub use delta_e::ciede2000;
 pub use exporter::{ExportFormat, TokenExporter};
+pub use gamut::{
+    clip_to_srgb, find_gamut_cusp, is_in_display_p3_gamut, is_in_gamut, is_in_srgb_gamut,
+    map_to_gamut_binary_search, GamutCusp, GamutMappingResult, TargetGamut,
+};
 pub use harmonies::{generate_harmony, generate_harmony_hexes, HarmonyMode};
 pub use palette::{DesignSystemTokens, Palette, Swatch};
+pub use quantization::{quantize_image_oklab, QuantizedColor};
 pub use spaces::{Cielab, Hsl, Hsv, LinearRgb, Oklab, Oklch, Rgb};
 
 pub fn hex_to_oklch(hex: &str) -> Option<Oklch> {

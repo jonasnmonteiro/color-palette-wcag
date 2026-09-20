@@ -1,7 +1,7 @@
 {
-  "name": "@auracolor/wasm",
+  "name": "@colorust/wasm",
   "version": "1.0.0",
-  "description": "TypeScript SDK and WebAssembly bindings for AuraColor perceptual color science core",
+  "description": "TypeScript SDK and WebAssembly bindings for Colorust perceptual color science core",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

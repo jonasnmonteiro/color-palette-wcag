@@ -1,16 +1,16 @@
 [package]
-name = "auracolor-wasm"
+name = "colorust-wasm"
 version = "1.0.0"
 edition = "2021"
 authors = ["Jonas Monteiro"]
-description = "WebAssembly bindings for AuraColor perceptual color science core"
+description = "WebAssembly bindings for Colorust perceptual color science core"
 license = "MIT"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-auracolor-core = { path = "../core" }
+colorust-core = { path = "../core" }
 wasm-bindgen = "0.2"
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.6"

@@ -1,4 +1,4 @@
-# Color Palette & Accessibility Contrast Auditor (AuraColor Suite)
+# Color Palette & Accessibility Contrast Auditor (Colorust Suite)
 
 An ultra-high-performance color science suite, perceptual palette generator, and accessibility contrast auditor built in **Rust (WebAssembly)**, **TypeScript**, **Astro**, and **Bun/Playwright**.
 
@@ -8,7 +8,7 @@ An ultra-high-performance color science suite, perceptual palette generator, and
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
-│                    AURACOLOR SYSTEM ARCHITECTURE                           │
+│                    COLORUST SYSTEM ARCHITECTURE                            │
 ├────────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │   ┌────────────────────────┐                    ┌───────────────────────┐  │
@@ -22,6 +22,7 @@ An ultra-high-performance color science suite, perceptual palette generator, and
 │   │  • OKLCH / Oklab / CIELAB / sRGB / HSV Matrix Color Spaces          │  │
 │   │  • WCAG 2.1 (Relative Luminance) & WCAG 3.0 APCA Contrast ($L^c$)   │  │
 │   │  • Delta E 2000 ($\Delta E_{00}$) Perceptual Color Difference       │  │
+│   │  • Color Vision Deficiency (CVD) Spectral Simulation Engine         │  │
 │   │  • 8 Harmonic Projections & Gamut Clipping / Mapping Engine         │  │
 │   │  • Multi-Target Token Exporter (Figma, Tailwind, CSS, Style Dict)   │  │
 │   └─────────────────────────────────────────────────────────────────────┘  │

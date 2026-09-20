@@ -1,9 +1,9 @@
-use auracolor_core::contrast::{
+use colorust_core::contrast::{
     apca_contrast, best_ink_for_ground, relative_luminance, wcag21_contrast,
 };
-use auracolor_core::harmonies::{generate_harmony_hexes, HarmonyMode};
-use auracolor_core::palette::{DesignSystemTokens, Palette};
-use auracolor_core::spaces::Rgb;
+use colorust_core::harmonies::{generate_harmony_hexes, HarmonyMode};
+use colorust_core::palette::{DesignSystemTokens, Palette};
+use colorust_core::spaces::Rgb;
 
 #[test]
 fn test_wcag21_black_white() {

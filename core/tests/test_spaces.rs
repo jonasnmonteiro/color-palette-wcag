@@ -1,5 +1,5 @@
-use auracolor_core::spaces::{Cielab, Hsl, Hsv, Oklch, Rgb};
-use auracolor_core::{ciede2000, hex_to_oklch, oklch_to_hex, perceptual_distance};
+use colorust_core::spaces::{Cielab, Hsl, Hsv, Oklch, Rgb};
+use colorust_core::{ciede2000, hex_to_oklch, oklch_to_hex, perceptual_distance};
 
 #[test]
 fn test_hex_parsing() {

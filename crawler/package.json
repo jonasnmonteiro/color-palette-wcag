@@ -1,7 +1,7 @@
 {
-  "name": "@auracolor/crawler",
+  "name": "@colorust/crawler",
   "version": "1.0.0",
-  "description": "Headless DOM Accessibility & Contrast Crawler for AuraColor Suite",
+  "description": "Headless DOM Accessibility & Contrast Crawler for Colorust Suite",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

@@ -1,5 +1,5 @@
-use auracolor_core::exporter::{ExportFormat, TokenExporter};
-use auracolor_core::palette::DesignSystemTokens;
+use colorust_core::exporter::{ExportFormat, TokenExporter};
+use colorust_core::palette::DesignSystemTokens;
 
 #[test]
 fn test_css_export() {

@@ -1,13 +1,19 @@
 import {
   ApcaVerdict,
   ContrastAuditResult,
+  CvdAuditResult,
+  CvdType,
   DesignSystemTokens,
+  GamutCusp,
+  GamutMappingResult,
   HarmonyMode,
   HslColor,
   HsvColor,
   OklchColor,
+  QuantizedColor,
   RgbColor,
   SwatchItem,
+  TargetGamut,
   WcagVerdict,
 } from './types';
 
@@ -16,10 +22,10 @@ export * from './exporter';
 
 let wasmModule: any = null;
 
-export async function initAuraColorWasm(wasmBinaryOrUrl?: string | ArrayBuffer): Promise<boolean> {
+export async function initColorustWasm(wasmBinaryOrUrl?: string | ArrayBuffer): Promise<boolean> {
   try {
-    if (typeof window !== 'undefined' && (window as any).auracolor_wasm) {
-      wasmModule = (window as any).auracolor_wasm;
+    if (typeof window !== 'undefined' && ((window as any).colorust_wasm || (window as any).auracolor_wasm)) {
+      wasmModule = (window as any).colorust_wasm || (window as any).auracolor_wasm;
       return true;
     }
     return false;
@@ -27,6 +33,8 @@ export async function initAuraColorWasm(wasmBinaryOrUrl?: string | ArrayBuffer):
     return false;
   }
 }
+
+export const initAuraColorWasm = initColorustWasm;
 
 export function parseHex(hex: string): RgbColor | null {
   const clean = hex.trim().replace(/^#/, '');
@@ -292,3 +300,284 @@ export function generateDesignTokens(seedHex: string): DesignSystemTokens | null
     },
   };
 }
+
+export function simulateCvd(rgb: RgbColor, cvd: CvdType, severity = 1.0): RgbColor {
+  const sev = Math.max(0.0, Math.min(1.0, severity));
+  const r = rgb.r / 255.0;
+  const g = rgb.g / 255.0;
+  const b = rgb.b / 255.0;
+
+  let simR = r;
+  let simG = g;
+  let simB = b;
+
+  switch (cvd) {
+    case 'protanopia':
+      simR = 0.56667 * r + 0.43333 * g;
+      simG = 0.55833 * r + 0.44167 * g;
+      simB = 0.24167 * g + 0.75833 * b;
+      break;
+    case 'deuteranopia':
+      simR = 0.625 * r + 0.375 * g;
+      simG = 0.700 * r + 0.300 * g;
+      simB = 0.300 * g + 0.700 * b;
+      break;
+    case 'tritanopia':
+      simR = 0.950 * r + 0.050 * g;
+      simG = 0.43333 * g + 0.56667 * b;
+      simB = 0.475 * g + 0.525 * b;
+      break;
+    case 'achromatopsia':
+      const y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      simR = y;
+      simG = y;
+      simB = y;
+      break;
+  }
+
+  const finalR = (1.0 - sev) * r + sev * simR;
+  const finalG = (1.0 - sev) * g + sev * simG;
+  const finalB = (1.0 - sev) * b + sev * simB;
+
+  return {
+    r: Math.round(Math.max(0.0, Math.min(1.0, finalR)) * 255.0),
+    g: Math.round(Math.max(0.0, Math.min(1.0, finalG)) * 255.0),
+    b: Math.round(Math.max(0.0, Math.min(1.0, finalB)) * 255.0),
+    a: rgb.a,
+  };
+}
+
+export function auditCvdContrast(
+  fgHex: string,
+  bgHex: string,
+  cvd: CvdType,
+  severity = 1.0
+): CvdAuditResult | null {
+  const fg = parseHex(fgHex);
+  const bg = parseHex(bgHex);
+  if (!fg || !bg) return null;
+
+  const simFg = simulateCvd(fg, cvd, severity);
+  const simBg = simulateCvd(bg, cvd, severity);
+
+  return {
+    cvd_type: cvd,
+    simulated_fg: rgbToHex(simFg),
+    simulated_bg: rgbToHex(simBg),
+    wcag: auditWcag21(simFg, simBg),
+    apca: auditApca(simFg, simBg),
+  };
+}
+
+export function isInGamut(oklch: OklchColor, gamut: TargetGamut = 'srgb'): boolean {
+  const hRad = (oklch.h * Math.PI) / 180.0;
+  const a_ = oklch.c * Math.cos(hRad);
+  const b_ = oklch.c * Math.sin(hRad);
+
+  const l_ = oklch.l + 0.3963377774 * a_ + 0.2158037573 * b_;
+  const m_ = oklch.l - 0.1055613458 * a_ - 0.0638541728 * b_;
+  const s_ = oklch.l - 0.0894841775 * a_ - 1.2914855480 * b_;
+
+  const lLin = l_ * l_ * l_;
+  const mLin = m_ * m_ * m_;
+  const sLin = s_ * s_ * s_;
+
+  const rLin = 4.0767416621 * lLin - 3.3077115913 * mLin + 0.2309699292 * sLin;
+  const gLin = -1.2684380046 * lLin + 2.6097574011 * mLin - 0.3413193965 * sLin;
+  const bLin = -0.0041960863 * lLin - 0.7034186147 * mLin + 1.7076147010 * sLin;
+
+  const eps = 1e-6;
+  if (gamut === 'p3' || gamut === 'display-p3') {
+    const p3R = 0.8224621 * rLin + 0.1775380 * gLin + 0.0000000 * bLin;
+    const p3G = 0.0331941 * rLin + 0.9668058 * gLin + 0.0000000 * bLin;
+    const p3B = 0.0170827 * rLin + 0.0723974 * gLin + 0.9105199 * bLin;
+    return p3R >= -eps && p3R <= 1.0 + eps && p3G >= -eps && p3G <= 1.0 + eps && p3B >= -eps && p3B <= 1.0 + eps;
+  }
+
+  return rLin >= -eps && rLin <= 1.0 + eps && gLin >= -eps && gLin <= 1.0 + eps && bLin >= -eps && bLin <= 1.0 + eps;
+}
+
+export function mapToGamut(
+  oklch: OklchColor,
+  gamut: TargetGamut = 'srgb',
+  precision = 1e-4
+): GamutMappingResult {
+  if (isInGamut(oklch, gamut)) {
+    return {
+      original: { ...oklch },
+      mapped: { ...oklch },
+      in_gamut: true,
+      iterations: 0,
+      target_gamut: gamut,
+    };
+  }
+
+  let lowC = 0.0;
+  let highC = oklch.c;
+  let iterations = 0;
+
+  while (highC - lowC > precision && iterations < 50) {
+    const midC = (lowC + highC) * 0.5;
+    const candidate: OklchColor = { l: oklch.l, c: midC, h: oklch.h };
+    if (isInGamut(candidate, gamut)) {
+      lowC = midC;
+    } else {
+      highC = midC;
+    }
+    iterations++;
+  }
+
+  return {
+    original: { ...oklch },
+    mapped: { l: oklch.l, c: lowC, h: oklch.h, alpha: oklch.alpha },
+    in_gamut: false,
+    iterations,
+    target_gamut: gamut,
+  };
+}
+
+export function findGamutCusp(hue: number, gamut: TargetGamut = 'srgb'): GamutCusp {
+  let bestL = 0.5;
+  let bestC = 0.0;
+
+  for (let step = 1; step < 99; step++) {
+    const l = step / 100.0;
+    let lowC = 0.0;
+    let highC = 0.5;
+
+    for (let i = 0; i < 16; i++) {
+      const midC = (lowC + highC) * 0.5;
+      if (isInGamut({ l, c: midC, h: hue }, gamut)) {
+        lowC = midC;
+      } else {
+        highC = midC;
+      }
+    }
+
+    if (lowC > bestC) {
+      bestC = lowC;
+      bestL = l;
+    }
+  }
+
+  return {
+    hue,
+    lightness: bestL,
+    max_chroma: bestC,
+  };
+}
+
+export function quantizeImage(
+  pixelsRgba: Uint8ClampedArray | Uint8Array | number[],
+  k = 5,
+  maxIterations = 15
+): QuantizedColor[] {
+  const len = pixelsRgba.length;
+  if (len < 4 || k <= 0) return [];
+
+  const points: { l: number; a: number; b: number; r: number; g: number; b_: number }[] = [];
+  for (let i = 0; i < len; i += 4) {
+    const alpha = pixelsRgba[i + 3];
+    if (alpha >= 128) {
+      const r = pixelsRgba[i];
+      const g = pixelsRgba[i + 1];
+      const b = pixelsRgba[i + 2];
+      const rLin = srgbToLinear(r / 255.0);
+      const gLin = srgbToLinear(g / 255.0);
+      const bLin = srgbToLinear(b / 255.0);
+      const l = 0.4122214708 * rLin + 0.5363325363 * gLin + 0.0514459929 * bLin;
+      const m = 0.2119034982 * rLin + 0.6806995451 * gLin + 0.1073969566 * bLin;
+      const s = 0.0883024619 * rLin + 0.2817188376 * gLin + 0.6299787005 * bLin;
+      const l_ = cbrtSigned(l);
+      const m_ = cbrtSigned(m);
+      const s_ = cbrtSigned(s);
+      const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+      const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+      const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+      points.push({ l: L, a, b: b_, r, g, b_: b });
+    }
+  }
+
+  if (points.length === 0) return [];
+
+  const targetK = Math.min(k, points.length);
+  const centroids: { l: number; a: number; b: number }[] = [];
+  const stride = Math.floor(points.length / targetK);
+  for (let i = 0; i < targetK; i++) {
+    centroids.push({ l: points[i * stride].l, a: points[i * stride].a, b: points[i * stride].b });
+  }
+
+  const assignments = new Uint16Array(points.length);
+
+  for (let iter = 0; iter < maxIterations; iter++) {
+    let changed = false;
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      let minDist = Infinity;
+      let bestK = 0;
+      for (let c = 0; c < targetK; c++) {
+        const dl = p.l - centroids[c].l;
+        const da = p.a - centroids[c].a;
+        const db = p.b - centroids[c].b;
+        const d = dl * dl + da * da + db * db;
+        if (d < minDist) {
+          minDist = d;
+          bestK = c;
+        }
+      }
+      if (assignments[i] !== bestK) {
+        assignments[i] = bestK;
+        changed = true;
+      }
+    }
+    if (!changed) break;
+
+    const sums = Array.from({ length: targetK }, () => ({ l: 0, a: 0, b: 0, count: 0 }));
+    for (let i = 0; i < points.length; i++) {
+      const kIdx = assignments[i];
+      sums[kIdx].l += points[i].l;
+      sums[kIdx].a += points[i].a;
+      sums[kIdx].b += points[i].b;
+      sums[kIdx].count++;
+    }
+
+    for (let c = 0; c < targetK; c++) {
+      if (sums[c].count > 0) {
+        centroids[c].l = sums[c].l / sums[c].count;
+        centroids[c].a = sums[c].a / sums[c].count;
+        centroids[c].b = sums[c].b / sums[c].count;
+      }
+    }
+  }
+
+  const counts = new Uint32Array(targetK);
+  for (let i = 0; i < points.length; i++) {
+    counts[assignments[i]]++;
+  }
+
+  const total = points.length;
+  const results: QuantizedColor[] = [];
+
+  for (let c = 0; c < targetK; c++) {
+    if (counts[c] > 0) {
+      const cent = centroids[c];
+      const C = Math.sqrt(cent.a * cent.a + cent.b * cent.b);
+      let H = (Math.atan2(cent.b, cent.a) * 180.0) / Math.PI;
+      if (H < 0) H += 360.0;
+      const hex = oklchToHex(cent.l, C, H);
+      const rgb = parseHex(hex) || { r: 0, g: 0, b: 0 };
+      results.push({
+        rgb,
+        oklch: { l: cent.l, c: C, h: H },
+        pixel_count: counts[c],
+        weight: counts[c] / total,
+      });
+    }
+  }
+
+  results.sort((x, y) => y.weight - x.weight);
+  return results;
+}
+
+
+
