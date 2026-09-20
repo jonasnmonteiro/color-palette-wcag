@@ -1,0 +1,348 @@
+---
+import Header from '../components/Header.astro';
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraColor Auditor — WCAG 2.1 & WCAG 3.0 APCA Contrast Auditor</title>
+  <meta name="description" content="Auditor for WCAG 2.1, WCAG 3.0 APCA, and CIEDE2000 color difference." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <Header />
+
+  <main class="container">
+    <section class="auditor-hero">
+      <h1 class="hero-title">
+        Accessibility & <span class="gradient-text">Contrast Auditor</span>
+      </h1>
+      <p class="hero-desc">
+        Comprehensive side-by-side compliance verification comparing legacy WCAG 2.1 relative luminance against WCAG 3.0 Advanced Perceptual Contrast Algorithm (APCA).
+      </p>
+    </section>
+
+    <div class="auditor-grid">
+      <!-- Pair Input & Live Card -->
+      <div class="glass-panel audit-panel">
+        <h2 class="card-title">Color Pair Inputs</h2>
+
+        <div class="color-inputs-duo">
+          <div class="color-field">
+            <label class="field-label" for="fg-input">Text Foreground</label>
+            <div class="input-with-swatch">
+              <input type="color" id="fg-picker" value="#3B82F6" class="color-dot-picker" />
+              <input type="text" id="fg-input" value="#3B82F6" class="text-input" spellcheck="false" />
+            </div>
+          </div>
+
+          <div class="color-field">
+            <label class="field-label" for="bg-input">Background</label>
+            <div class="input-with-swatch">
+              <input type="color" id="bg-picker" value="#0A0D14" class="color-dot-picker" />
+              <input type="text" id="bg-input" value="#0A0D14" class="text-input" spellcheck="false" />
+            </div>
+          </div>
+        </div>
+
+        <div class="audit-preview-box" id="audit-preview-box">
+          <h3 class="preview-headline" id="preview-headline">Headline Typography Sample (24px)</h3>
+          <p class="preview-body" id="preview-body">
+            Body text readability is evaluated using spatial frequency models and cone photoreceptor saturation curves.
+          </p>
+        </div>
+      </div>
+
+      <!-- Compliance Metrics -->
+      <div class="glass-panel audit-panel">
+        <h2 class="card-title">Dual Audit Metrics</h2>
+
+        <div class="metrics-split">
+          <!-- WCAG 2.1 -->
+          <div class="metric-column">
+            <div class="column-header">
+              <span class="column-name">WCAG 2.1</span>
+              <span class="column-badge" id="wcag-overall-badge">AA PASS</span>
+            </div>
+            <div class="huge-metric" id="wcag-ratio-val">8.42:1</div>
+            <div class="criteria-list">
+              <div class="criteria-row">
+                <span>Normal Text AA (4.5:1)</span>
+                <span class="badge badge-pass" id="badge-wcag-normal-aa">PASS</span>
+              </div>
+              <div class="criteria-row">
+                <span>Large Text AA (3.0:1)</span>
+                <span class="badge badge-pass" id="badge-wcag-large-aa">PASS</span>
+              </div>
+              <div class="criteria-row">
+                <span>Normal Text AAA (7.0:1)</span>
+                <span class="badge badge-pass" id="badge-wcag-normal-aaa">PASS</span>
+              </div>
+              <div class="criteria-row">
+                <span>Large Text AAA (4.5:1)</span>
+                <span class="badge badge-pass" id="badge-wcag-large-aaa">PASS</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- APCA WCAG 3.0 -->
+          <div class="metric-column">
+            <div class="column-header">
+              <span class="column-name">APCA (WCAG 3.0)</span>
+              <span class="column-badge" id="apca-overall-badge">BODY PASS</span>
+            </div>
+            <div class="huge-metric" id="apca-lc-val">+84.5 Lc</div>
+            <div class="criteria-list">
+              <div class="criteria-row">
+                <span>Body Content (|Lc| ≥ 75)</span>
+                <span class="badge badge-pass" id="badge-apca-body">PASS</span>
+              </div>
+              <div class="criteria-row">
+                <span>Fluent Text (|Lc| ≥ 60)</span>
+                <span class="badge badge-pass" id="badge-apca-fluent">PASS</span>
+              </div>
+              <div class="criteria-row">
+                <span>Large Text (|Lc| ≥ 45)</span>
+                <span class="badge badge-pass" id="badge-apca-large">PASS</span>
+              </div>
+              <div class="criteria-row">
+                <span>Non-Text UI Elements (|Lc| ≥ 15)</span>
+                <span class="badge badge-pass" id="badge-apca-nontext">PASS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    import { auditContrastHex } from '../../wasm/src/index';
+
+    const fgInput = document.getElementById('fg-input') as HTMLInputElement;
+    const bgInput = document.getElementById('bg-input') as HTMLInputElement;
+    const fgPicker = document.getElementById('fg-picker') as HTMLInputElement;
+    const bgPicker = document.getElementById('bg-picker') as HTMLInputElement;
+
+    const previewBox = document.getElementById('audit-preview-box') as HTMLElement;
+    const previewHeadline = document.getElementById('preview-headline') as HTMLElement;
+    const previewBody = document.getElementById('preview-body') as HTMLElement;
+
+    const wcagRatioVal = document.getElementById('wcag-ratio-val') as HTMLElement;
+    const apcaLcVal = document.getElementById('apca-lc-val') as HTMLElement;
+
+    const badgeWcagNormalAa = document.getElementById('badge-wcag-normal-aa') as HTMLElement;
+    const badgeWcagLargeAa = document.getElementById('badge-wcag-large-aa') as HTMLElement;
+    const badgeWcagNormalAaa = document.getElementById('badge-wcag-normal-aaa') as HTMLElement;
+    const badgeWcagLargeAaa = document.getElementById('badge-wcag-large-aaa') as HTMLElement;
+
+    const badgeApcaBody = document.getElementById('badge-apca-body') as HTMLElement;
+    const badgeApcaFluent = document.getElementById('badge-apca-fluent') as HTMLElement;
+    const badgeApcaLarge = document.getElementById('badge-apca-large') as HTMLElement;
+    const badgeApcaNonText = document.getElementById('badge-apca-nontext') as HTMLElement;
+
+    function renderAudit() {
+      const fg = fgInput.value;
+      const bg = bgInput.value;
+
+      previewBox.style.backgroundColor = bg;
+      previewHeadline.style.color = fg;
+      previewBody.style.color = fg;
+
+      const result = auditContrastHex(fg, bg);
+      if (!result) return;
+
+      wcagRatioVal.textContent = `${result.wcag.ratio.toFixed(2)}:1`;
+      apcaLcVal.textContent = `${result.apca.lc > 0 ? '+' : ''}${result.apca.lc.toFixed(1)} Lc`;
+
+      const updateBadge = (el: HTMLElement, pass: boolean) => {
+        el.className = `badge ${pass ? 'badge-pass' : 'badge-fail'}`;
+        el.textContent = pass ? 'PASS' : 'FAIL';
+      };
+
+      updateBadge(badgeWcagNormalAa, result.wcag.normal_aa);
+      updateBadge(badgeWcagLargeAa, result.wcag.large_aa);
+      updateBadge(badgeWcagNormalAaa, result.wcag.normal_aaa);
+      updateBadge(badgeWcagLargeAaa, result.wcag.large_aaa);
+
+      updateBadge(badgeApcaBody, result.apca.body_text);
+      updateBadge(badgeApcaFluent, result.apca.fluent_text);
+      updateBadge(badgeApcaLarge, result.apca.large_text);
+      updateBadge(badgeApcaNonText, result.apca.non_text);
+    }
+
+    fgInput.addEventListener('input', () => {
+      fgPicker.value = fgInput.value;
+      renderAudit();
+    });
+
+    bgInput.addEventListener('input', () => {
+      bgPicker.value = bgInput.value;
+      renderAudit();
+    });
+
+    fgPicker.addEventListener('input', () => {
+      fgInput.value = fgPicker.value.toUpperCase();
+      renderAudit();
+    });
+
+    bgPicker.addEventListener('input', () => {
+      bgInput.value = bgPicker.value.toUpperCase();
+      renderAudit();
+    });
+
+    renderAudit();
+  </script>
+
+  <style>
+    .auditor-hero {
+      text-align: center;
+      padding: 48px 0 24px 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .auditor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin: 32px 0 64px 0;
+    }
+
+    .audit-panel {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .color-inputs-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .color-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-with-swatch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4px 10px;
+    }
+
+    .color-dot-picker {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .input-with-swatch .text-input {
+      border: none;
+      background: transparent;
+      padding: 6px 0;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .audit-preview-box {
+      border-radius: var(--radius-md);
+      padding: 24px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 180px;
+    }
+
+    .preview-headline {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .preview-body {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .metrics-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .metric-column {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .column-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .column-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--color-success);
+    }
+
+    .huge-metric {
+      font-size: 28px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #FFFFFF;
+    }
+
+    .criteria-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .criteria-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 960px) {
+      .auditor-grid, .metrics-split {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>

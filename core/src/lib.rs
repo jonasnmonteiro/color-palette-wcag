@@ -1,5 +1,6 @@
 pub mod contrast;
 pub mod delta_e;
+pub mod exporter;
 pub mod harmonies;
 pub mod palette;
 pub mod spaces;
@@ -9,6 +10,7 @@ pub use contrast::{
     WcagVerdict,
 };
 pub use delta_e::ciede2000;
+pub use exporter::{ExportFormat, TokenExporter};
 pub use harmonies::{generate_harmony, generate_harmony_hexes, HarmonyMode};
 pub use palette::{DesignSystemTokens, Palette, Swatch};
 pub use spaces::{Cielab, Hsl, Hsv, LinearRgb, Oklab, Oklch, Rgb};

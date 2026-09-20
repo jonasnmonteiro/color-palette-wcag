@@ -1,0 +1,128 @@
+---
+import Header from '../components/Header.astro';
+import ColorStudioIsland from '../components/ColorStudioIsland.astro';
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraColor Studio — Perceptual OKLCH Palette Generator & WCAG/APCA Auditor</title>
+  <meta name="description" content="Ultra-fast perceptual color science suite, OKLCH palette generator, WCAG 2.1 & WCAG 3.0 APCA contrast auditor, and multi-format design token exporter." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <Header />
+
+  <main class="container">
+    <section class="hero-section">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Perceptual Color Science Engine
+      </div>
+      <h1 class="hero-title">
+        Next-Gen Palette Studio & <span class="gradient-text">Accessibility Auditor</span>
+      </h1>
+      <p class="hero-desc">
+        Engineered with OKLCH uniform color space, CIEDE2000 perceptual delta, and WCAG 3.0 APCA modern readability algorithms. Derive production-ready design tokens in seconds.
+      </p>
+    </section>
+
+    <ColorStudioIsland />
+  </main>
+
+  <footer class="studio-footer">
+    <div class="container footer-container">
+      <p>© 2026 AuraColor Suite. Clean-room engineered for high-performance color science.</p>
+      <div class="footer-links">
+        <a href="https://www.w3.org/WAI/GL/task-forces/silver/wiki/Visual_Contrast_Subgroup" target="_blank" rel="noopener">APCA W3C Silver</a>
+        <a href="https://bottosson.github.io/posts/oklab/" target="_blank" rel="noopener">OKLab Color Space</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style>
+  .hero-section {
+    text-align: center;
+    padding: 48px 0 16px 0;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    color: #60A5FA;
+    margin-bottom: 20px;
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #60A5FA;
+    box-shadow: 0 0 8px #60A5FA;
+  }
+
+  .hero-title {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+  }
+
+  .hero-desc {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .studio-footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 32px 0;
+    margin-top: 64px;
+    background: rgba(10, 13, 20, 0.6);
+  }
+
+  .footer-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .footer-links a:hover {
+    color: #FFFFFF;
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 32px;
+    }
+    .footer-container {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+  }
+</style>

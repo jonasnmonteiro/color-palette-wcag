@@ -1,0 +1,906 @@
+---
+---
+
+<div class="studio-grid" id="aura-studio-app">
+  <!-- Left Column: Controls & OKLCH Sliders -->
+  <div class="glass-panel studio-card">
+    <div class="card-header">
+      <h2 class="card-title">Color Generator</h2>
+      <span class="badge badge-neutral">OKLCH Space</span>
+    </div>
+
+    <!-- Seed Color Input & Swatch -->
+    <div class="seed-input-row">
+      <div class="seed-color-preview" id="seed-preview-box">
+        <input type="color" id="seed-native-picker" value="#3B82F6" class="native-picker-input" />
+      </div>
+      <div class="seed-text-fields">
+        <label class="field-label" for="seed-hex-input">Seed Hex</label>
+        <input type="text" id="seed-hex-input" value="#3B82F6" class="text-input hex-input" spellcheck="false" />
+      </div>
+    </div>
+
+    <!-- OKLCH Sliders -->
+    <div class="sliders-container">
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span class="slider-name">Lightness (L)</span>
+          <span class="slider-value" id="val-l">0.62</span>
+        </div>
+        <input type="range" id="slider-l" min="0" max="1" step="0.01" value="0.62" class="custom-range" />
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span class="slider-name">Chroma (C)</span>
+          <span class="slider-value" id="val-c">0.19</span>
+        </div>
+        <input type="range" id="slider-c" min="0" max="0.37" step="0.005" value="0.19" class="custom-range" />
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span class="slider-name">Hue (H)</span>
+          <span class="slider-value" id="val-h">254°</span>
+        </div>
+        <input type="range" id="slider-h" min="0" max="360" step="1" value="254" class="custom-range" />
+      </div>
+    </div>
+
+    <!-- Harmony Modes -->
+    <div class="harmonies-section">
+      <label class="field-label">Geometric Harmony</label>
+      <div class="harmony-buttons-grid" id="harmony-buttons">
+        <button class="harmony-btn active" data-mode="analogous">Analogous</button>
+        <button class="harmony-btn" data-mode="complementary">Complement</button>
+        <button class="harmony-btn" data-mode="split-complementary">Split-Comp</button>
+        <button class="harmony-btn" data-mode="triadic">Triadic</button>
+        <button class="harmony-btn" data-mode="tetradic">Tetradic</button>
+        <button class="harmony-btn" data-mode="square">Square</button>
+        <button class="harmony-btn" data-mode="monochromatic">Mono</button>
+      </div>
+    </div>
+
+    <!-- Swatches Row -->
+    <div class="swatches-palette-container">
+      <label class="field-label">Generated Swatches</label>
+      <div class="swatches-grid" id="swatches-container"></div>
+    </div>
+
+    <!-- Image Palette Extraction -->
+    <div class="image-extract-section">
+      <label class="field-label">Extract from Image</label>
+      <label class="image-dropzone" for="image-file-input" id="image-dropzone">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>Upload or Drop Image</span>
+        <input type="file" id="image-file-input" accept="image/*" class="file-hidden-input" />
+      </label>
+      <canvas id="extract-canvas" style="display:none;"></canvas>
+    </div>
+  </div>
+
+  <!-- Middle Column: Contrast Auditor & Live Component Preview -->
+  <div class="glass-panel studio-card">
+    <div class="card-header">
+      <h2 class="card-title">Accessibility & Contrast Gates</h2>
+      <span class="badge badge-pass" id="global-wcag-badge">WCAG 2.1 AA</span>
+    </div>
+
+    <!-- Contrast Gate Display -->
+    <div class="contrast-gates-grid">
+      <div class="contrast-gate-box" id="gate-on-white">
+        <div class="gate-title">Contrast on White (#FFFFFF)</div>
+        <div class="gate-metrics">
+          <div class="gate-metric">
+            <span class="metric-val" id="metric-wcag-white">4.5:1</span>
+            <span class="metric-label">WCAG 2.1</span>
+          </div>
+          <div class="gate-metric">
+            <span class="metric-val" id="metric-apca-white">-78.2</span>
+            <span class="metric-label">APCA Lc</span>
+          </div>
+        </div>
+        <div class="gate-badges" id="badges-white"></div>
+      </div>
+
+      <div class="contrast-gate-box" id="gate-on-black">
+        <div class="gate-title">Contrast on Dark (#0A0D14)</div>
+        <div class="gate-metrics">
+          <div class="gate-metric">
+            <span class="metric-val" id="metric-wcag-black">8.4:1</span>
+            <span class="metric-label">WCAG 2.1</span>
+          </div>
+          <div class="gate-metric">
+            <span class="metric-val" id="metric-apca-black">+84.5</span>
+            <span class="metric-label">APCA Lc</span>
+          </div>
+        </div>
+        <div class="gate-badges" id="badges-black"></div>
+      </div>
+    </div>
+
+    <!-- Recommended Text Ink -->
+    <div class="ink-recommendation-box">
+      <div class="ink-meta">
+        <span class="ink-label">Optimal Text Ink for Selected Brand</span>
+        <span class="ink-reason" id="ink-reason-text">Maximum perceptual readability</span>
+      </div>
+      <div class="ink-pill" id="recommended-ink-pill">
+        <span class="ink-pill-dot" id="ink-dot"></span>
+        <span id="ink-name-text">White Ink (#FFFFFF)</span>
+      </div>
+    </div>
+
+    <!-- Live Component Preview -->
+    <div class="component-preview-section">
+      <label class="field-label">Live Semantic Component Preview</label>
+      <div class="preview-surface" id="preview-surface">
+        <div class="preview-row">
+          <button class="preview-btn-primary" id="preview-btn-brand">Brand Action</button>
+          <button class="preview-btn-secondary" id="preview-btn-subtle">Subtle Action</button>
+        </div>
+
+        <div class="preview-card" id="preview-card-box">
+          <div class="preview-card-header">
+            <span class="preview-card-badge" id="preview-card-badge">PRO</span>
+            <span class="preview-card-title">Active Workspace</span>
+          </div>
+          <p class="preview-card-desc">Design tokens derived strictly with OKLCH uniform perceptual lightness.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Multi-Format Design Token Exporter -->
+  <div class="glass-panel studio-card">
+    <div class="card-header">
+      <h2 class="card-title">Token Exporter</h2>
+      <button class="btn-secondary copy-btn" id="copy-tokens-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        Copy Code
+      </button>
+    </div>
+
+    <!-- Format Tabs -->
+    <div class="token-tabs" id="token-format-tabs">
+      <button class="token-tab active" data-format="css">CSS</button>
+      <button class="token-tab" data-format="tailwind-v4">Tailwind v4</button>
+      <button class="token-tab" data-format="tailwind-v3">Tailwind v3</button>
+      <button class="token-tab" data-format="figma-tokens">Figma DTCG</button>
+      <button class="token-tab" data-format="style-dictionary">Style Dict</button>
+      <button class="token-tab" data-format="swift">SwiftUI</button>
+      <button class="token-tab" data-format="android-xml">Android XML</button>
+    </div>
+
+    <!-- Code Display -->
+    <div class="code-viewer-container">
+      <pre class="code-block"><code id="tokens-code-output">Loading tokens...</code></pre>
+    </div>
+
+    <div class="download-footer">
+      <button class="btn-primary download-btn" id="download-tokens-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download Tokens
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    auditContrastHex,
+    exportTokens,
+    generateDesignTokens,
+    generateHarmony,
+    hexToOklch,
+    oklchToHex,
+  } from '../../wasm/src/index';
+
+  let currentHex = '#3B82F6';
+  let currentHarmony = 'analogous';
+  let currentFormat = 'css';
+
+  const hexInput = document.getElementById('seed-hex-input') as HTMLInputElement;
+  const nativePicker = document.getElementById('seed-native-picker') as HTMLInputElement;
+  const seedPreviewBox = document.getElementById('seed-preview-box') as HTMLDivElement;
+
+  const sliderL = document.getElementById('slider-l') as HTMLInputElement;
+  const sliderC = document.getElementById('slider-c') as HTMLInputElement;
+  const sliderH = document.getElementById('slider-h') as HTMLInputElement;
+
+  const valL = document.getElementById('val-l') as HTMLElement;
+  const valC = document.getElementById('val-c') as HTMLElement;
+  const valH = document.getElementById('val-h') as HTMLElement;
+
+  const swatchesContainer = document.getElementById('swatches-container') as HTMLDivElement;
+  const harmonyButtons = document.querySelectorAll('.harmony-btn');
+
+  const metricWcagWhite = document.getElementById('metric-wcag-white') as HTMLElement;
+  const metricApcaWhite = document.getElementById('metric-apca-white') as HTMLElement;
+  const badgesWhite = document.getElementById('badges-white') as HTMLElement;
+
+  const metricWcagBlack = document.getElementById('metric-wcag-black') as HTMLElement;
+  const metricApcaBlack = document.getElementById('metric-apca-black') as HTMLElement;
+  const badgesBlack = document.getElementById('badges-black') as HTMLElement;
+
+  const previewSurface = document.getElementById('preview-surface') as HTMLElement;
+  const previewBtnBrand = document.getElementById('preview-btn-brand') as HTMLElement;
+  const previewBtnSubtle = document.getElementById('preview-btn-subtle') as HTMLElement;
+  const previewCardBox = document.getElementById('preview-card-box') as HTMLElement;
+  const previewCardBadge = document.getElementById('preview-card-badge') as HTMLElement;
+
+  const inkNameText = document.getElementById('ink-name-text') as HTMLElement;
+  const inkDot = document.getElementById('ink-dot') as HTMLElement;
+
+  const tokensCodeOutput = document.getElementById('tokens-code-output') as HTMLElement;
+  const copyTokensBtn = document.getElementById('copy-tokens-btn') as HTMLButtonElement;
+  const downloadTokensBtn = document.getElementById('download-tokens-btn') as HTMLButtonElement;
+  const tokenTabs = document.querySelectorAll('.token-tab');
+
+  const imageFileInput = document.getElementById('image-file-input') as HTMLInputElement;
+  const imageDropzone = document.getElementById('image-dropzone') as HTMLElement;
+  const extractCanvas = document.getElementById('extract-canvas') as HTMLCanvasElement;
+
+  function updateAll(source: 'hex' | 'sliders' | 'picker') {
+    if (source === 'hex' || source === 'picker') {
+      const ok = hexToOklch(currentHex);
+      if (ok) {
+        sliderL.value = ok.l.toFixed(2);
+        sliderC.value = ok.c.toFixed(3);
+        sliderH.value = Math.round(ok.h).toString();
+      }
+    } else if (source === 'sliders') {
+      const l = parseFloat(sliderL.value);
+      const c = parseFloat(sliderC.value);
+      const h = parseFloat(sliderH.value);
+      currentHex = oklchToHex(l, c, h);
+      hexInput.value = currentHex;
+      nativePicker.value = currentHex;
+    }
+
+    valL.textContent = parseFloat(sliderL.value).toFixed(2);
+    valC.textContent = parseFloat(sliderC.value).toFixed(3);
+    valH.textContent = `${Math.round(parseFloat(sliderH.value))}°`;
+
+    seedPreviewBox.style.backgroundColor = currentHex;
+    hexInput.value = currentHex.toUpperCase();
+    nativePicker.value = currentHex;
+
+    updateHarmoniesAndSwatches();
+    updateContrastGates();
+    updateComponentPreview();
+    updateTokensOutput();
+  }
+
+  function updateHarmoniesAndSwatches() {
+    const swatches = generateHarmony(currentHex, currentHarmony as any, 5);
+    swatchesContainer.innerHTML = '';
+
+    swatches.forEach((swatch) => {
+      const el = document.createElement('div');
+      el.className = 'swatch-card';
+      el.style.backgroundColor = swatch.hex;
+
+      const isLight = swatch.l > 0.6;
+      const textColor = isLight ? '#000000' : '#FFFFFF';
+
+      el.innerHTML = `
+        <div class="swatch-content" style="color: ${textColor}">
+          <span class="swatch-hex">${swatch.hex}</span>
+          <span class="swatch-lch">L:${(swatch.l * 100).toFixed(0)}% C:${swatch.c.toFixed(2)}</span>
+        </div>
+      `;
+
+      el.addEventListener('click', () => {
+        currentHex = swatch.hex;
+        updateAll('hex');
+      });
+
+      swatchesContainer.appendChild(el);
+    });
+  }
+
+  function updateContrastGates() {
+    const onWhite = auditContrastHex(currentHex, '#FFFFFF');
+    const onBlack = auditContrastHex(currentHex, '#0A0D14');
+
+    if (onWhite) {
+      metricWcagWhite.textContent = `${onWhite.wcag.ratio.toFixed(2)}:1`;
+      metricApcaWhite.textContent = `${onWhite.apca.lc > 0 ? '+' : ''}${onWhite.apca.lc.toFixed(1)}`;
+      badgesWhite.innerHTML = `
+        <span class="badge ${onWhite.wcag.normal_aa ? 'badge-pass' : 'badge-fail'}">AA: ${onWhite.wcag.normal_aa ? 'PASS' : 'FAIL'}</span>
+        <span class="badge ${onWhite.apca.body_text ? 'badge-pass' : 'badge-fail'}">APCA: ${onWhite.apca.body_text ? 'PASS' : 'FAIL'}</span>
+      `;
+    }
+
+    if (onBlack) {
+      metricWcagBlack.textContent = `${onBlack.wcag.ratio.toFixed(2)}:1`;
+      metricApcaBlack.textContent = `${onBlack.apca.lc > 0 ? '+' : ''}${onBlack.apca.lc.toFixed(1)}`;
+      badgesBlack.innerHTML = `
+        <span class="badge ${onBlack.wcag.normal_aa ? 'badge-pass' : 'badge-fail'}">AA: ${onBlack.wcag.normal_aa ? 'PASS' : 'FAIL'}</span>
+        <span class="badge ${onBlack.apca.body_text ? 'badge-pass' : 'badge-fail'}">APCA: ${onBlack.apca.body_text ? 'PASS' : 'FAIL'}</span>
+      `;
+    }
+
+    const whiteAudit = auditContrastHex('#FFFFFF', currentHex);
+    const blackAudit = auditContrastHex('#000000', currentHex);
+
+    const whiteScore = whiteAudit ? Math.abs(whiteAudit.apca.lc) : 0;
+    const blackScore = blackAudit ? Math.abs(blackAudit.apca.lc) : 0;
+
+    if (whiteScore >= blackScore) {
+      inkNameText.textContent = `White Ink (#FFFFFF) — Lc ${whiteScore.toFixed(1)}`;
+      inkDot.style.backgroundColor = '#FFFFFF';
+    } else {
+      inkNameText.textContent = `Dark Ink (#0A0D14) — Lc ${blackScore.toFixed(1)}`;
+      inkDot.style.backgroundColor = '#0A0D14';
+    }
+  }
+
+  function updateComponentPreview() {
+    const tokens = generateDesignTokens(currentHex);
+    if (!tokens) return;
+
+    previewBtnBrand.style.backgroundColor = tokens.light['--brand'];
+    previewBtnBrand.style.color = '#FFFFFF';
+
+    previewBtnSubtle.style.backgroundColor = tokens.light['--surface-2'];
+    previewBtnSubtle.style.color = tokens.light['--ink'];
+    previewBtnSubtle.style.border = `1px solid ${tokens.light['--line']}`;
+
+    previewCardBox.style.backgroundColor = tokens.light['--surface'];
+    previewCardBox.style.border = `1px solid ${tokens.light['--line']}`;
+    previewCardBadge.style.backgroundColor = tokens.light['--brand'];
+    previewCardBadge.style.color = '#FFFFFF';
+  }
+
+  function updateTokensOutput() {
+    const tokens = generateDesignTokens(currentHex);
+    if (!tokens) return;
+
+    const formatted = exportTokens(tokens, currentFormat as any);
+    tokensCodeOutput.textContent = formatted;
+  }
+
+  hexInput.addEventListener('input', (e) => {
+    const val = (e.target as HTMLInputElement).value;
+    if (/^#?[0-9A-Fa-f]{6}$/.test(val)) {
+      currentHex = val.startsWith('#') ? val : `#${val}`;
+      updateAll('hex');
+    }
+  });
+
+  nativePicker.addEventListener('input', (e) => {
+    currentHex = (e.target as HTMLInputElement).value;
+    updateAll('picker');
+  });
+
+  [sliderL, sliderC, sliderH].forEach((sl) => {
+    sl.addEventListener('input', () => updateAll('sliders'));
+  });
+
+  harmonyButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      harmonyButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentHarmony = btn.getAttribute('data-mode') || 'analogous';
+      updateHarmoniesAndSwatches();
+    });
+  });
+
+  tokenTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tokenTabs.forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFormat = tab.getAttribute('data-format') || 'css';
+      updateTokensOutput();
+    });
+  });
+
+  copyTokensBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(tokensCodeOutput.textContent || '');
+    const originalText = copyTokensBtn.innerHTML;
+    copyTokensBtn.innerHTML = `<span>Copied!</span>`;
+    setTimeout(() => {
+      copyTokensBtn.innerHTML = originalText;
+    }, 2000);
+  });
+
+  downloadTokensBtn.addEventListener('click', () => {
+    const text = tokensCodeOutput.textContent || '';
+    const extMap: Record<string, string> = {
+      css: 'css',
+      'tailwind-v4': 'css',
+      'tailwind-v3': 'js',
+      'figma-tokens': 'json',
+      'style-dictionary': 'json',
+      swift: 'swift',
+      'android-xml': 'xml',
+    };
+    const ext = extMap[currentFormat] || 'txt';
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `auracolor-tokens.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  imageFileInput.addEventListener('change', (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const ctx = extractCanvas.getContext('2d');
+        if (!ctx) return;
+        extractCanvas.width = 100;
+        extractCanvas.height = 100;
+        ctx.drawImage(img, 0, 0, 100, 100);
+        const data = ctx.getImageData(0, 0, 100, 100).data;
+
+        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+        for (let i = 0; i < data.length; i += 16) {
+          rSum += data[i];
+          gSum += data[i + 1];
+          bSum += data[i + 2];
+          count++;
+        }
+
+        const r = Math.round(rSum / count);
+        const g = Math.round(gSum / count);
+        const b = Math.round(bSum / count);
+        const toHex = (n: number) => n.toString(16).padStart(2, '0');
+        currentHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+        updateAll('hex');
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  updateAll('hex');
+</script>
+
+<style>
+  .studio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin: 32px 0;
+  }
+
+  .studio-card {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .seed-input-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .seed-color-preview {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+
+  .native-picker-input {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .seed-text-fields {
+    flex: 1;
+  }
+
+  .text-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #FFFFFF;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .text-input:focus {
+    border-color: var(--brand-primary);
+  }
+
+  .hex-input {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .sliders-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .slider-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+
+  .slider-name {
+    color: var(--text-secondary);
+  }
+
+  .slider-value {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .harmonies-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .harmony-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .harmony-btn {
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+
+  .harmony-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+  }
+
+  .harmony-btn.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--brand-primary);
+    color: #FFFFFF;
+  }
+
+  .swatches-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .swatch-card {
+    height: 72px;
+    border-radius: var(--radius-md);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .swatch-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  .swatch-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .swatch-hex {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .swatch-lch {
+    font-size: 9px;
+    opacity: 0.8;
+  }
+
+  .image-dropzone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 13px;
+    transition: all 0.2s ease;
+  }
+
+  .image-dropzone:hover {
+    border-color: var(--brand-primary);
+    color: #FFFFFF;
+    background: rgba(59, 130, 246, 0.05);
+  }
+
+  .file-hidden-input {
+    display: none;
+  }
+
+  .contrast-gates-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .contrast-gate-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .gate-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .gate-metrics {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .gate-metric {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .metric-val {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: #FFFFFF;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .gate-badges {
+    display: flex;
+    gap: 6px;
+  }
+
+  .ink-recommendation-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+  }
+
+  .ink-meta {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ink-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .ink-reason {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .ink-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .ink-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .preview-surface {
+    background: #FAFAFB;
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: #1F242F;
+  }
+
+  .preview-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .preview-btn-primary {
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .preview-btn-secondary {
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .preview-card {
+    padding: 14px;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .preview-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .preview-card-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+  }
+
+  .preview-card-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .preview-card-desc {
+    font-size: 12px;
+    color: #647087;
+  }
+
+  .token-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .token-tab {
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+
+  .token-tab:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .token-tab.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--brand-primary);
+    color: #FFFFFF;
+  }
+
+  .code-viewer-container {
+    flex: 1;
+    background: #080A0F;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    overflow: auto;
+    max-height: 420px;
+  }
+
+  .code-block {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #E2E8F0;
+    line-height: 1.6;
+  }
+
+  .download-footer {
+    display: flex;
+  }
+
+  .download-btn {
+    width: 100%;
+  }
+
+  @media (max-width: 1180px) {
+    .studio-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

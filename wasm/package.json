@@ -1,0 +1,32 @@
+{
+  "name": "@auracolor/wasm",
+  "version": "1.0.0",
+  "description": "TypeScript SDK and WebAssembly bindings for AuraColor perceptual color science core",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "pkg"
+  ],
+  "scripts": {
+    "build:wasm": "wasm-pack build --target web --out-dir pkg",
+    "build:ts": "tsc",
+    "build": "tsc"
+  },
+  "keywords": [
+    "oklch",
+    "apca",
+    "wcag",
+    "accessibility",
+    "contrast",
+    "color-science",
+    "webassembly",
+    "rust"
+  ],
+  "author": "Jonas Monteiro",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

@@ -1,0 +1,310 @@
+---
+import Header from '../components/Header.astro';
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraColor Tokens — Multi-Format Design Token Exporter</title>
+  <meta name="description" content="Generate and export design tokens in 8 formats: CSS, Tailwind, Figma DTCG, Style Dictionary, SwiftUI, and Android XML." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <Header />
+
+  <main class="container">
+    <section class="tokens-hero">
+      <h1 class="hero-title">
+        Design System <span class="gradient-text">Token Exporter</span>
+      </h1>
+      <p class="hero-desc">
+        Export mathematically sound design tokens derived via uniform OKLCH lightness into production-ready syntax for Web, iOS, Android, and Figma.
+      </p>
+    </section>
+
+    <div class="tokens-page-layout">
+      <!-- Seed Config Panel -->
+      <div class="glass-panel config-panel">
+        <h2 class="card-title">Token Source Configuration</h2>
+
+        <div class="field-group">
+          <label class="field-label" for="page-seed-input">Brand Seed Color</label>
+          <div class="input-with-swatch">
+            <input type="color" id="page-seed-picker" value="#3B82F6" class="color-dot-picker" />
+            <input type="text" id="page-seed-input" value="#3B82F6" class="text-input" spellcheck="false" />
+          </div>
+        </div>
+
+        <div class="theme-comparison-cards">
+          <div class="theme-card light-preview" id="light-theme-box">
+            <span class="theme-title">Light Surface</span>
+            <button class="sample-btn" id="light-sample-btn">Primary Action</button>
+            <span class="sample-subtext">--bg: #FAFAFB</span>
+          </div>
+
+          <div class="theme-card dark-preview" id="dark-theme-box">
+            <span class="theme-title">Dark Surface</span>
+            <button class="sample-btn" id="dark-sample-btn">Primary Action</button>
+            <span class="sample-subtext">--bg: #12141A</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Output Panel -->
+      <div class="glass-panel output-panel">
+        <div class="panel-top-row">
+          <div class="format-tabs-bar" id="page-format-tabs">
+            <button class="token-tab active" data-format="css">CSS Variables</button>
+            <button class="token-tab" data-format="tailwind-v4">Tailwind v4</button>
+            <button class="token-tab" data-format="tailwind-v3">Tailwind v3</button>
+            <button class="token-tab" data-format="figma-tokens">Figma DTCG</button>
+            <button class="token-tab" data-format="style-dictionary">Style Dictionary</button>
+            <button class="token-tab" data-format="swift">SwiftUI</button>
+            <button class="token-tab" data-format="android-xml">Android XML</button>
+          </div>
+
+          <button class="btn-secondary" id="page-copy-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="code-box-wrapper">
+          <pre class="code-block"><code id="page-tokens-code">Loading tokens...</code></pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    import { exportTokens, generateDesignTokens } from '../../wasm/src/index';
+
+    let currentHex = '#3B82F6';
+    let currentFormat = 'css';
+
+    const seedInput = document.getElementById('page-seed-input') as HTMLInputElement;
+    const seedPicker = document.getElementById('page-seed-picker') as HTMLInputElement;
+
+    const lightBox = document.getElementById('light-theme-box') as HTMLElement;
+    const darkBox = document.getElementById('dark-theme-box') as HTMLElement;
+    const lightBtn = document.getElementById('light-sample-btn') as HTMLElement;
+    const darkBtn = document.getElementById('dark-sample-btn') as HTMLElement;
+
+    const codeOutput = document.getElementById('page-tokens-code') as HTMLElement;
+    const copyBtn = document.getElementById('page-copy-btn') as HTMLButtonElement;
+    const tabs = document.querySelectorAll('.token-tab');
+
+    function renderTokens() {
+      const tokens = generateDesignTokens(currentHex);
+      if (!tokens) return;
+
+      lightBox.style.backgroundColor = tokens.light['--bg'];
+      lightBox.style.color = tokens.light['--ink'];
+      lightBtn.style.backgroundColor = tokens.light['--brand'];
+      lightBtn.style.color = '#FFFFFF';
+
+      darkBox.style.backgroundColor = tokens.dark['--bg'];
+      darkBox.style.color = tokens.dark['--ink'];
+      darkBtn.style.backgroundColor = tokens.dark['--brand'];
+      darkBtn.style.color = '#FFFFFF';
+
+      const code = exportTokens(tokens, currentFormat as any);
+      codeOutput.textContent = code;
+    }
+
+    seedInput.addEventListener('input', () => {
+      const val = seedInput.value;
+      if (/^#?[0-9A-Fa-f]{6}$/.test(val)) {
+        currentHex = val.startsWith('#') ? val : `#${val}`;
+        seedPicker.value = currentHex;
+        renderTokens();
+      }
+    });
+
+    seedPicker.addEventListener('input', () => {
+      currentHex = seedPicker.value.toUpperCase();
+      seedInput.value = currentHex;
+      renderTokens();
+    });
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFormat = tab.getAttribute('data-format') || 'css';
+        renderTokens();
+      });
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(codeOutput.textContent || '');
+      const prev = copyBtn.innerHTML;
+      copyBtn.innerHTML = `<span>Copied!</span>`;
+      setTimeout(() => {
+        copyBtn.innerHTML = prev;
+      }, 2000);
+    });
+
+    renderTokens();
+  </script>
+
+  <style>
+    .tokens-hero {
+      text-align: center;
+      padding: 48px 0 24px 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .tokens-page-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      margin: 32px 0 64px 0;
+    }
+
+    .config-panel {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      height: fit-content;
+    }
+
+    .input-with-swatch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 6px 12px;
+    }
+
+    .color-dot-picker {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .input-with-swatch .text-input {
+      border: none;
+      background: transparent;
+      padding: 4px 0;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .theme-comparison-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .theme-card {
+      padding: 16px;
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .theme-title {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .sample-btn {
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 13px;
+      align-self: flex-start;
+    }
+
+    .sample-subtext {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .output-panel {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .format-tabs-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .token-tab {
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .token-tab:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .token-tab.active {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--brand-primary);
+      color: #FFFFFF;
+    }
+
+    .code-box-wrapper {
+      background: #080A0F;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      overflow: auto;
+      min-height: 480px;
+    }
+
+    .code-block {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: #E2E8F0;
+    }
+
+    @media (max-width: 960px) {
+      .tokens-page-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>
