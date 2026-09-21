@@ -3,6 +3,7 @@ use crate::spaces::Rgb;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum CvdType {
     Protanopia,
     Deuteranopia,
@@ -64,10 +65,21 @@ pub fn simulate_cvd(rgb: &Rgb, cvd: CvdType, severity: f64) -> Rgb {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CvdAuditResult {
     pub cvd_type: CvdType,
+    #[serde(serialize_with = "rgb_as_hex", deserialize_with = "rgb_from_hex")]
     pub simulated_fg: Rgb,
+    #[serde(serialize_with = "rgb_as_hex", deserialize_with = "rgb_from_hex")]
     pub simulated_bg: Rgb,
     pub wcag: WcagVerdict,
     pub apca: ApcaVerdict,
+}
+
+fn rgb_as_hex<S: serde::Serializer>(rgb: &Rgb, serializer: S) -> Result<S::Ok, S::Error> {
+    serializer.serialize_str(&rgb.to_hex())
+}
+
+fn rgb_from_hex<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Rgb, D::Error> {
+    let hex = String::deserialize(deserializer)?;
+    Rgb::from_hex(&hex).ok_or_else(|| serde::de::Error::custom("invalid hex colour"))
 }
 
 pub fn audit_cvd_contrast(fg: &Rgb, bg: &Rgb, cvd: CvdType, severity: f64) -> CvdAuditResult {

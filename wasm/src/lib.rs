@@ -6,14 +6,23 @@ use colorust_core::delta_e::ciede2000;
 use colorust_core::harmonies::{generate_harmony, HarmonyMode};
 use colorust_core::palette::DesignSystemTokens;
 use colorust_core::spaces::{Oklch, Rgb};
+use serde::Serialize;
 use wasm_bindgen::prelude::*;
+
+/// Serializes to a plain JavaScript object. The default turns a map into a
+/// `Map`, whose keys no object spread or `Object.keys` call can see, and the
+/// design token export reached the page empty because of it.
+fn to_js<T: serde::Serialize + ?Sized>(value: &T) -> Result<JsValue, serde_wasm_bindgen::Error> {
+    let serializer = serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+    value.serialize(&serializer)
+}
 
 #[wasm_bindgen]
 pub fn hex_to_oklch_wasm(hex: &str) -> Result<JsValue, JsValue> {
     let rgb = Rgb::from_hex(hex)
         .ok_or_else(|| JsValue::from_str("Invalid hex color"))?;
     let oklch = rgb.to_oklch();
-    serde_wasm_bindgen::to_value(&oklch)
+    to_js(&oklch)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
@@ -38,7 +47,7 @@ pub fn audit_contrast_wasm(fg_hex: &str, bg_hex: &str) -> Result<JsValue, JsValu
         apca: colorust_core::contrast::ApcaVerdict,
     }
 
-    serde_wasm_bindgen::to_value(&AuditResult { wcag, apca })
+    to_js(&AuditResult { wcag, apca })
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
@@ -68,7 +77,7 @@ pub fn audit_cvd_contrast_wasm(
         .ok_or_else(|| JsValue::from_str("Invalid CVD type"))?;
 
     let res = audit_cvd_contrast(&fg, &bg, cvd, severity);
-    serde_wasm_bindgen::to_value(&res)
+    to_js(&res)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
@@ -112,7 +121,7 @@ pub fn generate_harmony_wasm(base_hex: &str, mode_str: &str, count: usize) -> Re
         })
         .collect();
 
-    serde_wasm_bindgen::to_value(&result)
+    to_js(&result)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
@@ -133,7 +142,7 @@ pub fn generate_tokens_wasm(seed_hex: &str) -> Result<JsValue, JsValue> {
     let tokens = DesignSystemTokens::from_seed_hex(seed_hex)
         .ok_or_else(|| JsValue::from_str("Invalid seed hex"))?;
 
-    serde_wasm_bindgen::to_value(&tokens)
+    to_js(&tokens)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
@@ -163,7 +172,7 @@ pub fn map_to_gamut_wasm(
         _ => colorust_core::gamut::TargetGamut::Srgb,
     };
     let res = colorust_core::gamut::map_to_gamut_binary_search(&oklch, gamut, precision);
-    serde_wasm_bindgen::to_value(&res)
+    to_js(&res)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
@@ -175,7 +184,7 @@ pub fn find_gamut_cusp_wasm(hue: f64, gamut_str: &str) -> Result<JsValue, JsValu
         _ => colorust_core::gamut::TargetGamut::Srgb,
     };
     let cusp = colorust_core::gamut::find_gamut_cusp(hue, gamut);
-    serde_wasm_bindgen::to_value(&cusp)
+    to_js(&cusp)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
@@ -186,7 +195,7 @@ pub fn quantize_image_wasm(
     max_iterations: usize,
 ) -> Result<JsValue, JsValue> {
     let res = colorust_core::quantization::quantize_image_oklab(pixels_rgba, k, max_iterations);
-    serde_wasm_bindgen::to_value(&res)
+    to_js(&res)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
