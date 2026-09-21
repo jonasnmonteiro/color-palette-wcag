@@ -1,6 +1,9 @@
 # Color Palette & Accessibility Contrast Auditor (Colorust Suite)
 
-An ultra-high-performance color science suite, perceptual palette generator, and accessibility contrast auditor built in **Rust (WebAssembly)**, **TypeScript**, **Astro**, and **Bun/Playwright**.
+A perceptual color science engine, palette generator, and accessibility contrast
+auditor. The color science is written in **Rust**, with a matching **TypeScript**
+port for the browser, an **Astro** studio on top of it, and a **Bun/Playwright**
+crawler that audits live pages.
 
 ---
 
@@ -16,77 +19,165 @@ An ultra-high-performance color science suite, perceptual palette generator, and
 │   │   (Interactive Island) │                    │  (A11y Audit Engine)  │  │
 │   └───────────┬────────────┘                    └───────────┬───────────┘  │
 │               │                                             │              │
-│               ▼ (Wasm / 120 FPS)                            ▼ (IPC / CLI)  │
+│               ▼ (TypeScript engine)                         ▼ (IPC / CLI)  │
 │   ┌─────────────────────────────────────────────────────────────────────┐  │
-│   │                     Rust High-Performance Core                      │  │
-│   │  • OKLCH / Oklab / CIELAB / sRGB / HSV Matrix Color Spaces          │  │
-│   │  • WCAG 2.1 (Relative Luminance) & WCAG 3.0 APCA Contrast ($L^c$)   │  │
-│   │  • Delta E 2000 ($\Delta E_{00}$) Perceptual Color Difference       │  │
-│   │  • Color Vision Deficiency (CVD) Spectral Simulation Engine         │  │
-│   │  • 8 Harmonic Projections & Gamut Clipping / Mapping Engine         │  │
-│   │  • Multi-Target Token Exporter (Figma, Tailwind, CSS, Style Dict)   │  │
+│   │                     Color Science Core                              │  │
+│   │  • OKLCH / Oklab / CIELAB / sRGB / HSL / HSV conversions            │  │
+│   │  • WCAG 2.1 (relative luminance) and WCAG 3.0 APCA (Lc)             │  │
+│   │  • Delta E 2000 perceptual color difference                         │  │
+│   │  • Color vision deficiency simulation                               │  │
+│   │  • 8 harmonic projections, gamut clipping and mapping               │  │
+│   │  • Multi-target token exporter (Figma, Tailwind, CSS, Swift, XML)   │  │
 │   └─────────────────────────────────────────────────────────────────────┘  │
 │                                                                            │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
 
----
-
-## Features
-
-- **Perceptually Uniform Color Spaces:**
-  - Full native support for **OKLCH**, **Oklab**, **CIELAB**, **sRGB Linear**, and **HSV**.
-  - Eliminates the perceptual brightness anomalies inherent in standard HSL color wheels.
-- **Dual Accessibility Contrast Standards:**
-  - **W3C WCAG 2.1:** Standard relative luminance formula with AA ($4.5:1$), Large AA ($3.0:1$), and AAA ($7.0:1$) gates.
-  - **W3C WCAG 3.0 APCA (Advanced Perceptual Contrast Algorithm):** Modern lightness contrast ($L^c$) calculations weighted by spatial frequency, text weight, and polarity.
-- **8 Geometric Harmonic Modes:**
-  - Analogous, Complementary, Split Complementary, Triadic, Tetradic, Square, Monochromatic (Luminance Ramp), and Custom Polygons.
-- **Zero-Upload Dominant Image Color Quantization:**
-  - Client-side image extraction using high-speed 2D canvas bucketing.
-- **Headless URL Accessibility Crawler:**
-  - Automated crawling engine powered by Bun and Playwright extracting computed DOM styles and auditing live websites for accessibility compliance (ADA / European Accessibility Act).
-- **Multi-Format Design Token Exporter:**
-  - Direct export to **Figma Tokens JSON (Tokens Studio / W3C Community Group)**, **Tailwind CSS v3 & v4**, **CSS Custom Properties**, **SwiftUI Color Sets**, and **Android XML/Compose**.
+**Where each engine runs.** The Rust crate in `core/` is the reference
+implementation: it holds the tests, the benchmarks and the native CLI. The
+TypeScript port in `wasm/src/` implements the same algorithms and is what the
+web studio imports today. `wasm/src/lib.rs` compiles those Rust functions to
+WebAssembly through `wasm-bindgen`, and that path is built but not yet wired
+into the studio.
 
 ---
 
-## Repository Structure
+## Quick start
+
+### The CLI
+
+Needs a Rust toolchain. Five subcommands, all taking hex colors. Every command
+below runs from the `core/` directory.
+
+```bash
+cd core
+cargo run -- audit "#FFFFFF" "#0A2540"
+```
+Reports WCAG 2.1 ratios against the AA, large AA and AAA gates, and the APCA Lc
+value against its five thresholds.
+
+```bash
+cargo run -- harmony "#3B82F6" --mode triadic --count 5
+```
+Modes: `analogous`, `complementary`, `split-complementary`, `triadic`,
+`tetradic`, `square`, `monochromatic`, `custom`.
+
+```bash
+cargo run -- tokens "#3B82F6" --format css
+```
+Formats: `css`, `scss`, `tailwind-v3`, `tailwind-v4`, `figma-tokens`,
+`style-dictionary`, `swift`, `android-xml`.
+
+```bash
+cargo run -- gamut "#00FF88" --target p3
+```
+Targets: `srgb`, `p3`, `rec2020`. Reports whether the color fits and, when it
+does not, the mapped result and the number of binary search steps it took.
+
+```bash
+cargo run -- convert "#3B82F6"
+```
+Prints the same color in every supported space.
+
+Build a release binary with `cargo build --release`; it lands at
+`core/target/release/colorust`.
+
+### The web studio
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Three pages: the studio at `/`, the contrast auditor at `/auditor/`, and the
+token exporter at `/tokens/`. `npm run build` emits a static site into
+`web/dist/`, and it can be served from a subpath by setting `base` in the Astro
+config.
+
+### The crawler
+
+Needs [Bun](https://bun.sh) and a Playwright chromium.
+
+```bash
+cd crawler
+bun install
+bun run src/cli.ts https://example.com --format markdown
+```
+
+It walks the rendered DOM, resolves each node's **effective** background by
+compositing semi-transparent ancestors, reads `font-size` and `font-weight` to
+classify large text, and reports WCAG 2.1 and APCA per node. Output is JSON or
+Markdown.
+
+### Tests and benchmarks
+
+```bash
+cd core
+cargo test
+cargo bench
+```
+
+---
+
+## Implemented
+
+- **Perceptually uniform color spaces.** OKLCH, Oklab, CIELAB, linear sRGB, HSL
+  and HSV, with conversions in both directions.
+- **Two contrast standards.** WCAG 2.1 relative luminance with the AA (4.5:1),
+  large AA (3.0:1) and AAA (7.0:1) gates, and WCAG 3.0 APCA lightness contrast
+  with the polarity-aware exponents and the five Lc thresholds.
+- **Delta E 2000** perceptual color difference.
+- **Color vision deficiency simulation** for protanopia, deuteranopia,
+  tritanopia and achromatopsia, with a severity parameter, plus contrast audits
+  under simulated deficiency.
+- **8 harmonic modes:** analogous, complementary, split complementary, triadic,
+  tetradic, square, monochromatic and custom polygons.
+- **Gamut handling** for sRGB, Display P3 and Rec. 2020, including cusp finding
+  and binary search gamut mapping.
+- **Dominant color extraction** by k-means clustering in Oklab rather than in
+  RGB, so the clusters follow perceived difference. Runs in the page, and no
+  image is uploaded anywhere.
+- **Headless accessibility crawler** over live URLs.
+- **Design token export** to CSS custom properties, SCSS, Tailwind v3 and v4,
+  Figma Tokens JSON, Style Dictionary, SwiftUI and Android XML.
+
+---
+
+## Repository structure
 
 ```text
-color-palette-wcag/
-├── core/                  # Rust 2021 Core Math & Color Science Engine
-│   ├── Cargo.toml
-│   └── src/
-│       ├── lib.rs
-│       ├── spaces.rs      # sRGB, Linear, Oklab, OKLCH, CIELAB conversions
-│       ├── contrast.rs    # WCAG 2.1 & WCAG 3.0 APCA algorithms
-│       ├── harmonies.rs   # 8 Geometric harmony projection kernels
-│       ├── delta_e.rs     # CIEDE2000 color distance metric
-│       └── exporter.rs    # Design token serializer
-├── wasm/                  # WebAssembly bridge via wasm-bindgen
-│   ├── Cargo.toml
-│   └── src/
-│       └── lib.rs
-├── crawler/               # Bun + Playwright Headless URL A11y Auditor
-│   ├── package.json
-│   └── src/
-│       └── auditor.ts
-└── web/                   # Astro web application & interactive Studio Island
-    ├── astro.config.mjs
-    ├── package.json
-    └── src/
-        ├── components/
-        │   └── ColorStudio.tsx
-        ├── pages/
-        │   ├── index.astro
-        │   ├── auditor.astro
-        │   └── docs.astro
-        └── styles/
+colorust/
+├── core/                    Rust color science engine, CLI, tests, benchmarks
+│   ├── src/
+│   │   ├── spaces.rs        sRGB, linear, Oklab, OKLCH, CIELAB, HSL, HSV
+│   │   ├── contrast.rs      WCAG 2.1 and APCA
+│   │   ├── delta_e.rs       CIEDE2000
+│   │   ├── cvd.rs           color vision deficiency simulation
+│   │   ├── gamut.rs         gamut tests, cusp finding, mapping
+│   │   ├── harmonies.rs     the 8 harmonic modes
+│   │   ├── palette.rs       swatches and design system tokens
+│   │   ├── quantization.rs  k-means in Oklab
+│   │   ├── exporter.rs      the 8 token formats
+│   │   └── bin/colorust.rs  the CLI
+│   ├── tests/               29 integration tests
+│   └── benches/             Criterion benchmarks
+├── wasm/                    WebAssembly bindings and the TypeScript port
+│   ├── src/lib.rs           wasm-bindgen exports
+│   ├── src/index.ts         the same algorithms in TypeScript
+│   ├── src/exporter.ts      token export in TypeScript
+│   └── build.sh             wasm-pack build
+├── crawler/                 Bun and Playwright accessibility auditor
+│   └── src/auditor.ts       effective background resolution and per-node audit
+└── web/                     Astro studio
+    ├── src/components/ColorStudioIsland.astro
+    ├── src/pages/           index, auditor, tokens
+    ├── src/styles/global.css
+    └── tools/leaked-colors.py   fails the build on a raw color outside the tokens
 ```
 
 ---
 
 ## License
 
-This project is open-source under the [MIT License](LICENSE).
+MIT. See [LICENSE](LICENSE).
