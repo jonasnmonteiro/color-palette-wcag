@@ -13,6 +13,14 @@ import '../styles/global.css';
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script is:inline>
+    (function() {
+      try {
+        const theme = localStorage.getItem('colorust-app-theme');
+        if (theme) document.documentElement.setAttribute('data-theme', theme);
+      } catch {}
+    })();
+  </script>
 </head>
 <body>
   <Header />
@@ -183,7 +191,7 @@ import '../styles/global.css';
       display: flex;
       align-items: center;
       gap: 10px;
-      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+      background: var(--bg-surface-elevated);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 6px 12px;
@@ -204,6 +212,7 @@ import '../styles/global.css';
       padding: 4px 0;
       font-family: var(--font-mono);
       font-weight: 600;
+      color: var(--text-primary);
     }
 
     .theme-comparison-cards {
@@ -232,6 +241,7 @@ import '../styles/global.css';
       font-weight: 600;
       font-size: 13px;
       align-self: flex-start;
+      border: none;
     }
 
     .sample-subtext {
@@ -264,28 +274,30 @@ import '../styles/global.css';
     .token-tab {
       padding: 6px 12px;
       border-radius: var(--radius-sm);
-      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+      background: var(--bg-surface-elevated);
       border: 1px solid var(--border-subtle);
       color: var(--text-secondary);
       font-size: 12px;
       font-weight: 600;
       white-space: nowrap;
       transition: all 0.15s ease;
+      cursor: pointer;
     }
 
     .token-tab:hover {
       color: var(--text-primary);
-      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+      background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-surface-elevated));
     }
 
     .token-tab.active {
-      background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
+      background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
       border-color: var(--brand-primary);
-      color: var(--text-on-accent, #FFFFFF);
+      color: var(--brand-light, #2563EB);
+      font-weight: 700;
     }
 
     .code-box-wrapper {
-      background: var(--bg-app);
+      background: var(--bg-surface-elevated);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;

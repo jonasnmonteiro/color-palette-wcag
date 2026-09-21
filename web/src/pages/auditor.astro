@@ -13,6 +13,14 @@ import '../styles/global.css';
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script is:inline>
+    (function() {
+      try {
+        const theme = localStorage.getItem('colorust-app-theme');
+        if (theme) document.documentElement.setAttribute('data-theme', theme);
+      } catch {}
+    })();
+  </script>
 </head>
 <body>
   <Header />
@@ -304,7 +312,7 @@ import '../styles/global.css';
       display: flex;
       align-items: center;
       gap: 10px;
-      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+      background: var(--bg-surface-elevated);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 4px 10px;
@@ -325,6 +333,7 @@ import '../styles/global.css';
       padding: 6px 0;
       font-family: var(--font-mono);
       font-weight: 600;
+      color: var(--text-primary);
     }
 
     .audit-preview-box {
@@ -354,7 +363,7 @@ import '../styles/global.css';
     }
 
     .metric-column {
-      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
+      background: var(--bg-surface-elevated);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;
@@ -420,7 +429,7 @@ import '../styles/global.css';
     }
 
     .cvd-audit-card {
-      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
+      background: var(--bg-surface-elevated);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;
@@ -451,7 +460,7 @@ import '../styles/global.css';
     .cvd-sample-box {
       padding: 14px;
       border-radius: var(--radius-sm);
-      border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
+      border: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -474,7 +483,8 @@ import '../styles/global.css';
     }
 
     .cvd-metric-box {
-      background: color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
       padding: 6px 8px;
       border-radius: var(--radius-sm);
       display: flex;

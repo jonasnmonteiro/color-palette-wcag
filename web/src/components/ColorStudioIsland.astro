@@ -857,16 +857,17 @@
       ctx.fill();
     }
 
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 25%, transparent)';
+    ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.25)' : 'rgba(255, 255, 255, 0.25)';
     ctx.lineWidth = 3;
     ctx.stroke();
 
     for (let frac of [0.33, 0.66, 1.0]) {
       ctx.beginPath();
       ctx.arc(cx, cy, radius * frac, 0, Math.PI * 2);
-      ctx.strokeStyle = 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent)';
+      ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.08)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
@@ -920,7 +921,7 @@
 
     palette.forEach((item) => {
       const pos = polarToStageCoords(item.h, item.c);
-      const strokeColor = item.isLocked ? 'var(--color-warning, #F59E0B)' : item.isBase ? 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 85%, transparent)' : 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 45%, transparent)';
+      const strokeColor = item.isLocked ? 'var(--color-warning, #F59E0B)' : item.isBase ? 'color-mix(in srgb, var(--text-primary, #FFFFFF) 85%, transparent)' : 'color-mix(in srgb, var(--text-primary, #FFFFFF) 45%, transparent)';
       const strokeWidth = item.isBase ? '2.5' : '1.5';
       const dashArray = item.isLocked ? '4 3' : 'none';
 
@@ -932,14 +933,14 @@
       for (let i = 0; i < sorted.length - 1; i++) {
         const p1 = polarToStageCoords(sorted[i].h, sorted[i].c);
         const p2 = polarToStageCoords(sorted[i + 1].h, sorted[i + 1].c);
-        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="color-mix(in srgb, var(--text-on-accent, #FFFFFF) 35%, transparent)" stroke-width="1.5" stroke-dasharray="2 2" />`;
+        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="color-mix(in srgb, var(--text-primary, #FFFFFF) 35%, transparent)" stroke-width="1.5" stroke-dasharray="2 2" />`;
       }
     } else if (currentHarmony === 'triadic' || currentHarmony === 'tetradic' || currentHarmony === 'square') {
       const sorted = [...palette].sort((a, b) => a.h - b.h);
       for (let i = 0; i < sorted.length; i++) {
         const p1 = polarToStageCoords(sorted[i].h, sorted[i].c);
         const p2 = polarToStageCoords(sorted[(i + 1) % sorted.length].h, sorted[(i + 1) % sorted.length].c);
-        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="color-mix(in srgb, var(--text-on-accent, #FFFFFF) 35%, transparent)" stroke-width="1.5" />`;
+        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="color-mix(in srgb, var(--text-primary, #FFFFFF) 35%, transparent)" stroke-width="1.5" />`;
       }
     }
 
@@ -1965,6 +1966,11 @@
     showToast('Token copiado!');
   });
 
+  window.addEventListener('colorust-theme-changed', () => {
+    drawWheelCanvas();
+    renderWheelPins();
+  });
+
   setupWheelDragListeners();
   renderPresets();
   initDefaultPalette();
@@ -2049,7 +2055,7 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     padding: 6px 12px;
     border-radius: var(--radius-full);
@@ -2058,12 +2064,12 @@
   .btn-share-pill {
     background: color-mix(in srgb, var(--brand-primary) 15%, transparent) !important;
     border-color: color-mix(in srgb, var(--brand-primary) 35%, transparent) !important;
-    color: var(--brand-light, #60A5FA) !important;
+    color: var(--brand-light, #2563EB) !important;
   }
 
   .btn-share-pill:hover {
     background: color-mix(in srgb, var(--brand-primary) 25%, transparent) !important;
-    color: var(--text-on-accent, #FFFFFF) !important;
+    color: var(--text-primary) !important;
   }
 
   /* Presets Drawer */
@@ -2119,7 +2125,7 @@
   }
 
   .preset-card {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 12px;
@@ -2131,10 +2137,10 @@
   }
 
   .preset-card:hover {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-surface-elevated));
     border-color: color-mix(in srgb, var(--brand-primary) 50%, transparent);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--shadow-base, #000000) 20%, transparent);
   }
 
   .preset-card-top {
@@ -2155,7 +2161,7 @@
     padding: 2px 6px;
     border-radius: var(--radius-full);
     background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
-    color: var(--brand-light, #60A5FA);
+    color: var(--brand-light, #2563EB);
     border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
@@ -2164,7 +2170,7 @@
     height: 22px;
     border-radius: var(--radius-sm);
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
+    border: 1px solid var(--border-subtle);
   }
 
   .preset-swatch-dot {
@@ -2181,7 +2187,7 @@
   }
 
   .preset-action {
-    color: var(--brand-light, #60A5FA);
+    color: var(--brand-light, #2563EB);
     font-weight: 600;
   }
 
@@ -2217,7 +2223,7 @@
   .harmony-rule-pill {
     font-size: 12px;
     font-weight: 700;
-    color: var(--brand-light, #60A5FA);
+    color: var(--brand-light, #2563EB);
     background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     padding: 4px 12px;
     border-radius: var(--radius-full);
@@ -2238,7 +2244,7 @@
     max-width: 100%;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
-    box-shadow: 0 16px 40px color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
     cursor: crosshair;
     user-select: none;
     touch-action: none;
@@ -2268,8 +2274,8 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
+    background: var(--text-primary);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 5;
@@ -2282,8 +2288,8 @@
     height: 22px;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    border: 2.5px solid var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent);
+    border: 2.5px solid var(--bg-surface);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
     pointer-events: auto;
     display: flex;
     align-items: center;
@@ -2303,8 +2309,8 @@
     width: 28px;
     height: 28px;
     border-width: 3px;
-    border-color: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent);
+    border-color: var(--bg-surface);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
     z-index: 15;
   }
 
@@ -2312,7 +2318,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--text-on-accent, #FFFFFF);
+    background: var(--bg-surface);
   }
 
   .chroma-pin.pin-is-locked {
@@ -2328,7 +2334,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 8px 12px;
@@ -2345,8 +2351,8 @@
     height: 36px;
     border-radius: var(--radius-sm);
     position: relative;
-    border: 2px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
-    box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
+    border: 2px solid var(--border-subtle);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-base, #000000) 20%, transparent);
     cursor: pointer;
   }
 
@@ -2396,7 +2402,7 @@
     gap: 6px;
     padding: 7px 12px;
     border-radius: var(--radius-full);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 5%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
     font-size: 12px;
@@ -2406,9 +2412,9 @@
   }
 
   .btn-action-pill:hover {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-surface-elevated));
     color: var(--text-primary);
-    border-color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
+    border-color: color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .sub-label {
@@ -2435,7 +2441,7 @@
   }
 
   .harmony-tags-carousel::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
+    background: var(--border-subtle);
     border-radius: var(--radius-full);
   }
 
@@ -2445,7 +2451,7 @@
     gap: 6px;
     padding: 7px 12px;
     border-radius: var(--radius-full);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 12px;
@@ -2458,14 +2464,15 @@
   }
 
   .harmony-tag-btn:hover {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 9%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-surface-elevated));
     color: var(--text-primary);
   }
 
   .harmony-tag-btn.active {
-    background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     border-color: var(--brand-primary);
-    color: var(--text-on-accent, #FFFFFF);
+    color: var(--brand-light, #2563EB);
+    font-weight: 700;
   }
 
   .harmony-icon {
@@ -2479,7 +2486,7 @@
     justify-content: center;
     gap: 8px;
     padding: 8px 12px;
-    border: 1px dashed color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
+    border: 1px dashed var(--border-subtle);
     border-radius: var(--radius-md);
     cursor: pointer;
     color: var(--text-secondary);
@@ -2533,9 +2540,9 @@
     width: 100%;
     padding: 12px 16px;
     margin-top: 10px;
-    border: 2px dashed color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
+    border: 2px dashed var(--border-subtle);
     border-radius: var(--radius-md);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
+    background: var(--bg-surface-elevated);
     color: var(--text-secondary);
     font-size: 13px;
     font-weight: 600;
@@ -2546,7 +2553,7 @@
   .add-swatch-dashed-card:hover {
     border-color: var(--brand-primary);
     background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
-    color: var(--brand-light, #60A5FA);
+    color: var(--brand-light, #2563EB);
   }
 
   .add-swatch-dashed-card:active {
@@ -2589,54 +2596,54 @@
 
   /* Light Ink Theme (Dark / Saturated Background) */
   .swatch-solid-card.theme-light-ink {
-    color: var(--text-on-accent, #FFFFFF);
+    color: var(--swatch-ink-light, #FFFFFF);
   }
 
   .swatch-solid-card.theme-light-ink .drag-handle-grip {
-    color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 75%, transparent);
+    color: color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 75%, transparent);
   }
 
   .swatch-solid-card.theme-light-ink .swatch-solid-hex {
-    color: var(--text-on-accent, #FFFFFF);
+    color: var(--swatch-ink-light, #FFFFFF);
     text-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
   }
 
   .swatch-solid-card.theme-light-ink .swatch-solid-pill {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 18%, transparent);
-    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 28%, transparent);
-    color: var(--text-on-accent, #FFFFFF);
+    background: color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 28%, transparent);
+    color: var(--swatch-ink-light, #FFFFFF);
   }
 
   .swatch-solid-card.theme-light-ink .swatch-action-pill,
   .swatch-solid-card.theme-light-ink .swatch-icon-btn {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 26%, transparent);
-    color: var(--text-on-accent, #FFFFFF);
+    background: color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 26%, transparent);
+    color: var(--swatch-ink-light, #FFFFFF);
   }
 
   .swatch-solid-card.theme-light-ink .swatch-action-pill:hover,
   .swatch-solid-card.theme-light-ink .swatch-icon-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 28%, transparent);
+    background: color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 28%, transparent);
   }
 
   .swatch-solid-card.theme-light-ink .swatch-action-pill.is-base-active {
-    background: var(--text-on-accent, #FFFFFF);
-    color: var(--bg-app, #0A0D14);
-    border-color: var(--text-on-accent, #FFFFFF);
+    background: var(--swatch-ink-light, #FFFFFF);
+    color: var(--swatch-ink-dark, #0F172A) !important;
+    border-color: var(--swatch-ink-light, #FFFFFF);
     font-weight: 700;
   }
 
   .swatch-solid-card.theme-light-ink .tone-inline-label {
-    color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 85%, transparent);
+    color: color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 85%, transparent);
   }
 
   .swatch-solid-card.theme-light-ink .swatch-tone-slider {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 25%, transparent);
+    background: color-mix(in srgb, var(--swatch-ink-light, #FFFFFF) 25%, transparent);
   }
 
   /* Dark Ink Theme (Bright / Pastel Background) */
   .swatch-solid-card.theme-dark-ink {
-    color: var(--bg-app, #0A0D14);
+    color: var(--swatch-ink-dark, #0F172A);
   }
 
   .swatch-solid-card.theme-dark-ink .drag-handle-grip {
@@ -2644,20 +2651,20 @@
   }
 
   .swatch-solid-card.theme-dark-ink .swatch-solid-hex {
-    color: var(--bg-app, #0A0D14);
+    color: var(--swatch-ink-dark, #0F172A);
   }
 
   .swatch-solid-card.theme-dark-ink .swatch-solid-pill {
     background: color-mix(in srgb, var(--shadow-base, #000000) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--shadow-base, #000000) 22%, transparent);
-    color: var(--bg-app, #0A0D14);
+    color: var(--swatch-ink-dark, #0F172A);
   }
 
   .swatch-solid-card.theme-dark-ink .swatch-action-pill,
   .swatch-solid-card.theme-dark-ink .swatch-icon-btn {
     background: color-mix(in srgb, var(--shadow-base, #000000) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--shadow-base, #000000) 22%, transparent);
-    color: var(--bg-app, #0A0D14);
+    color: var(--swatch-ink-dark, #0F172A);
   }
 
   .swatch-solid-card.theme-dark-ink .swatch-action-pill:hover,
@@ -2666,9 +2673,9 @@
   }
 
   .swatch-solid-card.theme-dark-ink .swatch-action-pill.is-base-active {
-    background: var(--bg-app, #0A0D14);
-    color: var(--text-on-accent, #FFFFFF);
-    border-color: var(--bg-app, #0A0D14);
+    background: var(--swatch-ink-dark, #0F172A);
+    color: var(--swatch-ink-light, #FFFFFF) !important;
+    border-color: var(--swatch-ink-dark, #0F172A);
     font-weight: 700;
   }
 
@@ -2802,7 +2809,7 @@
 
   /* CVD Selector Bar */
   .cvd-selector-container {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 10px 12px;
@@ -2821,7 +2828,7 @@
   .cvd-active-status {
     font-size: 11px;
     font-weight: 700;
-    color: var(--brand-light, #60A5FA);
+    color: var(--brand-light, #2563EB);
     background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     padding: 2px 8px;
     border-radius: var(--radius-full);
@@ -2837,7 +2844,7 @@
   .cvd-mode-btn {
     padding: 6px 8px;
     border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+    background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 11px;
@@ -2852,13 +2859,14 @@
 
   .cvd-mode-btn:hover {
     color: var(--text-primary);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-surface));
   }
 
   .cvd-mode-btn.active {
-    background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     border-color: var(--brand-primary);
-    color: var(--text-on-accent, #FFFFFF);
+    color: var(--brand-light, #2563EB);
+    font-weight: 700;
   }
 
   .cvd-sub-badge {
@@ -2904,7 +2912,7 @@
   }
 
   .cvd-matrix-col {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 14px;
@@ -2916,7 +2924,7 @@
 
   .cvd-matrix-col-active {
     border-color: color-mix(in srgb, var(--brand-primary) 60%, transparent);
-    background: color-mix(in srgb, var(--brand-primary) 5%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-surface-elevated));
   }
 
   .cvd-col-header {
@@ -2945,7 +2953,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: color-mix(in srgb, var(--shadow-base, #000000) 25%, transparent);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     padding: 6px;
     border-radius: var(--radius-sm);
   }
@@ -2954,7 +2963,7 @@
     width: 24px;
     height: 24px;
     border-radius: 4px;
-    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
+    border: 1px solid var(--border-subtle);
     flex-shrink: 0;
   }
 
@@ -2987,7 +2996,7 @@
 
   .theme-toggle-group {
     display: flex;
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-full);
     padding: 3px;
@@ -3009,13 +3018,14 @@
   }
 
   .theme-toggle-btn.active {
-    background: color-mix(in srgb, var(--brand-primary) 25%, transparent);
-    color: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 20%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 18%, transparent);
+    color: var(--brand-light, #2563EB);
+    font-weight: 700;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 10%, transparent);
   }
 
   .mockup-canvas-wrapper {
-    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     padding: 24px;
     display: flex;
@@ -3124,7 +3134,7 @@
 
   .kpi-bar-track {
     height: 6px;
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
+    background: color-mix(in srgb, var(--text-primary) 12%, transparent);
     border-radius: var(--radius-full);
     overflow: hidden;
   }
@@ -3310,7 +3320,7 @@
   }
 
   .contrast-gate-box {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 14px;
@@ -3357,7 +3367,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 12px 16px;
@@ -3383,12 +3393,13 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     padding: 6px 12px;
     border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
-    color: var(--text-on-accent, #FFFFFF);
+    color: var(--text-primary);
   }
 
   .ink-pill-dot {
@@ -3407,7 +3418,7 @@
   .token-tab {
     padding: 6px 10px;
     border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 12px;
@@ -3419,18 +3430,19 @@
 
   .token-tab:hover {
     color: var(--text-primary);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-surface-elevated));
   }
 
   .token-tab.active {
-    background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     border-color: var(--brand-primary);
-    color: var(--text-on-accent, #FFFFFF);
+    color: var(--brand-light, #2563EB);
+    font-weight: 700;
   }
 
   .code-viewer-container {
     flex: 1;
-    background: var(--bg-app);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 14px;
