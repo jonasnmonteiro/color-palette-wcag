@@ -5,6 +5,8 @@ Cargo.lock
 
 # WebAssembly
 /wasm/pkg/
+/wasm/pkg-node/
+/web/public/wasm/
 
 # Node & Dependencies
 node_modules/

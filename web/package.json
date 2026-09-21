@@ -6,7 +6,9 @@
     "dev": "astro dev --port 4322",
     "start": "astro dev --port 4322",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "predev": "node tools/copy-wasm.mjs",
+    "prebuild": "node tools/copy-wasm.mjs"
   },
   "dependencies": {
     "astro": "^4.4.0"
