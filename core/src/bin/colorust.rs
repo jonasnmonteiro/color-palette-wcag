@@ -34,7 +34,7 @@ enum Commands {
     Tokens {
         #[arg(help = "Brand seed hex color, e.g. #3B82F6")]
         seed: String,
-        #[arg(short, long, default_value = "css", help = "css, tailwind-v3, tailwind-v4, figma, style-dictionary, swiftui, android")]
+        #[arg(short, long, default_value = "css", help = "css, scss, tailwind-v3, tailwind-v4, figma-tokens, style-dictionary, swift, android-xml")]
         format: String,
     },
     Gamut {

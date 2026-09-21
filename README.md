@@ -34,11 +34,17 @@ crawler that audits live pages.
 ```
 
 **Where each engine runs.** The Rust crate in `core/` is the reference
-implementation: it holds the tests, the benchmarks and the native CLI. The
-TypeScript port in `wasm/src/` implements the same algorithms and is what the
-web studio imports today. `wasm/src/lib.rs` compiles those Rust functions to
-WebAssembly through `wasm-bindgen`, and that path is built but not yet wired
-into the studio.
+implementation: it holds the tests, the benchmarks and the native CLI.
+`wasm/src/lib.rs` compiles it to WebAssembly through `wasm-bindgen`, and the
+studio loads that build when it is served beside the page. The TypeScript port
+in `wasm/src/index.ts` implements the same algorithms and runs when the
+WebAssembly module is not there, which is what happens on a machine with no
+Rust toolchain.
+
+Two implementations are only interchangeable while they agree, so
+`wasm/test/differential.mjs` runs both over the same inputs and compares every
+field of every result. It is the reason the fallback is a design and not a
+hope.
 
 ---
 
@@ -95,6 +101,22 @@ token exporter at `/tokens/`. `npm run build` emits a static site into
 `web/dist/`, and it can be served from a subpath by setting `base` in the Astro
 config.
 
+To run the Rust engine in the browser, build it first:
+
+```bash
+cd wasm && npm run build:wasm
+```
+
+`web`'s own build copies the result into `public/wasm/` and the studio loads it
+from there. Without it the studio uses the TypeScript engine and says so in the
+build output.
+
+Both themes are in `src/styles/global.css`: the dark one on `:root` and the
+light one on `[data-theme="light"]`. `public/theme-boot.js` applies the stored
+choice before the first paint, and the default is whatever `data-theme` the
+document already carries, so a deployment can ship a different one without
+touching the script.
+
 ### The crawler
 
 Needs [Bun](https://bun.sh) and a Playwright chromium.
@@ -114,8 +136,17 @@ Markdown.
 
 ```bash
 cd core
-cargo test
-cargo bench
+cargo test          # 29 integration tests
+cargo bench         # Criterion benchmarks
+```
+
+The two engines are compared against each other from `wasm/`:
+
+```bash
+cd wasm
+npm run build            # the TypeScript engine, into dist/
+npm run build:wasm:node  # the Rust engine, into pkg-node/
+npm test                 # every function, both engines, same inputs
 ```
 
 ---
