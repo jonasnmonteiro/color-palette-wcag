@@ -479,7 +479,7 @@
 
   // Runs the Rust engine when its WebAssembly build is served beside the page,
   // and the TypeScript port when it is not.
-  await initColorustWasm(`${import.meta.env.BASE_URL}wasm/`);
+  await initColorustWasm(`${import.meta.env.BASE_URL.replace(/\/*$/, "/")}wasm/`);
 
   interface PaletteItem {
     id: string;
