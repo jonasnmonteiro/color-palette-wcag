@@ -8,7 +8,7 @@ import '../styles/global.css';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Colorust Tokens — Multi-Format Design Token Exporter</title>
+  <title>Colorust Tokens - Multi-Format Design Token Exporter</title>
   <meta name="description" content="Generate and export design tokens in 8 formats: CSS, Tailwind, Figma DTCG, Style Dictionary, SwiftUI, and Android XML." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -109,12 +109,12 @@ import '../styles/global.css';
       lightBox.style.backgroundColor = tokens.light['--bg'];
       lightBox.style.color = tokens.light['--ink'];
       lightBtn.style.backgroundColor = tokens.light['--brand'];
-      lightBtn.style.color = '#FFFFFF';
+      lightBtn.style.color = 'var(--text-on-accent, #FFFFFF)';
 
       darkBox.style.backgroundColor = tokens.dark['--bg'];
       darkBox.style.color = tokens.dark['--ink'];
       darkBtn.style.backgroundColor = tokens.dark['--brand'];
-      darkBtn.style.color = '#FFFFFF';
+      darkBtn.style.color = 'var(--text-on-accent, #FFFFFF)';
 
       const code = exportTokens(tokens, currentFormat as any);
       codeOutput.textContent = code;
@@ -183,7 +183,7 @@ import '../styles/global.css';
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.04);
+      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 6px 12px;
@@ -264,7 +264,7 @@ import '../styles/global.css';
     .token-tab {
       padding: 6px 12px;
       border-radius: var(--radius-sm);
-      background: rgba(255, 255, 255, 0.04);
+      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
       border: 1px solid var(--border-subtle);
       color: var(--text-secondary);
       font-size: 12px;
@@ -274,18 +274,18 @@ import '../styles/global.css';
     }
 
     .token-tab:hover {
-      color: #FFFFFF;
-      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
     }
 
     .token-tab.active {
-      background: rgba(59, 130, 246, 0.2);
+      background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
       border-color: var(--brand-primary);
-      color: #FFFFFF;
+      color: var(--text-on-accent, #FFFFFF);
     }
 
     .code-box-wrapper {
-      background: #080A0F;
+      background: var(--bg-app);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;
@@ -297,7 +297,7 @@ import '../styles/global.css';
       font-family: var(--font-mono);
       font-size: 13px;
       line-height: 1.6;
-      color: #E2E8F0;
+      color: var(--text-primary);
     }
 
     @media (max-width: 960px) {

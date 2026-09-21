@@ -9,7 +9,7 @@ import '../styles/global.css';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Colorust Studio — Perceptual OKLCH Palette Generator & WCAG/APCA Auditor</title>
+  <title>Colorust Studio - Perceptual OKLCH Palette Generator & WCAG/APCA Auditor</title>
   <meta name="description" content="Ultra-fast perceptual color science suite, OKLCH palette generator, WCAG 2.1 & WCAG 3.0 APCA contrast auditor, and multi-format design token exporter." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -59,13 +59,13 @@ import '../styles/global.css';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: color-mix(in srgb, var(--brand-primary, #3B82F6) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--brand-primary, #3B82F6) 30%, transparent);
     padding: 6px 14px;
     border-radius: var(--radius-full);
     font-size: 13px;
     font-weight: 600;
-    color: #60A5FA;
+    color: var(--brand-light, #60A5FA);
     margin-bottom: 20px;
   }
 
@@ -73,8 +73,8 @@ import '../styles/global.css';
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #60A5FA;
-    box-shadow: 0 0 8px #60A5FA;
+    background: var(--brand-light, #60A5FA);
+    box-shadow: 0 0 8px var(--brand-light, #60A5FA);
   }
 
   .hero-title {
@@ -95,7 +95,7 @@ import '../styles/global.css';
     border-top: 1px solid var(--border-subtle);
     padding: 32px 0;
     margin-top: 64px;
-    background: rgba(10, 13, 20, 0.6);
+    background: color-mix(in srgb, var(--bg-app, #0A0D14) 60%, transparent);
   }
 
   .footer-container {
@@ -112,7 +112,7 @@ import '../styles/global.css';
   }
 
   .footer-links a:hover {
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   @media (max-width: 768px) {

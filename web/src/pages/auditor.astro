@@ -8,7 +8,7 @@ import '../styles/global.css';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Colorust Auditor — WCAG 2.1 & WCAG 3.0 APCA Contrast Auditor</title>
+  <title>Colorust Auditor - WCAG 2.1 & WCAG 3.0 APCA Contrast Auditor</title>
   <meta name="description" content="Auditor for WCAG 2.1, WCAG 3.0 APCA, and CIEDE2000 color difference." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -304,7 +304,7 @@ import '../styles/global.css';
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.04);
+      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 4px 10px;
@@ -354,7 +354,7 @@ import '../styles/global.css';
     }
 
     .metric-column {
-      background: rgba(255, 255, 255, 0.02);
+      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;
@@ -380,7 +380,7 @@ import '../styles/global.css';
       font-weight: 700;
       padding: 2px 6px;
       border-radius: var(--radius-sm);
-      background: rgba(16, 185, 129, 0.2);
+      background: color-mix(in srgb, var(--color-success) 20%, transparent);
       color: var(--color-success);
     }
 
@@ -388,7 +388,7 @@ import '../styles/global.css';
       font-size: 28px;
       font-weight: 800;
       font-family: var(--font-mono);
-      color: #FFFFFF;
+      color: var(--text-primary);
     }
 
     .criteria-list {
@@ -420,7 +420,7 @@ import '../styles/global.css';
     }
 
     .cvd-audit-card {
-      background: rgba(255, 255, 255, 0.02);
+      background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;
@@ -440,7 +440,7 @@ import '../styles/global.css';
     .cvd-card-title {
       font-size: 14px;
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
     }
 
     .cvd-card-desc {
@@ -451,7 +451,7 @@ import '../styles/global.css';
     .cvd-sample-box {
       padding: 14px;
       border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -474,7 +474,7 @@ import '../styles/global.css';
     }
 
     .cvd-metric-box {
-      background: rgba(0, 0, 0, 0.3);
+      background: color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
       padding: 6px 8px;
       border-radius: var(--radius-sm);
       display: flex;
@@ -493,7 +493,7 @@ import '../styles/global.css';
       font-size: 11px;
       font-family: var(--font-mono);
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
     }
 
     @media (max-width: 1100px) {

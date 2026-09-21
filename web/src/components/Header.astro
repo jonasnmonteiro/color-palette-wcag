@@ -38,7 +38,7 @@ const currentPath = Astro.url.pathname;
 
 <style>
   .studio-header {
-    background: rgba(10, 13, 20, 0.85);
+    background: color-mix(in srgb, var(--bg-app, #0A0D14) 85%, transparent);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-subtle);
     position: sticky;
@@ -72,7 +72,7 @@ const currentPath = Astro.url.pathname;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #FFFFFF;
+    color: var(--text-on-accent, #FFFFFF);
     box-shadow: 0 0 16px var(--brand-glow);
   }
 
@@ -85,7 +85,7 @@ const currentPath = Astro.url.pathname;
     font-size: 18px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: #FFFFFF;
+    color: var(--text-primary, #F3F4F6);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -97,9 +97,9 @@ const currentPath = Astro.url.pathname;
     text-transform: uppercase;
     padding: 2px 6px;
     border-radius: var(--radius-sm);
-    background: rgba(59, 130, 246, 0.2);
-    color: #60A5FA;
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    background: color-mix(in srgb, var(--brand-primary, #3B82F6) 20%, transparent);
+    color: var(--brand-light, #60A5FA);
+    border: 1px solid color-mix(in srgb, var(--brand-primary, #3B82F6) 40%, transparent);
   }
 
   .brand-subtitle {
@@ -111,7 +111,7 @@ const currentPath = Astro.url.pathname;
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     padding: 4px;
     border-radius: var(--radius-full);
     border: 1px solid var(--border-subtle);
@@ -127,14 +127,14 @@ const currentPath = Astro.url.pathname;
   }
 
   .nav-item:hover {
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary, #F3F4F6);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 6%, transparent);
   }
 
   .nav-item.active {
-    color: #FFFFFF;
-    background: rgba(59, 130, 246, 0.2);
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: var(--text-on-accent, #FFFFFF);
+    background: color-mix(in srgb, var(--brand-primary, #3B82F6) 20%, transparent);
+    border: 1px solid color-mix(in srgb, var(--brand-primary, #3B82F6) 40%, transparent);
     font-weight: 600;
   }
 

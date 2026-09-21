@@ -6,29 +6,47 @@
   --bg-surface: #121722;
   --bg-surface-elevated: #1A2234;
   --bg-surface-glass: rgba(18, 23, 34, 0.75);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(59, 130, 246, 0.35);
+  --border-subtle: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+  --border-glow: color-mix(in srgb, var(--brand-primary, #3B82F6) 35%, transparent);
   
   --text-primary: #F3F4F6;
   --text-secondary: #9CA3AF;
   --text-muted: #6B7280;
+  --text-on-accent: #FFFFFF;
   
   --brand-primary: #3B82F6;
-  --brand-glow: rgba(59, 130, 246, 0.25);
-  --brand-gradient: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+  --brand-light: #60A5FA;
+  --brand-glow: color-mix(in srgb, var(--brand-primary, #3B82F6) 25%, transparent);
+  --brand-gradient: linear-gradient(135deg, var(--brand-primary, #3B82F6) 0%, #8B5CF6 50%, #EC4899 100%);
   
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
+  --color-info: #0284C7;
+  --gamut-wide: #C084FC;
+  --gamut-srgb: #4ADE80;
+  
+  --shadow-base: #000000;
+  --shadow-sm: 0 1px 2px 0 color-mix(in srgb, var(--shadow-base, #000000) 5%, transparent);
+  --shadow-glass: 0 8px 32px 0 color-mix(in srgb, var(--shadow-base, #000000) 37%, transparent);
+  --shadow-glow: 0 0 24px -4px color-mix(in srgb, var(--brand-primary, #3B82F6) 40%, transparent);
+
+  /* Preview Mockup Sandbox Floor Tokens */
+  --preview-bg-dark: #0F131C;
+  --preview-bg-light: #F8FAFC;
+  --preview-surface-dark: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
+  --preview-surface-light: #FFFFFF;
+  --preview-border-dark: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+  --preview-border-light: color-mix(in srgb, var(--shadow-base, #000000) 8%, transparent);
+  --preview-text-dark: #F1F5F9;
+  --preview-text-light: #0F172A;
+  --preview-input-dark: color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
+  --preview-input-light: #F1F5F9;
   
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-full: 9999px;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --shadow-glow: 0 0 24px -4px rgba(59, 130, 246, 0.4);
 }
 
 * {
@@ -81,7 +99,7 @@ input, select, textarea {
 }
 
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 14%, transparent);
 }
 
 .gradient-text {
@@ -103,19 +121,19 @@ input, select, textarea {
 }
 
 .badge-pass {
-  background: rgba(16, 185, 129, 0.15);
+  background: color-mix(in srgb, var(--color-success) 15%, transparent);
   color: var(--color-success);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent);
 }
 
 .badge-fail {
-  background: rgba(239, 68, 68, 0.15);
+  background: color-mix(in srgb, var(--color-danger) 15%, transparent);
   color: var(--color-danger);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 30%, transparent);
 }
 
 .badge-neutral {
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
   color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
 }
@@ -125,20 +143,20 @@ input, select, textarea {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #3B82F6;
-  color: #FFFFFF;
+  background: var(--brand-primary);
+  color: var(--text-on-accent, #FFFFFF);
   padding: 10px 20px;
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 14px;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  box-shadow: 0 4px 14px 0 color-mix(in srgb, var(--brand-primary) 39%, transparent);
 }
 
 .btn-primary:hover {
-  background: #2563EB;
+  background: color-mix(in srgb, var(--brand-primary) 85%, var(--shadow-base, #000000));
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--brand-primary) 50%, transparent);
 }
 
 .btn-secondary {
@@ -157,15 +175,15 @@ input, select, textarea {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
+  border-color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
 }
 
 .custom-range {
   -webkit-appearance: none;
   width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 12%, transparent);
   border-radius: var(--radius-full);
   outline: none;
 }
@@ -176,10 +194,10 @@ input, select, textarea {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #FFFFFF;
+  background: var(--text-on-accent, #FFFFFF);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  border: 2px solid #3B82F6;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
+  border: 2px solid var(--brand-primary);
   transition: transform 0.1s ease;
 }
 

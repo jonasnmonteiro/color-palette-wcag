@@ -834,14 +834,14 @@
 
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.strokeStyle = 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 25%, transparent)';
     ctx.lineWidth = 3;
     ctx.stroke();
 
     for (let frac of [0.33, 0.66, 1.0]) {
       ctx.beginPath();
       ctx.arc(cx, cy, radius * frac, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.strokeStyle = 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
@@ -890,7 +890,7 @@
 
     palette.forEach((item) => {
       const pos = polarToStageCoords(item.h, item.c);
-      const strokeColor = item.isLocked ? '#F59E0B' : item.isBase ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.45)';
+      const strokeColor = item.isLocked ? 'var(--color-warning, #F59E0B)' : item.isBase ? 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 85%, transparent)' : 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 45%, transparent)';
       const strokeWidth = item.isBase ? '2.5' : '1.5';
       const dashArray = item.isLocked ? '4 3' : 'none';
 
@@ -902,14 +902,14 @@
       for (let i = 0; i < sorted.length - 1; i++) {
         const p1 = polarToStageCoords(sorted[i].h, sorted[i].c);
         const p2 = polarToStageCoords(sorted[i + 1].h, sorted[i + 1].c);
-        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.5" stroke-dasharray="2 2" />`;
+        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="color-mix(in srgb, var(--text-on-accent, #FFFFFF) 35%, transparent)" stroke-width="1.5" stroke-dasharray="2 2" />`;
       }
     } else if (currentHarmony === 'triadic' || currentHarmony === 'tetradic' || currentHarmony === 'square') {
       const sorted = [...palette].sort((a, b) => a.h - b.h);
       for (let i = 0; i < sorted.length; i++) {
         const p1 = polarToStageCoords(sorted[i].h, sorted[i].c);
         const p2 = polarToStageCoords(sorted[(i + 1) % sorted.length].h, sorted[(i + 1) % sorted.length].c);
-        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(255, 255, 255, 0.35)" stroke-width="1.5" />`;
+        linesHtml += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="color-mix(in srgb, var(--text-on-accent, #FFFFFF) 35%, transparent)" stroke-width="1.5" />`;
       }
     }
 
@@ -1412,15 +1412,15 @@
 
     // Container & Background
     if (mockupCanvasContainer) {
-      mockupCanvasContainer.style.background = isDark ? '#0F131C' : '#F8FAFC';
-      mockupCanvasContainer.style.color = isDark ? '#F1F5F9' : '#0F172A';
-      mockupCanvasContainer.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+      mockupCanvasContainer.style.background = isDark ? 'var(--preview-bg-dark)' : 'var(--preview-bg-light)';
+      mockupCanvasContainer.style.color = isDark ? 'var(--preview-text-dark)' : 'var(--preview-text-light)';
+      mockupCanvasContainer.style.borderColor = isDark ? 'var(--preview-border-dark)' : 'var(--preview-border-light)';
     }
 
     // App Bar
     if (mockupAppBar) {
-      mockupAppBar.style.background = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)';
-      mockupAppBar.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+      mockupAppBar.style.background = isDark ? 'var(--preview-surface-dark)' : 'color-mix(in srgb, var(--shadow-base, #000000) 2%, transparent)';
+      mockupAppBar.style.borderColor = isDark ? 'var(--preview-border-dark)' : 'var(--preview-border-light)';
     }
 
     if (mockupLogoDot) {
@@ -1435,16 +1435,16 @@
 
     if (mockupAvatar) {
       mockupAvatar.style.backgroundColor = c1;
-      mockupAvatar.style.color = '#FFFFFF';
+      mockupAvatar.style.color = 'var(--text-on-accent, #FFFFFF)';
     }
 
     // KPI Cards
     const kpiCards = [mockupKpi1, mockupKpi2, mockupKpi3];
     kpiCards.forEach((kpi) => {
       if (kpi) {
-        kpi.style.background = isDark ? 'rgba(255, 255, 255, 0.04)' : '#FFFFFF';
-        kpi.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
-        kpi.style.boxShadow = isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.04)';
+        kpi.style.background = isDark ? 'var(--preview-surface-dark)' : 'var(--preview-surface-light)';
+        kpi.style.borderColor = isDark ? 'var(--preview-border-dark)' : 'var(--preview-border-light)';
+        kpi.style.boxShadow = isDark ? 'none' : '0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 4%, transparent)';
       }
     });
 
@@ -1472,8 +1472,8 @@
 
     // Feature Box
     if (mockupFeatureBox) {
-      mockupFeatureBox.style.background = isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF';
-      mockupFeatureBox.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+      mockupFeatureBox.style.background = isDark ? 'var(--preview-surface-dark)' : 'var(--preview-surface-light)';
+      mockupFeatureBox.style.borderColor = isDark ? 'var(--preview-border-dark)' : 'var(--preview-border-light)';
     }
 
     if (mockupPillTag) {
@@ -1484,31 +1484,31 @@
 
     if (mockupMainBtn) {
       mockupMainBtn.style.backgroundColor = brandHex;
-      mockupMainBtn.style.color = '#FFFFFF';
+      mockupMainBtn.style.color = 'var(--text-on-accent, #FFFFFF)';
       mockupMainBtn.style.boxShadow = `0 4px 14px ${brandHex}40`;
     }
 
     if (mockupSecBtn) {
-      mockupSecBtn.style.background = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)';
-      mockupSecBtn.style.color = isDark ? '#FFFFFF' : '#1E293B';
-      mockupSecBtn.style.border = isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.15)';
+      mockupSecBtn.style.background = isDark ? 'color-mix(in srgb, var(--text-on-accent, #FFFFFF) 6%, transparent)' : 'color-mix(in srgb, var(--shadow-base, #000000) 5%, transparent)';
+      mockupSecBtn.style.color = isDark ? 'var(--preview-text-dark)' : 'var(--preview-text-light)';
+      mockupSecBtn.style.border = isDark ? '1px solid var(--preview-border-dark)' : '1px solid var(--preview-border-light)';
     }
 
     // Form Box
     if (mockupFormBox) {
-      mockupFormBox.style.background = isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF';
-      mockupFormBox.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+      mockupFormBox.style.background = isDark ? 'var(--preview-surface-dark)' : 'var(--preview-surface-light)';
+      mockupFormBox.style.borderColor = isDark ? 'var(--preview-border-dark)' : 'var(--preview-border-light)';
     }
 
     if (mockupTextInput) {
-      mockupTextInput.style.background = isDark ? 'rgba(0, 0, 0, 0.4)' : '#F1F5F9';
-      mockupTextInput.style.color = isDark ? '#F8FAFC' : '#0F172A';
+      mockupTextInput.style.background = isDark ? 'var(--preview-input-dark)' : 'var(--preview-input-light)';
+      mockupTextInput.style.color = isDark ? 'var(--preview-text-dark)' : 'var(--preview-text-light)';
       mockupTextInput.style.borderColor = `${brandHex}60`;
     }
 
     if (mockupInputBtn) {
       mockupInputBtn.style.backgroundColor = brandHex;
-      mockupInputBtn.style.color = '#FFFFFF';
+      mockupInputBtn.style.color = 'var(--text-on-accent, #FFFFFF)';
     }
 
     if (mockupPillActive) {
@@ -1570,10 +1570,10 @@
     const blackScore = blackAudit ? Math.abs(blackAudit.apca.lc) : 0;
 
     if (whiteScore >= blackScore) {
-      inkNameText.textContent = `Tinta Branca (#FFFFFF) — Lc ${whiteScore.toFixed(1)}`;
+      inkNameText.textContent = `Tinta Branca (#FFFFFF) - Lc ${whiteScore.toFixed(1)}`;
       inkDot.style.backgroundColor = '#FFFFFF';
     } else {
-      inkNameText.textContent = `Tinta Escura (#0A0D14) — Lc ${blackScore.toFixed(1)}`;
+      inkNameText.textContent = `Tinta Escura (#0A0D14) - Lc ${blackScore.toFixed(1)}`;
       inkDot.style.backgroundColor = '#0A0D14';
     }
 
@@ -1590,7 +1590,7 @@
     if (gamutSummaryBadge) {
       gamutSummaryBadge.innerHTML = allInSrgb
         ? `<span>sRGB & Display P3 Safe</span>`
-        : `<span style="color:#C084FC;">Gamut Expandido (Display P3)</span>`;
+        : `<span style="color:var(--gamut-wide);">Gamut Expandido (Display P3)</span>`;
     }
 
     const tokens = generateDesignTokens(base.hex);
@@ -1931,11 +1931,11 @@
     position: fixed;
     bottom: 32px;
     right: 32px;
-    background: rgba(15, 23, 42, 0.92);
-    border: 1px solid rgba(59, 130, 246, 0.4);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 16px rgba(59, 130, 246, 0.25);
+    background: var(--bg-surface-glass);
+    border: 1px solid color-mix(in srgb, var(--brand-primary) 40%, transparent);
+    box-shadow: 0 12px 36px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent), 0 0 16px color-mix(in srgb, var(--brand-primary) 25%, transparent);
     backdrop-filter: blur(12px);
-    color: #FFFFFF;
+    color: var(--text-on-accent, #FFFFFF);
     padding: 12px 20px;
     border-radius: var(--radius-full);
     display: flex;
@@ -1978,9 +1978,9 @@
     gap: 8px;
     font-size: 12px;
     font-weight: 700;
-    color: #4ADE80;
-    background: rgba(34, 197, 94, 0.12);
-    border: 1px solid rgba(34, 197, 94, 0.25);
+    color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-success) 25%, transparent);
     padding: 6px 14px;
     border-radius: var(--radius-full);
   }
@@ -1989,29 +1989,29 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #4ADE80;
-    box-shadow: 0 0 8px #4ADE80;
+    background: var(--color-success);
+    box-shadow: 0 0 8px var(--color-success);
   }
 
   .gamut-summary-pill {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     padding: 6px 12px;
     border-radius: var(--radius-full);
   }
 
   .btn-share-pill {
-    background: rgba(59, 130, 246, 0.15) !important;
-    border-color: rgba(59, 130, 246, 0.35) !important;
-    color: #60A5FA !important;
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent) !important;
+    border-color: color-mix(in srgb, var(--brand-primary) 35%, transparent) !important;
+    color: var(--brand-light, #60A5FA) !important;
   }
 
   .btn-share-pill:hover {
-    background: rgba(59, 130, 246, 0.25) !important;
-    color: #FFFFFF !important;
+    background: color-mix(in srgb, var(--brand-primary) 25%, transparent) !important;
+    color: var(--text-on-accent, #FFFFFF) !important;
   }
 
   /* Presets Drawer */
@@ -2019,8 +2019,8 @@
     display: none;
     padding: 24px;
     border-radius: var(--radius-lg);
-    border-color: rgba(59, 130, 246, 0.3);
-    background: rgba(15, 20, 32, 0.95);
+    border-color: color-mix(in srgb, var(--brand-primary) 30%, transparent);
+    background: var(--bg-surface-elevated);
     animation: fadeIn 0.2s ease-out;
   }
 
@@ -2038,7 +2038,7 @@
   .presets-title {
     font-size: 16px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--text-primary);
     margin-bottom: 4px;
   }
 
@@ -2057,7 +2057,7 @@
   }
 
   .close-presets-btn:hover {
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .presets-grid {
@@ -2067,7 +2067,7 @@
   }
 
   .preset-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 12px;
@@ -2079,10 +2079,10 @@
   }
 
   .preset-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(59, 130, 246, 0.5);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+    border-color: color-mix(in srgb, var(--brand-primary) 50%, transparent);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
   }
 
   .preset-card-top {
@@ -2094,7 +2094,7 @@
   .preset-name {
     font-size: 12px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .preset-tag {
@@ -2102,9 +2102,9 @@
     font-weight: 700;
     padding: 2px 6px;
     border-radius: var(--radius-full);
-    background: rgba(59, 130, 246, 0.15);
-    color: #60A5FA;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
+    color: var(--brand-light, #60A5FA);
+    border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .preset-swatches-row {
@@ -2112,7 +2112,7 @@
     height: 22px;
     border-radius: var(--radius-sm);
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
   }
 
   .preset-swatch-dot {
@@ -2129,7 +2129,7 @@
   }
 
   .preset-action {
-    color: #60A5FA;
+    color: var(--brand-light, #60A5FA);
     font-weight: 600;
   }
 
@@ -2165,11 +2165,11 @@
   .harmony-rule-pill {
     font-size: 12px;
     font-weight: 700;
-    color: #60A5FA;
-    background: rgba(59, 130, 246, 0.15);
+    color: var(--brand-light, #60A5FA);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     padding: 4px 12px;
     border-radius: var(--radius-full);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .wheel-outer-container {
@@ -2184,7 +2184,7 @@
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
     cursor: crosshair;
     user-select: none;
     touch-action: none;
@@ -2214,8 +2214,8 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #FFFFFF;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 4px #FFFFFF;
+    background: var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--shadow-base, #000000) 80%, transparent), 0 0 4px var(--text-on-accent, #FFFFFF);
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 5;
@@ -2228,8 +2228,8 @@
     height: 22px;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    border: 2.5px solid #FFFFFF;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    border: 2.5px solid var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent);
     pointer-events: auto;
     display: flex;
     align-items: center;
@@ -2249,8 +2249,8 @@
     width: 28px;
     height: 28px;
     border-width: 3px;
-    border-color: #FFFFFF;
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.9), 0 4px 12px rgba(0, 0, 0, 0.6);
+    border-color: var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--text-on-accent, #FFFFFF) 90%, transparent), 0 4px 12px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent);
     z-index: 15;
   }
 
@@ -2258,12 +2258,12 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #FFFFFF;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    background: var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 0 4px color-mix(in srgb, var(--shadow-base, #000000) 80%, transparent);
   }
 
   .chroma-pin.pin-is-locked {
-    border-color: #F59E0B;
+    border-color: var(--color-warning);
   }
 
   .pin-lock-symbol {
@@ -2275,7 +2275,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 8px 12px;
@@ -2292,8 +2292,8 @@
     height: 36px;
     border-radius: var(--radius-sm);
     position: relative;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
     cursor: pointer;
   }
 
@@ -2326,7 +2326,7 @@
     font-family: var(--font-mono);
     font-size: 14px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--text-primary);
     outline: none;
     text-transform: uppercase;
   }
@@ -2343,7 +2343,7 @@
     gap: 6px;
     padding: 7px 12px;
     border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 5%, transparent);
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
     font-size: 12px;
@@ -2353,9 +2353,9 @@
   }
 
   .btn-action-pill:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #FFFFFF;
-    border-color: rgba(255, 255, 255, 0.2);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
+    color: var(--text-primary);
+    border-color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
   }
 
   .sub-label {
@@ -2377,7 +2377,7 @@
   .harmony-tag-btn {
     padding: 6px 8px;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 11px;
@@ -2388,15 +2388,15 @@
   }
 
   .harmony-tag-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #FFFFFF;
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+    color: var(--text-primary);
   }
 
   .harmony-tag-btn.active {
-    background: rgba(59, 130, 246, 0.2);
+    background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
     border-color: var(--brand-primary);
-    color: #FFFFFF;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+    color: var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--brand-primary) 25%, transparent);
   }
 
   .image-dropzone-pill {
@@ -2405,7 +2405,7 @@
     justify-content: center;
     gap: 8px;
     padding: 8px 12px;
-    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border: 1px dashed color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
     border-radius: var(--radius-md);
     cursor: pointer;
     color: var(--text-secondary);
@@ -2415,8 +2415,8 @@
 
   .image-dropzone-pill:hover {
     border-color: var(--brand-primary);
-    color: #FFFFFF;
-    background: rgba(59, 130, 246, 0.05);
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--brand-primary) 5%, transparent);
   }
 
   .file-hidden-input {
@@ -2438,10 +2438,10 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--brand-primary);
-    background: rgba(59, 130, 246, 0.15);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     padding: 4px 10px;
     border-radius: var(--radius-full);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .palette-swatches-list {
@@ -2452,7 +2452,7 @@
 
   /* PALETTE SWATCH ROW CARD WITH DRAG & DROP */
   .swatch-row-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 10px 14px;
@@ -2466,16 +2466,16 @@
   }
 
   .swatch-row-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 5%, transparent);
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--shadow-base, #000000) 20%, transparent);
   }
 
   .swatch-row-card.swatch-row-base {
-    border-color: rgba(59, 130, 246, 0.5);
-    background: rgba(59, 130, 246, 0.06);
-    box-shadow: 0 0 16px rgba(59, 130, 246, 0.12);
+    border-color: color-mix(in srgb, var(--brand-primary) 50%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 6%, transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--brand-primary) 12%, transparent);
   }
 
   .swatch-row-card.is-dragging-card {
@@ -2485,8 +2485,8 @@
 
   .swatch-row-card.drag-over-target {
     border-color: var(--brand-primary);
-    background: rgba(59, 130, 246, 0.15);
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .drag-handle-grip {
@@ -2502,12 +2502,12 @@
   }
 
   .drag-handle-grip:hover {
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .drag-handle-grip:active {
     cursor: grabbing;
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .swatch-left-group {
@@ -2522,8 +2522,8 @@
     height: 44px;
     border-radius: var(--radius-sm);
     position: relative;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
     cursor: pointer;
     flex-shrink: 0;
   }
@@ -2546,14 +2546,14 @@
     font-family: var(--font-mono);
     font-size: 14px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .swatch-lc-pill {
     font-size: 10px;
     font-weight: 700;
-    background: rgba(0, 0, 0, 0.5);
-    color: #94A3B8;
+    background: color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
+    color: var(--text-secondary);
     padding: 2px 6px;
     border-radius: var(--radius-sm);
     font-family: var(--font-mono);
@@ -2578,7 +2578,7 @@
     flex: 1;
     cursor: pointer;
     touch-action: pan-x;
-    accent-color: #3B82F6;
+    accent-color: var(--brand-primary);
   }
 
   .swatch-right-actions {
@@ -2593,7 +2593,7 @@
     color: var(--text-secondary);
     padding: 6px 10px;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     transition: all 0.15s ease;
     white-space: nowrap;
@@ -2601,14 +2601,14 @@
   }
 
   .swatch-action-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #FFFFFF;
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
+    color: var(--text-primary);
   }
 
   .swatch-action-link.action-is-base {
-    background: rgba(59, 130, 246, 0.25);
+    background: color-mix(in srgb, var(--brand-primary) 25%, transparent);
     border-color: var(--brand-primary);
-    color: #60A5FA;
+    color: var(--brand-light, #60A5FA);
     font-weight: 700;
   }
 
@@ -2619,7 +2619,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 11px;
@@ -2628,8 +2628,8 @@
   }
 
   .swatch-icon-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.12);
-    color: #FFFFFF;
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 12%, transparent);
+    color: var(--text-primary);
   }
 
   .swatch-icon-btn:disabled {
@@ -2638,14 +2638,14 @@
   }
 
   .swatch-icon-btn.btn-is-locked {
-    background: rgba(245, 158, 11, 0.2);
-    border-color: #F59E0B;
-    color: #FBBF24;
+    background: color-mix(in srgb, var(--color-warning) 20%, transparent);
+    border-color: var(--color-warning);
+    color: var(--color-warning);
   }
 
   .swatch-icon-btn.delete-btn:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.25);
-    color: #EF4444;
+    background: color-mix(in srgb, var(--color-danger) 25%, transparent);
+    color: var(--color-danger);
   }
 
   .palette-footer-row {
@@ -2659,7 +2659,7 @@
 
   /* CVD Selector Bar */
   .cvd-selector-container {
-    background: rgba(255, 255, 255, 0.02);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 10px 12px;
@@ -2678,11 +2678,11 @@
   .cvd-active-status {
     font-size: 11px;
     font-weight: 700;
-    color: #60A5FA;
-    background: rgba(59, 130, 246, 0.15);
+    color: var(--brand-light, #60A5FA);
+    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
     padding: 2px 8px;
     border-radius: var(--radius-full);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .cvd-modes-buttons {
@@ -2694,7 +2694,7 @@
   .cvd-mode-btn {
     padding: 6px 8px;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 11px;
@@ -2708,15 +2708,15 @@
   }
 
   .cvd-mode-btn:hover {
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
   }
 
   .cvd-mode-btn.active {
-    background: rgba(59, 130, 246, 0.2);
+    background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
     border-color: var(--brand-primary);
-    color: #FFFFFF;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+    color: var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .cvd-sub-badge {
@@ -2738,15 +2738,15 @@
   }
 
   .gamut-srgb {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ADE80;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    background: color-mix(in srgb, var(--color-success) 15%, transparent);
+    color: var(--color-success);
+    border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent);
   }
 
   .gamut-p3 {
-    background: rgba(168, 85, 247, 0.15);
-    color: #C084FC;
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    background: color-mix(in srgb, var(--gamut-wide) 15%, transparent);
+    color: var(--gamut-wide);
+    border: 1px solid color-mix(in srgb, var(--gamut-wide) 30%, transparent);
   }
 
   /* CVD Multimodal Panel */
@@ -2762,7 +2762,7 @@
   }
 
   .cvd-matrix-col {
-    background: rgba(255, 255, 255, 0.02);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 2%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 14px;
@@ -2773,9 +2773,9 @@
   }
 
   .cvd-matrix-col-active {
-    border-color: rgba(59, 130, 246, 0.6);
-    background: rgba(59, 130, 246, 0.05);
-    box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
+    border-color: color-mix(in srgb, var(--brand-primary) 60%, transparent);
+    background: color-mix(in srgb, var(--brand-primary) 5%, transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--brand-primary) 15%, transparent);
   }
 
   .cvd-col-header {
@@ -2786,7 +2786,7 @@
   .cvd-col-title {
     font-size: 13px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .cvd-col-sub {
@@ -2804,7 +2804,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.25);
+    background: color-mix(in srgb, var(--shadow-base, #000000) 25%, transparent);
     padding: 6px;
     border-radius: var(--radius-sm);
   }
@@ -2813,7 +2813,7 @@
     width: 24px;
     height: 24px;
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
     flex-shrink: 0;
   }
 
@@ -2828,7 +2828,7 @@
     font-size: 11px;
     font-family: var(--font-mono);
     font-weight: 600;
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   /* UI SHOWCASE PANEL & MOCKUP CANVAS */
@@ -2846,7 +2846,7 @@
 
   .theme-toggle-group {
     display: flex;
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-full);
     padding: 3px;
@@ -2868,13 +2868,13 @@
   }
 
   .theme-toggle-btn.active {
-    background: rgba(59, 130, 246, 0.25);
-    color: #FFFFFF;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: color-mix(in srgb, var(--brand-primary) 25%, transparent);
+    color: var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 20%, transparent);
   }
 
   .mockup-canvas-wrapper {
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
     border-radius: var(--radius-lg);
     padding: 24px;
     display: flex;
@@ -2983,7 +2983,7 @@
 
   .kpi-bar-track {
     height: 6px;
-    background: rgba(128, 128, 128, 0.15);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
     border-radius: var(--radius-full);
     overflow: hidden;
   }
@@ -3025,7 +3025,7 @@
 
   .feature-stars {
     font-size: 12px;
-    color: #FBBF24;
+    color: var(--color-warning);
     font-weight: 600;
   }
 
@@ -3159,7 +3159,7 @@
   .card-title {
     font-size: 16px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .contrast-gates-grid {
@@ -3169,7 +3169,7 @@
   }
 
   .contrast-gate-box {
-    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 14px;
@@ -3198,7 +3198,7 @@
     font-size: 20px;
     font-weight: 700;
     font-family: var(--font-mono);
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .metric-label {
@@ -3216,7 +3216,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 12px 16px;
@@ -3230,7 +3230,7 @@
   .ink-label {
     font-size: 13px;
     font-weight: 600;
-    color: #FFFFFF;
+    color: var(--text-primary);
   }
 
   .ink-reason {
@@ -3242,12 +3242,12 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.4);
+    background: color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
     padding: 6px 12px;
     border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
-    color: #FFFFFF;
+    color: var(--text-on-accent, #FFFFFF);
   }
 
   .ink-pill-dot {
@@ -3266,7 +3266,7 @@
   .token-tab {
     padding: 6px 10px;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     font-size: 12px;
@@ -3277,19 +3277,19 @@
   }
 
   .token-tab:hover {
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
   }
 
   .token-tab.active {
-    background: rgba(59, 130, 246, 0.2);
+    background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
     border-color: var(--brand-primary);
-    color: #FFFFFF;
+    color: var(--text-on-accent, #FFFFFF);
   }
 
   .code-viewer-container {
     flex: 1;
-    background: #080A0F;
+    background: var(--bg-app);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 14px;
@@ -3300,7 +3300,7 @@
   .code-block {
     font-family: var(--font-mono);
     font-size: 12px;
-    color: #E2E8F0;
+    color: var(--text-primary);
     line-height: 1.6;
   }
 
