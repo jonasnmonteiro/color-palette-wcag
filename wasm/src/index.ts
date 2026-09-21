@@ -15,23 +15,42 @@ import {
   SwatchItem,
   TargetGamut,
   WcagVerdict,
-} from './types';
+} from './types.js';
 
-export * from './types';
-export * from './exporter';
+export * from './types.js';
+export * from './exporter.js';
 
 let wasmModule: any = null;
 
-export async function initColorustWasm(wasmBinaryOrUrl?: string | ArrayBuffer): Promise<boolean> {
+/**
+ * Loads the WebAssembly build of the Rust engine. Every function below then
+ * runs through it; without this call, or when the module cannot be loaded,
+ * the TypeScript implementations run instead and return the same values.
+ *
+ * `source` is the directory the wasm-pack output is served from, with a
+ * trailing slash. The specifier is assembled at runtime so that a bundler
+ * does not try to resolve it when the files are not present.
+ */
+export async function initColorustWasm(source = '/wasm/'): Promise<boolean> {
+  if (wasmModule) return true;
   try {
     if (typeof window !== 'undefined' && ((window as any).colorust_wasm || (window as any).auracolor_wasm)) {
       wasmModule = (window as any).colorust_wasm || (window as any).auracolor_wasm;
       return true;
     }
-    return false;
+    const entry = `${source}colorust_wasm.js`;
+    const mod = await import(/* @vite-ignore */ entry);
+    await mod.default(`${source}colorust_wasm_bg.wasm`);
+    wasmModule = mod;
+    return true;
   } catch {
     return false;
   }
+}
+
+/** True when the Rust engine is loaded and serving the calls below. */
+export function isWasmActive(): boolean {
+  return wasmModule !== null;
 }
 
 export const initAuraColorWasm = initColorustWasm;
@@ -78,6 +97,13 @@ function cbrtSigned(x: number): number {
 }
 
 export function hexToOklch(hex: string): OklchColor | null {
+  if (wasmModule) {
+    try {
+      return wasmModule.hex_to_oklch_wasm(hex) as OklchColor;
+    } catch {
+      return null;
+    }
+  }
   const rgb = parseHex(hex);
   if (!rgb) return null;
 
@@ -105,6 +131,7 @@ export function hexToOklch(hex: string): OklchColor | null {
 }
 
 export function oklchToHex(l: number, c: number, h: number): string {
+  if (wasmModule) return wasmModule.oklch_to_hex_wasm(l, c, h) as string;
   const hRad = (h * Math.PI) / 180.0;
   const a_ = c * Math.cos(hRad);
   const b_ = c * Math.sin(hRad);
@@ -197,6 +224,13 @@ export function auditApca(text: RgbColor, background: RgbColor): ApcaVerdict {
 }
 
 export function auditContrastHex(fgHex: string, bgHex: string): ContrastAuditResult | null {
+  if (wasmModule) {
+    try {
+      return wasmModule.audit_contrast_wasm(fgHex, bgHex) as ContrastAuditResult;
+    } catch {
+      return null;
+    }
+  }
   const fg = parseHex(fgHex);
   const bg = parseHex(bgHex);
   if (!fg || !bg) return null;
@@ -208,6 +242,13 @@ export function auditContrastHex(fgHex: string, bgHex: string): ContrastAuditRes
 }
 
 export function generateHarmony(baseHex: string, mode: HarmonyMode, count = 5): SwatchItem[] {
+  if (wasmModule) {
+    try {
+      return wasmModule.generate_harmony_wasm(baseHex, mode, count) as SwatchItem[];
+    } catch {
+      return [];
+    }
+  }
   const baseOk = hexToOklch(baseHex);
   if (!baseOk) return [];
 
@@ -255,6 +296,13 @@ export function generateHarmony(baseHex: string, mode: HarmonyMode, count = 5): 
 }
 
 export function generateDesignTokens(seedHex: string): DesignSystemTokens | null {
+  if (wasmModule) {
+    try {
+      return wasmModule.generate_tokens_wasm(seedHex) as DesignSystemTokens;
+    } catch {
+      return null;
+    }
+  }
   const baseOk = hexToOklch(seedHex);
   if (!baseOk) return null;
 
@@ -302,6 +350,17 @@ export function generateDesignTokens(seedHex: string): DesignSystemTokens | null
 }
 
 export function simulateCvd(rgb: RgbColor, cvd: CvdType, severity = 1.0): RgbColor {
+  if (wasmModule) {
+    try {
+      const hex = wasmModule.simulate_cvd_wasm(rgbToHex(rgb), cvd, severity) as string;
+      const out = parseHex(hex);
+      // The Rust side works in hex and carries no alpha, so the input's own
+      // alpha is put back rather than defaulted.
+      if (out) return { ...out, a: rgb.a };
+    } catch {
+      // falls through to the TypeScript path
+    }
+  }
   const sev = Math.max(0.0, Math.min(1.0, severity));
   const r = rgb.r / 255.0;
   const g = rgb.g / 255.0;
@@ -353,6 +412,13 @@ export function auditCvdContrast(
   cvd: CvdType,
   severity = 1.0
 ): CvdAuditResult | null {
+  if (wasmModule) {
+    try {
+      return wasmModule.audit_cvd_contrast_wasm(fgHex, bgHex, cvd, severity) as CvdAuditResult;
+    } catch {
+      return null;
+    }
+  }
   const fg = parseHex(fgHex);
   const bg = parseHex(bgHex);
   if (!fg || !bg) return null;
@@ -370,6 +436,9 @@ export function auditCvdContrast(
 }
 
 export function isInGamut(oklch: OklchColor, gamut: TargetGamut = 'srgb'): boolean {
+  if (wasmModule) {
+    return wasmModule.is_in_gamut_wasm(oklch.l, oklch.c, oklch.h, gamut) as boolean;
+  }
   const hRad = (oklch.h * Math.PI) / 180.0;
   const a_ = oklch.c * Math.cos(hRad);
   const b_ = oklch.c * Math.sin(hRad);
@@ -397,18 +466,31 @@ export function isInGamut(oklch: OklchColor, gamut: TargetGamut = 'srgb'): boole
   return rLin >= -eps && rLin <= 1.0 + eps && gLin >= -eps && gLin <= 1.0 + eps && bLin >= -eps && bLin <= 1.0 + eps;
 }
 
+/** The name the result reports, so an alias in and the canonical name out. */
+function canonicalGamut(gamut: TargetGamut): TargetGamut {
+  return gamut === 'p3' ? 'display-p3' : gamut;
+}
+
 export function mapToGamut(
   oklch: OklchColor,
   gamut: TargetGamut = 'srgb',
   precision = 1e-4
 ): GamutMappingResult {
+  if (wasmModule) {
+    try {
+      return wasmModule.map_to_gamut_wasm(
+        oklch.l, oklch.c, oklch.h, gamut, precision) as GamutMappingResult;
+    } catch {
+      // falls through to the TypeScript path
+    }
+  }
   if (isInGamut(oklch, gamut)) {
     return {
       original: { ...oklch },
       mapped: { ...oklch },
       in_gamut: true,
       iterations: 0,
-      target_gamut: gamut,
+      target_gamut: canonicalGamut(gamut),
     };
   }
 
@@ -432,11 +514,18 @@ export function mapToGamut(
     mapped: { l: oklch.l, c: lowC, h: oklch.h, alpha: oklch.alpha },
     in_gamut: false,
     iterations,
-    target_gamut: gamut,
+    target_gamut: canonicalGamut(gamut),
   };
 }
 
 export function findGamutCusp(hue: number, gamut: TargetGamut = 'srgb'): GamutCusp {
+  if (wasmModule) {
+    try {
+      return wasmModule.find_gamut_cusp_wasm(hue, gamut) as GamutCusp;
+    } catch {
+      // falls through to the TypeScript path
+    }
+  }
   let bestL = 0.5;
   let bestC = 0.0;
 
@@ -472,6 +561,16 @@ export function quantizeImage(
   k = 5,
   maxIterations = 15
 ): QuantizedColor[] {
+  if (wasmModule) {
+    try {
+      const bytes = pixelsRgba instanceof Uint8Array
+        ? pixelsRgba
+        : new Uint8Array(pixelsRgba as ArrayLike<number>);
+      return wasmModule.quantize_image_wasm(bytes, k, maxIterations) as QuantizedColor[];
+    } catch {
+      return [];
+    }
+  }
   const len = pixelsRgba.length;
   if (len < 4 || k <= 0) return [];
 
@@ -500,12 +599,37 @@ export function quantizeImage(
 
   if (points.length === 0) return [];
 
-  const targetK = Math.min(k, points.length);
+  const requestedK = Math.min(k, points.length);
   const centroids: { l: number; a: number; b: number }[] = [];
-  const stride = Math.floor(points.length / targetK);
-  for (let i = 0; i < targetK; i++) {
-    centroids.push({ l: points[i * stride].l, a: points[i * stride].a, b: points[i * stride].b });
+
+  // Farthest-point seeding, matching core/src/quantization.rs. Sampling at a
+  // fixed stride put every centroid inside the same colour whenever one colour
+  // filled the start of the image, and the run then returned fewer colours
+  // than were asked for.
+  centroids.push({ l: points[0].l, a: points[0].a, b: points[0].b });
+  while (centroids.length < requestedK) {
+    let bestIndex = 0;
+    let bestDist = -1;
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      let nearest = Infinity;
+      for (const c of centroids) {
+        const dl = p.l - c.l;
+        const da = p.a - c.a;
+        const db = p.b - c.b;
+        const d = dl * dl + da * da + db * db;
+        if (d < nearest) nearest = d;
+      }
+      if (nearest > bestDist) {
+        bestDist = nearest;
+        bestIndex = i;
+      }
+    }
+    if (bestDist <= 0) break;
+    centroids.push({ l: points[bestIndex].l, a: points[bestIndex].a, b: points[bestIndex].b });
   }
+
+  const targetK = centroids.length;
 
   const assignments = new Uint16Array(points.length);
 
@@ -568,7 +692,7 @@ export function quantizeImage(
       const rgb = parseHex(hex) || { r: 0, g: 0, b: 0 };
       results.push({
         rgb,
-        oklch: { l: cent.l, c: C, h: H },
+        oklch: { l: cent.l, c: C, h: H, alpha: 1.0 },
         pixel_count: counts[c],
         weight: counts[c] / total,
       });

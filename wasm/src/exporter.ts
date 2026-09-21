@@ -1,4 +1,4 @@
-import { DesignSystemTokens } from './types';
+import { DesignSystemTokens } from './types.js';
 
 export type ExportFormat =
   | 'css'

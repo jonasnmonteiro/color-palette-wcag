@@ -12,7 +12,9 @@
   "scripts": {
     "build:wasm": "wasm-pack build --target web --out-dir pkg",
     "build:ts": "tsc",
-    "build": "tsc"
+    "build": "tsc",
+    "build:wasm:node": "wasm-pack build --target nodejs --out-dir pkg-node",
+    "test": "node --test test/differential.mjs"
   },
   "keywords": [
     "oklch",
