@@ -145,6 +145,10 @@ impl Rgb {
         self.to_linear().to_oklab()
     }
 
+    pub fn from_oklch(oklch: &Oklch) -> Self {
+        oklch.to_rgb()
+    }
+
     pub fn to_oklch(&self) -> Oklch {
         self.to_oklab().to_oklch()
     }
@@ -163,6 +167,10 @@ pub struct LinearRgb {
 }
 
 impl LinearRgb {
+    pub fn from_oklch(oklch: &Oklch) -> Self {
+        oklch.to_oklab().to_linear_rgb()
+    }
+
     pub fn to_srgb(&self) -> Rgb {
         let r = (linear_to_srgb(self.r) * 255.0).round().clamp(0.0, 255.0) as u8;
         let g = (linear_to_srgb(self.g) * 255.0).round().clamp(0.0, 255.0) as u8;
@@ -223,6 +231,10 @@ pub struct Oklab {
 }
 
 impl Oklab {
+    pub fn new(l: f64, a: f64, b: f64) -> Self {
+        Self { l, a, b, alpha: 1.0 }
+    }
+
     pub fn to_linear_rgb(&self) -> LinearRgb {
         let l_ = self.l + 0.3963377774 * self.a + 0.2158037573 * self.b;
         let m_ = self.l - 0.1055613458 * self.a - 0.0638541728 * self.b;

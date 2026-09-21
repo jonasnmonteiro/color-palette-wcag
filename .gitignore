@@ -1,11 +1,10 @@
 # Rust
-/target/
+target/
 **/*.rs.bk
 Cargo.lock
 
 # WebAssembly
 /wasm/pkg/
-/wasm/target/
 
 # Node & Dependencies
 node_modules/

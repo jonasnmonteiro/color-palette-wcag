@@ -1,5 +1,5 @@
 use crate::palette::DesignSystemTokens;
-use serde_json::{json, Value};
+use serde_json::json;
 
 pub enum ExportFormat {
     Css,
@@ -153,6 +153,20 @@ impl TokenExporter {
         }
         out.push_str("</resources>\n");
         out
+    }
+
+    pub fn parse_format(name: &str) -> Option<ExportFormat> {
+        match name.trim().to_ascii_lowercase().as_str() {
+            "css" => Some(ExportFormat::Css),
+            "scss" => Some(ExportFormat::Scss),
+            "tailwind-v3" => Some(ExportFormat::TailwindV3),
+            "tailwind-v4" => Some(ExportFormat::TailwindV4),
+            "figma-tokens" => Some(ExportFormat::FigmaTokens),
+            "style-dictionary" => Some(ExportFormat::StyleDictionary),
+            "swift" => Some(ExportFormat::Swift),
+            "android-xml" => Some(ExportFormat::AndroidXml),
+            _ => None,
+        }
     }
 
     pub fn export(tokens: &DesignSystemTokens, format: ExportFormat) -> String {

@@ -3,12 +3,12 @@ use colored::*;
 use colorust_core::{
     apca_contrast, audit_cvd_contrast, generate_harmony, is_in_gamut,
     map_to_gamut_binary_search, relative_luminance, wcag21_contrast, CvdType,
-    ExportFormat, HarmonyMode, Oklch, Rgb, TargetGamut, TokenExporter,
+    DesignSystemTokens, HarmonyMode, Rgb, TargetGamut, TokenExporter,
 };
 
 #[derive(Parser)]
 #[command(name = "colorust")]
-#[command(about = "Colorust Suite — Perceptual Color Science & Accessibility Contrast Engine", long_about = None)]
+#[command(about = "Colorust Suite: perceptual color science and accessibility contrast engine", long_about = None)]
 #[command(version = "1.0.0")]
 struct Cli {
     #[command(subcommand)]
@@ -206,13 +206,15 @@ fn main() {
                 }
             };
 
-            let output = match TokenExporter::export(&seed, exp_fmt) {
-                Some(out) => out,
+            let tokens = match DesignSystemTokens::from_seed_hex(&seed) {
+                Some(t) => t,
                 None => {
                     eprintln!("{} Failed to generate tokens for hex: {}", "Error:".red().bold(), seed);
                     std::process::exit(1);
                 }
             };
+
+            let output = TokenExporter::export(&tokens, exp_fmt);
 
             println!("{}", output);
         }
