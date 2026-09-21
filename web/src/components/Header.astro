@@ -60,16 +60,10 @@ const here = Astro.url.pathname.replace(/\/+$/, "");
   </div>
 </header>
 
-<script is:inline>
+<script>
   (function() {
-    function getStoredTheme() {
-      try {
-        const stored = localStorage.getItem('colorust-app-theme');
-        if (stored) return stored;
-      } catch {}
-      return 'dark';
-    }
-
+    // The theme is already on the document: public/theme-boot.js set it before
+    // the first paint. This only wires the control that changes it.
     function applyTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
       try {
@@ -82,10 +76,7 @@ const here = Astro.url.pathname.replace(/\/+$/, "");
       window.dispatchEvent(new CustomEvent('colorust-theme-changed', { detail: { theme } }));
     }
 
-    const currentTheme = getStoredTheme();
-    applyTheme(currentTheme);
-
-    window.addEventListener('DOMContentLoaded', () => {
+    const start = () => {
       const toggleBtn = document.getElementById('theme-toggle-btn');
       const label = document.getElementById('theme-toggle-label');
       if (label) {
@@ -97,7 +88,14 @@ const here = Astro.url.pathname.replace(/\/+$/, "");
         const nextTheme = activeTheme === 'light' ? 'dark' : 'light';
         applyTheme(nextTheme);
       });
-    });
+    };
+
+    // A bundled script is deferred, so the document may already be parsed.
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', start);
+    } else {
+      start();
+    }
   })();
 </script>
 
