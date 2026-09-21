@@ -59,13 +59,39 @@ pub fn quantize_image_oklab(
         return Vec::new();
     }
 
-    let target_k = k.min(points.len());
-    let mut centroids: Vec<LabPoint> = Vec::with_capacity(target_k);
+    let requested_k = k.min(points.len());
+    let mut centroids: Vec<LabPoint> = Vec::with_capacity(requested_k);
 
-    let step = points.len() / target_k;
-    for i in 0..target_k {
-        centroids.push(points[i * step]);
+    // Farthest-point seeding: the first centroid is the first pixel, and each
+    // next one is the pixel farthest from every centroid chosen so far. It is
+    // the deterministic form of k-means++ and needs no random source.
+    //
+    // Sampling at a fixed interval, which is what this did before, put every
+    // centroid inside the same colour whenever one colour filled the start of
+    // the image: eighty blue pixels followed by twenty yellow ones seeded both
+    // centroids in the blue, left the second cluster empty, and returned one
+    // colour for a request of two.
+    centroids.push(points[0]);
+    while centroids.len() < requested_k {
+        let mut best_idx = 0;
+        let mut best_dist = -1.0;
+        for (idx, p) in points.iter().enumerate() {
+            let nearest = centroids
+                .iter()
+                .map(|c| p.dist_sq(c))
+                .fold(f64::MAX, f64::min);
+            if nearest > best_dist {
+                best_dist = nearest;
+                best_idx = idx;
+            }
+        }
+        if best_dist <= 0.0 {
+            break;
+        }
+        centroids.push(points[best_idx]);
     }
+
+    let target_k = centroids.len();
 
     let mut assignments: Vec<usize> = vec![0; points.len()];
 
