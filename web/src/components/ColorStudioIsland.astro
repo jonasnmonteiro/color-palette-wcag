@@ -70,7 +70,7 @@
       <div class="wheel-outer-container">
         <div class="wheel-interactive-stage" id="wheel-interactive-stage">
           <canvas id="wheel-canvas" width="600" height="600" class="chromatic-canvas"></canvas>
-          <svg id="wheel-svg-lines" class="chromatic-svg-overlay" width="300" height="300"></svg>
+          <svg id="wheel-svg-lines" class="chromatic-svg-overlay"></svg>
           <div id="wheel-pins-layer" class="chromatic-pins-layer"></div>
           <div class="wheel-center-hub"></div>
         </div>
@@ -110,18 +110,42 @@
         </div>
       </div>
 
-      <!-- Harmony Mode Buttons -->
+      <!-- Harmony Mode Carousel Buttons -->
       <div class="harmony-modes-wrapper">
         <label class="sub-label">Regra Harmônica (OKLCH)</label>
-        <div class="harmony-tags-grid" id="harmony-buttons">
-          <button class="harmony-tag-btn active" data-mode="analogous">Análogo</button>
-          <button class="harmony-tag-btn" data-mode="monochromatic">Monocromático</button>
-          <button class="harmony-tag-btn" data-mode="triadic">Tríade</button>
-          <button class="harmony-tag-btn" data-mode="complementary">Complementar</button>
-          <button class="harmony-tag-btn" data-mode="split-complementary">Split-Comp</button>
-          <button class="harmony-tag-btn" data-mode="tetradic">Tetradic</button>
-          <button class="harmony-tag-btn" data-mode="square">Quadrado</button>
-          <button class="harmony-tag-btn" data-mode="custom">Livre (Custom)</button>
+        <div class="harmony-tags-carousel" id="harmony-buttons">
+          <button class="harmony-tag-btn active" data-mode="analogous">
+            <span class="harmony-icon">◐</span>
+            <span>Análogo</span>
+          </button>
+          <button class="harmony-tag-btn" data-mode="monochromatic">
+            <span class="harmony-icon">◼</span>
+            <span>Monocromático</span>
+          </button>
+          <button class="harmony-tag-btn" data-mode="triadic">
+            <span class="harmony-icon">▲</span>
+            <span>Tríade</span>
+          </button>
+          <button class="harmony-tag-btn" data-mode="complementary">
+            <span class="harmony-icon">◓</span>
+            <span>Complementar</span>
+          </button>
+          <button class="harmony-tag-btn" data-mode="split-complementary">
+            <span class="harmony-icon">⑃</span>
+            <span>Split Comp</span>
+          </button>
+          <button class="harmony-tag-btn" data-mode="tetradic">
+            <span class="harmony-icon">✣</span>
+            <span>Tetradic</span>
+          </button>
+          <button class="harmony-tag-btn" data-mode="square">
+            <span class="harmony-icon">◆</span>
+            <span>Quadrado</span>
+          </button>
+          <button class="harmony-tag-btn" data-mode="custom">
+            <span class="harmony-icon">✦</span>
+            <span>Livre (Custom)</span>
+          </button>
         </div>
       </div>
 
@@ -146,14 +170,6 @@
         <span class="card-tag-title">A PALETA</span>
         <div class="palette-top-tools">
           <span class="drag-hint-pill">Arraste para reordenar</span>
-          <button class="btn-action-pill" id="add-swatch-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Adicionar Cor
-          </button>
-          <span class="swatches-count-pill" id="swatches-count-badge">5 Cores</span>
         </div>
       </div>
 
@@ -174,6 +190,15 @@
 
       <!-- Vertical List of Swatches Cards with Drag and Drop -->
       <div class="palette-swatches-list" id="palette-swatches-list"></div>
+
+      <!-- Dashed Container to Add Swatch -->
+      <button class="add-swatch-dashed-card" id="add-swatch-btn" type="button" title="Adicionar nova cor à paleta">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Adicionar Cor</span>
+      </button>
 
       <!-- Footer Action -->
       <div class="palette-footer-row">
@@ -292,7 +317,7 @@
         <div class="mockup-feature-box" id="mockup-feature-box">
           <div class="feature-tag-row">
             <span class="mockup-pill-badge" id="mockup-pill-tag">DESTAQUE PRO</span>
-            <span class="feature-stars">★★★★★ (4.9)</span>
+            <span class="feature-stars">Nota 4.9 / 5.0</span>
           </div>
           <h4 class="feature-card-heading">Colorust Perceptual Studio</h4>
           <p class="feature-card-summary">
@@ -471,8 +496,8 @@
 
   const CURATED_PRESETS: CuratedPreset[] = [
     {
-      name: 'Apexmira Cyber Neon',
-      category: 'Cyberpunk / Tech',
+      name: 'Apexmira Tech Neon',
+      category: 'Tech / Modern',
       harmony: 'custom',
       hexes: ['#00F0FF', '#7000FF', '#FF007A', '#00FF66', '#181824'],
       tag: 'Tech Neon',
@@ -847,12 +872,21 @@
     }
   }
 
+  function getStageSize() {
+    if (!wheelInteractiveStage) {
+      return { width: 280, height: 280, cx: 140, cy: 140, maxRadius: 126 };
+    }
+    const rect = wheelInteractiveStage.getBoundingClientRect();
+    const width = rect.width || 280;
+    const height = rect.height || 280;
+    const cx = width / 2;
+    const cy = height / 2;
+    const maxRadius = Math.max(20, width / 2 - 14);
+    return { width, height, cx, cy, maxRadius };
+  }
+
   function polarToStageCoords(h: number, c: number) {
-    const stageWidth = 300;
-    const stageHeight = 300;
-    const cx = stageWidth / 2;
-    const cy = stageHeight / 2;
-    const maxRadius = stageWidth / 2 - 14;
+    const { cx, cy, maxRadius } = getStageSize();
     const r = Math.min(1.0, Math.max(0.05, c / 0.28)) * maxRadius;
     const rad = (h * Math.PI) / 180;
     return {
@@ -862,11 +896,7 @@
   }
 
   function stageCoordsToPolar(x: number, y: number) {
-    const stageWidth = 300;
-    const stageHeight = 300;
-    const cx = stageWidth / 2;
-    const cy = stageHeight / 2;
-    const maxRadius = stageWidth / 2 - 14;
+    const { cx, cy, maxRadius } = getStageSize();
     const dx = x - cx;
     const dy = y - cy;
     let rad = Math.atan2(dy, dx);
@@ -881,10 +911,10 @@
     wheelPinsLayer.innerHTML = '';
     wheelSvgLines.innerHTML = '';
 
-    const stageWidth = 300;
-    const stageHeight = 300;
-    const cx = stageWidth / 2;
-    const cy = stageHeight / 2;
+    const { width, height, cx, cy } = getStageSize();
+    wheelSvgLines.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    wheelSvgLines.setAttribute('width', width.toString());
+    wheelSvgLines.setAttribute('height', height.toString());
 
     let linesHtml = '';
 
@@ -927,7 +957,7 @@
       if (item.isBase) {
         pin.innerHTML = `<span class="pin-inner-dot"></span>`;
       } else if (item.isLocked) {
-        pin.innerHTML = `<span class="pin-lock-symbol">🔒</span>`;
+        pin.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
       }
 
       wheelPinsLayer.appendChild(pin);
@@ -1024,7 +1054,7 @@
       const y = clientY - rect.top;
 
       let closestIdx = -1;
-      let minDistance = 28;
+      let minDistance = 32;
 
       palette.forEach((item, idx) => {
         const pos = polarToStageCoords(item.h, item.c);
@@ -1049,8 +1079,10 @@
       if (!isDragging) return;
 
       const rect = wheelInteractiveStage.getBoundingClientRect();
-      const x = Math.max(0, Math.min(300, clientX - rect.left));
-      const y = Math.max(0, Math.min(300, clientY - rect.top));
+      const stageW = rect.width || 280;
+      const stageH = rect.height || 280;
+      const x = Math.max(0, Math.min(stageW, clientX - rect.left));
+      const y = Math.max(0, Math.min(stageH, clientY - rect.top));
 
       const { h, c } = stageCoordsToPolar(x, y);
 
@@ -1106,15 +1138,36 @@
     }, { passive: false });
 
     window.addEventListener('touchend', handlePointerUp);
+
+    window.addEventListener('resize', () => {
+      renderWheelPins();
+    });
+  }
+
+  function isLightColor(hex: string): boolean {
+    const rgb = parseHex(hex);
+    if (!rgb) return false;
+    const r = rgb.r / 255;
+    const g = rgb.g / 255;
+    const b = rgb.b / 255;
+    const rLin = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+    const gLin = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+    const bLin = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+    const L = 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
+    return L > 0.38;
   }
 
   function renderPaletteCards() {
     paletteSwatchesList.innerHTML = '';
-    swatchesCountBadge.textContent = `${palette.length} Cores`;
+    if (swatchesCountBadge) {
+      swatchesCountBadge.textContent = `${palette.length} Cores`;
+    }
+    if (addSwatchBtn) {
+      addSwatchBtn.style.display = palette.length >= 10 ? 'none' : 'flex';
+    }
 
     palette.forEach((item, idx) => {
       const card = document.createElement('div');
-      card.className = `swatch-row-card ${item.isBase ? 'swatch-row-base' : ''}`;
       card.setAttribute('draggable', 'false');
       card.setAttribute('data-index', idx.toString());
 
@@ -1126,50 +1179,59 @@
 
       const whiteAudit = auditContrastHex('#FFFFFF', displayHex);
       const apcaScore = whiteAudit ? Math.abs(whiteAudit.apca.lc).toFixed(0) : '0';
+      const isLight = isLightColor(displayHex);
+
+      const lockIconSvg = item.isLocked
+        ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`
+        : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`;
+
+      card.className = `swatch-solid-card ${item.isBase ? 'swatch-solid-base' : ''} ${isLight ? 'theme-dark-ink' : 'theme-light-ink'}`;
+      card.style.backgroundColor = displayHex;
 
       card.innerHTML = `
-        <div class="drag-handle-grip" title="Arrastar para reordenar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="8" cy="6" r="2"></circle>
-            <circle cx="16" cy="6" r="2"></circle>
-            <circle cx="8" cy="12" r="2"></circle>
-            <circle cx="16" cy="12" r="2"></circle>
-            <circle cx="8" cy="18" r="2"></circle>
-            <circle cx="16" cy="18" r="2"></circle>
-          </svg>
+        <div class="swatch-card-header">
+          <div class="swatch-card-left">
+            <div class="drag-handle-grip" title="Arrastar para reordenar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="8" cy="6" r="2"></circle>
+                <circle cx="16" cy="6" r="2"></circle>
+                <circle cx="8" cy="12" r="2"></circle>
+                <circle cx="16" cy="12" r="2"></circle>
+                <circle cx="8" cy="18" r="2"></circle>
+                <circle cx="16" cy="18" r="2"></circle>
+              </svg>
+            </div>
+
+            <div class="swatch-hex-picker-wrap" title="Clique para escolher cor no seletor">
+              <span class="swatch-solid-hex">${displayHex}</span>
+              <input type="color" value="${item.hex}" class="hidden-native-picker" data-action="pick-color" />
+            </div>
+
+            ${item.isBase ? '<span class="swatch-solid-pill base-tag-pill">Base</span>' : ''}
+            ${isCvdActive ? `<span class="swatch-solid-pill cvd-tag-pill">orig: ${item.hex}</span>` : ''}
+            <span class="swatch-solid-pill lc-pill">Lc ${apcaScore}</span>
+            <span class="swatch-solid-pill gamut-pill" title="Cusp Max Chroma: ${cusp.max_chroma.toFixed(2)}">${inGamut ? 'sRGB' : 'P3'}</span>
+          </div>
+
+          <div class="swatch-card-actions" data-stop-drag="true">
+            <button class="swatch-action-pill ${item.isBase ? 'is-base-active' : ''}" data-action="base" title="${item.isBase ? 'Cor Base Ativa' : 'Definir como cor base'}">
+              ${item.isBase ? 'Base' : 'Definir Base'}
+            </button>
+            <button class="swatch-action-pill" data-action="copy" title="Copiar código HEX">
+              Copiar
+            </button>
+            <button class="swatch-icon-btn ${item.isLocked ? 'btn-is-locked' : ''}" data-action="lock" title="${item.isLocked ? 'Desbloquear tom' : 'Bloquear tom'}">
+              ${lockIconSvg}
+            </button>
+            <button class="swatch-icon-btn delete-btn" data-action="delete" ${palette.length <= 2 ? 'disabled' : ''} title="Excluir cor">
+              ✕
+            </button>
+          </div>
         </div>
 
-        <div class="swatch-left-group">
-          <div class="swatch-square-thumb" style="background-color: ${displayHex}; ${isCvdActive ? `box-shadow: inset 0 0 0 2px ${item.hex};` : ''}" title="${isCvdActive ? `Original: ${item.hex} | Simulado: ${displayHex}` : item.hex}">
-            <input type="color" value="${item.hex}" class="hidden-native-picker" data-action="pick-color" />
-          </div>
-          <div class="swatch-meta-text">
-            <div class="swatch-hex-title">
-              <span class="swatch-hex-label">${displayHex}</span>
-              ${isCvdActive ? `<span class="swatch-orig-label">orig: ${item.hex}</span>` : ''}
-              <span class="swatch-lc-pill">Lc ${apcaScore}</span>
-              <span class="swatch-gamut-pill ${inGamut ? 'gamut-srgb' : 'gamut-p3'}" title="Cusp Max Chroma: ${cusp.max_chroma.toFixed(2)}">${inGamut ? 'sRGB' : 'P3 Wide'}</span>
-            </div>
-            <div class="swatch-tone-wrapper" data-stop-drag="true">
-              <span class="tone-label">Tom: ${(item.l * 100).toFixed(0)}%</span>
-              <input type="range" min="0.05" max="0.98" step="0.01" value="${item.l}" class="custom-range mini-tone-range" data-action="slider-tone" />
-            </div>
-          </div>
-        </div>
-
-        <div class="swatch-right-actions" data-stop-drag="true">
-          <button class="swatch-action-link ${item.isBase ? 'action-is-base' : ''}" data-action="base">
-            ${item.isBase ? '★ Cor Base' : 'Usar como base'}
-          </button>
-          <button class="swatch-action-link" data-action="copy">
-            Copiar
-          </button>
-          <button class="swatch-icon-btn ${item.isLocked ? 'btn-is-locked' : ''}" data-action="lock" title="${item.isLocked ? 'Desbloquear tom' : 'Bloquear tom'}">
-            ${item.isLocked ? '🔒' : '🔓'}
-          </button>
-          <button class="swatch-icon-btn delete-btn" data-action="delete" ${palette.length <= 2 ? 'disabled' : ''} title="Excluir cor">
-            ✕
-          </button>
+        <div class="swatch-tone-inline-bar" data-stop-drag="true">
+          <span class="tone-inline-label">Tom: ${(item.l * 100).toFixed(0)}%</span>
+          <input type="range" min="0.05" max="0.98" step="0.01" value="${item.l}" class="custom-range swatch-tone-slider" data-action="slider-tone" />
         </div>
       `;
 
@@ -1281,38 +1343,30 @@
         const cusp = findGamutCusp(item.h, 'srgb');
         const whiteAudit = auditContrastHex('#FFFFFF', displayHex);
         const apcaScore = whiteAudit ? Math.abs(whiteAudit.apca.lc).toFixed(0) : '0';
+        const isLight = isLightColor(displayHex);
 
-        const thumb = card.querySelector('.swatch-square-thumb') as HTMLElement;
-        if (thumb) {
-          thumb.style.backgroundColor = displayHex;
-          thumb.title = isCvdActive ? `Original: ${item.hex} | Simulado: ${displayHex}` : item.hex;
-          if (isCvdActive) {
-            thumb.style.boxShadow = `inset 0 0 0 2px ${item.hex}`;
-          } else {
-            thumb.style.boxShadow = '';
-          }
-        }
+        card.style.backgroundColor = displayHex;
+        card.className = `swatch-solid-card ${item.isBase ? 'swatch-solid-base' : ''} ${isLight ? 'theme-dark-ink' : 'theme-light-ink'}`;
 
-        const hexLabel = card.querySelector('.swatch-hex-label') as HTMLElement;
+        const hexLabel = card.querySelector('.swatch-solid-hex') as HTMLElement;
         if (hexLabel) hexLabel.textContent = displayHex;
 
-        const origLabel = card.querySelector('.swatch-orig-label') as HTMLElement;
-        if (origLabel) {
-          origLabel.textContent = isCvdActive ? `orig: ${item.hex}` : '';
-          origLabel.style.display = isCvdActive ? 'inline' : 'none';
+        const cvdTag = card.querySelector('.cvd-tag-pill') as HTMLElement;
+        if (cvdTag) {
+          cvdTag.textContent = isCvdActive ? `orig: ${item.hex}` : '';
+          cvdTag.style.display = isCvdActive ? 'inline-flex' : 'none';
         }
 
-        const lcPill = card.querySelector('.swatch-lc-pill') as HTMLElement;
+        const lcPill = card.querySelector('.lc-pill') as HTMLElement;
         if (lcPill) lcPill.textContent = `Lc ${apcaScore}`;
 
-        const gamutPill = card.querySelector('.swatch-gamut-pill') as HTMLElement;
+        const gamutPill = card.querySelector('.gamut-pill') as HTMLElement;
         if (gamutPill) {
-          gamutPill.className = `swatch-gamut-pill ${inGamut ? 'gamut-srgb' : 'gamut-p3'}`;
-          gamutPill.textContent = inGamut ? 'sRGB' : 'P3 Wide';
+          gamutPill.textContent = inGamut ? 'sRGB' : 'P3';
           gamutPill.title = `Cusp Max Chroma: ${cusp.max_chroma.toFixed(2)}`;
         }
 
-        const toneLabel = card.querySelector('.tone-label') as HTMLElement;
+        const toneLabel = card.querySelector('.tone-inline-label') as HTMLElement;
         if (toneLabel) toneLabel.textContent = `Tom: ${(item.l * 100).toFixed(0)}%`;
       };
 
@@ -1391,7 +1445,7 @@
       monochromatic: 'Monocromático',
       triadic: 'Tríade',
       complementary: 'Complementar',
-      'split-complementary': 'Split-Comp',
+      'split-complementary': 'Split Comp',
       tetradic: 'Tetradic',
       square: 'Quadrado',
       custom: 'Livre (Custom)',
@@ -1425,7 +1479,6 @@
 
     if (mockupLogoDot) {
       mockupLogoDot.style.backgroundColor = brandHex;
-      mockupLogoDot.style.boxShadow = `0 0 10px ${brandHex}`;
     }
 
     if (mockupNavActive) {
@@ -1485,7 +1538,7 @@
     if (mockupMainBtn) {
       mockupMainBtn.style.backgroundColor = brandHex;
       mockupMainBtn.style.color = 'var(--text-on-accent, #FFFFFF)';
-      mockupMainBtn.style.boxShadow = `0 4px 14px ${brandHex}40`;
+      mockupMainBtn.style.boxShadow = '0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 25%, transparent)';
     }
 
     if (mockupSecBtn) {
@@ -1570,10 +1623,10 @@
     const blackScore = blackAudit ? Math.abs(blackAudit.apca.lc) : 0;
 
     if (whiteScore >= blackScore) {
-      inkNameText.textContent = `Tinta Branca (#FFFFFF) - Lc ${whiteScore.toFixed(1)}`;
+      inkNameText.textContent = `Tinta Branca (#FFFFFF) | Lc ${whiteScore.toFixed(1)}`;
       inkDot.style.backgroundColor = '#FFFFFF';
     } else {
-      inkNameText.textContent = `Tinta Escura (#0A0D14) - Lc ${blackScore.toFixed(1)}`;
+      inkNameText.textContent = `Tinta Escura (#0A0D14) | Lc ${blackScore.toFixed(1)}`;
       inkDot.style.backgroundColor = '#0A0D14';
     }
 
@@ -1933,7 +1986,7 @@
     right: 32px;
     background: var(--bg-surface-glass);
     border: 1px solid color-mix(in srgb, var(--brand-primary) 40%, transparent);
-    box-shadow: 0 12px 36px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent), 0 0 16px color-mix(in srgb, var(--brand-primary) 25%, transparent);
+    box-shadow: 0 12px 36px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent);
     backdrop-filter: blur(12px);
     color: var(--text-on-accent, #FFFFFF);
     padding: 12px 20px;
@@ -1990,7 +2043,6 @@
     height: 6px;
     border-radius: 50%;
     background: var(--color-success);
-    box-shadow: 0 0 8px var(--color-success);
   }
 
   .gamut-summary-pill {
@@ -2136,16 +2188,16 @@
   /* Main Grid */
   .studio-main-grid {
     display: grid;
-    grid-template-columns: 440px 1fr;
-    gap: 28px;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
     align-items: start;
   }
 
   .wheel-card-box, .palette-card-box {
-    padding: 28px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 18px;
   }
 
   .card-top-title {
@@ -2176,13 +2228,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 8px 0;
+    padding: 4px 0;
   }
 
   .wheel-interactive-stage {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     box-shadow: 0 16px 40px color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
     cursor: crosshair;
@@ -2191,8 +2245,8 @@
   }
 
   .chromatic-canvas {
-    width: 300px;
-    height: 300px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     display: block;
     pointer-events: none;
@@ -2202,8 +2256,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 300px;
-    height: 300px;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
   }
 
@@ -2215,7 +2269,7 @@
     height: 10px;
     border-radius: 50%;
     background: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--shadow-base, #000000) 80%, transparent), 0 0 4px var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 5;
@@ -2250,7 +2304,7 @@
     height: 28px;
     border-width: 3px;
     border-color: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 0 16px color-mix(in srgb, var(--text-on-accent, #FFFFFF) 90%, transparent), 0 4px 12px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 60%, transparent);
     z-index: 15;
   }
 
@@ -2259,7 +2313,6 @@
     height: 8px;
     border-radius: 50%;
     background: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 0 4px color-mix(in srgb, var(--shadow-base, #000000) 80%, transparent);
   }
 
   .chroma-pin.pin-is-locked {
@@ -2368,27 +2421,44 @@
     margin-bottom: 8px;
   }
 
-  .harmony-tags-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+  .harmony-tags-carousel {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .harmony-tags-carousel::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .harmony-tags-carousel::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
+    border-radius: var(--radius-full);
   }
 
   .harmony-tag-btn {
-    padding: 6px 8px;
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    scroll-snap-align: start;
     transition: all 0.15s ease;
-    text-align: center;
   }
 
   .harmony-tag-btn:hover {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 8%, transparent);
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 9%, transparent);
     color: var(--text-primary);
   }
 
@@ -2396,7 +2466,11 @@
     background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
     border-color: var(--brand-primary);
     color: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--brand-primary) 25%, transparent);
+  }
+
+  .harmony-icon {
+    font-size: 12px;
+    opacity: 0.85;
   }
 
   .image-dropzone-pill {
@@ -2450,186 +2524,231 @@
     gap: 10px;
   }
 
-  /* PALETTE SWATCH ROW CARD WITH DRAG & DROP */
-  .swatch-row-card {
+  /* Dashed Add Swatch Card */
+  .add-swatch-dashed-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 10px;
+    border: 2px dashed color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
+    border-radius: var(--radius-md);
     background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 3%, transparent);
-    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .add-swatch-dashed-card:hover {
+    border-color: var(--brand-primary);
+    background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
+    color: var(--brand-light, #60A5FA);
+  }
+
+  .add-swatch-dashed-card:active {
+    transform: scale(0.99);
+  }
+
+  /* ADOBE COLOR STYLE SOLID SWATCH CARDS */
+  .swatch-solid-card {
     border-radius: var(--radius-md);
     padding: 10px 14px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
+    flex-direction: column;
+    gap: 8px;
     transition: all 0.15s ease;
-    cursor: default;
+    position: relative;
+    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--shadow-base, #000000) 25%, transparent);
     user-select: none;
   }
 
-  .swatch-row-card:hover {
-    border-color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 15%, transparent);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 5%, transparent);
+  .swatch-solid-card:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--shadow-base, #000000) 20%, transparent);
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--shadow-base, #000000) 35%, transparent);
   }
 
-  .swatch-row-card.swatch-row-base {
-    border-color: color-mix(in srgb, var(--brand-primary) 50%, transparent);
-    background: color-mix(in srgb, var(--brand-primary) 6%, transparent);
-    box-shadow: 0 0 16px color-mix(in srgb, var(--brand-primary) 12%, transparent);
+  .swatch-solid-card.swatch-solid-base {
+    border: 2px solid var(--text-on-accent, #FFFFFF);
+    box-shadow: 0 0 0 2px var(--brand-primary), 0 6px 20px color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
   }
 
-  .swatch-row-card.is-dragging-card {
+  .swatch-solid-card.is-dragging-card {
     opacity: 0.4;
     border-style: dashed;
   }
 
-  .swatch-row-card.drag-over-target {
-    border-color: var(--brand-primary);
-    background: color-mix(in srgb, var(--brand-primary) 15%, transparent);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  .swatch-solid-card.drag-over-target {
+    transform: scale(1.02);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
   }
 
-  .drag-handle-grip {
-    cursor: grab;
-    color: var(--text-muted);
-    padding: 4px;
+  /* Light Ink Theme (Dark / Saturated Background) */
+  .swatch-solid-card.theme-light-ink {
+    color: var(--text-on-accent, #FFFFFF);
+  }
+
+  .swatch-solid-card.theme-light-ink .drag-handle-grip {
+    color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 75%, transparent);
+  }
+
+  .swatch-solid-card.theme-light-ink .swatch-solid-hex {
+    color: var(--text-on-accent, #FFFFFF);
+    text-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-base, #000000) 40%, transparent);
+  }
+
+  .swatch-solid-card.theme-light-ink .swatch-solid-pill {
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 28%, transparent);
+    color: var(--text-on-accent, #FFFFFF);
+  }
+
+  .swatch-solid-card.theme-light-ink .swatch-action-pill,
+  .swatch-solid-card.theme-light-ink .swatch-icon-btn {
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 26%, transparent);
+    color: var(--text-on-accent, #FFFFFF);
+  }
+
+  .swatch-solid-card.theme-light-ink .swatch-action-pill:hover,
+  .swatch-solid-card.theme-light-ink .swatch-icon-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 28%, transparent);
+  }
+
+  .swatch-solid-card.theme-light-ink .swatch-action-pill.is-base-active {
+    background: var(--text-on-accent, #FFFFFF);
+    color: var(--bg-app, #0A0D14);
+    border-color: var(--text-on-accent, #FFFFFF);
+    font-weight: 700;
+  }
+
+  .swatch-solid-card.theme-light-ink .tone-inline-label {
+    color: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 85%, transparent);
+  }
+
+  .swatch-solid-card.theme-light-ink .swatch-tone-slider {
+    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 25%, transparent);
+  }
+
+  /* Dark Ink Theme (Bright / Pastel Background) */
+  .swatch-solid-card.theme-dark-ink {
+    color: var(--bg-app, #0A0D14);
+  }
+
+  .swatch-solid-card.theme-dark-ink .drag-handle-grip {
+    color: color-mix(in srgb, var(--shadow-base, #000000) 65%, transparent);
+  }
+
+  .swatch-solid-card.theme-dark-ink .swatch-solid-hex {
+    color: var(--bg-app, #0A0D14);
+  }
+
+  .swatch-solid-card.theme-dark-ink .swatch-solid-pill {
+    background: color-mix(in srgb, var(--shadow-base, #000000) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--shadow-base, #000000) 22%, transparent);
+    color: var(--bg-app, #0A0D14);
+  }
+
+  .swatch-solid-card.theme-dark-ink .swatch-action-pill,
+  .swatch-solid-card.theme-dark-ink .swatch-icon-btn {
+    background: color-mix(in srgb, var(--shadow-base, #000000) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--shadow-base, #000000) 22%, transparent);
+    color: var(--bg-app, #0A0D14);
+  }
+
+  .swatch-solid-card.theme-dark-ink .swatch-action-pill:hover,
+  .swatch-solid-card.theme-dark-ink .swatch-icon-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--shadow-base, #000000) 22%, transparent);
+  }
+
+  .swatch-solid-card.theme-dark-ink .swatch-action-pill.is-base-active {
+    background: var(--bg-app, #0A0D14);
+    color: var(--text-on-accent, #FFFFFF);
+    border-color: var(--bg-app, #0A0D14);
+    font-weight: 700;
+  }
+
+  .swatch-solid-card.theme-dark-ink .tone-inline-label {
+    color: color-mix(in srgb, var(--shadow-base, #000000) 75%, transparent);
+  }
+
+  .swatch-solid-card.theme-dark-ink .swatch-tone-slider {
+    background: color-mix(in srgb, var(--shadow-base, #000000) 20%, transparent);
+  }
+
+  .swatch-card-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: color 0.15s ease;
-    touch-action: none;
-    user-select: none;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
-  .drag-handle-grip:hover {
-    color: var(--text-primary);
-  }
-
-  .drag-handle-grip:active {
-    cursor: grabbing;
-    color: var(--text-primary);
-  }
-
-  .swatch-left-group {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex: 1;
-  }
-
-  .swatch-square-thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-sm);
-    position: relative;
-    border: 2px solid color-mix(in srgb, var(--text-on-accent, #FFFFFF) 20%, transparent);
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 30%, transparent);
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .swatch-meta-text {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex: 1;
-    max-width: 240px;
-  }
-
-  .swatch-hex-title {
+  .swatch-card-left {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
   }
 
-  .swatch-hex-label {
+  .swatch-hex-picker-wrap {
+    position: relative;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .swatch-solid-hex {
     font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .swatch-lc-pill {
-    font-size: 10px;
-    font-weight: 700;
-    background: color-mix(in srgb, var(--shadow-base, #000000) 50%, transparent);
-    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
     padding: 2px 6px;
     border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-  }
-
-  .swatch-tone-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .tone-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    white-space: nowrap;
-    min-width: 58px;
-  }
-
-  .mini-tone-range {
-    height: 6px;
-    flex: 1;
-    cursor: pointer;
-    touch-action: pan-x;
-    accent-color: var(--brand-primary);
-  }
-
-  .swatch-right-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .swatch-action-link {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    padding: 6px 10px;
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
-    border: 1px solid var(--border-subtle);
-    transition: all 0.15s ease;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-
-  .swatch-action-link:hover {
     background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 10%, transparent);
-    color: var(--text-primary);
   }
 
-  .swatch-action-link.action-is-base {
-    background: color-mix(in srgb, var(--brand-primary) 25%, transparent);
-    border-color: var(--brand-primary);
-    color: var(--brand-light, #60A5FA);
+  .swatch-solid-pill {
+    font-size: 11px;
     font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .swatch-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .swatch-action-pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
   }
 
   .swatch-icon-btn {
     width: 28px;
     height: 28px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 4%, transparent);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
     font-size: 11px;
     cursor: pointer;
     transition: all 0.15s ease;
-  }
-
-  .swatch-icon-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--text-on-accent, #FFFFFF) 12%, transparent);
-    color: var(--text-primary);
   }
 
   .swatch-icon-btn:disabled {
@@ -2637,15 +2756,39 @@
     cursor: not-allowed;
   }
 
-  .swatch-icon-btn.btn-is-locked {
-    background: color-mix(in srgb, var(--color-warning) 20%, transparent);
-    border-color: var(--color-warning);
-    color: var(--color-warning);
+  .swatch-tone-inline-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
   }
 
-  .swatch-icon-btn.delete-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--color-danger) 25%, transparent);
-    color: var(--color-danger);
+  .tone-inline-label {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    min-width: 65px;
+  }
+
+  .swatch-tone-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: var(--radius-full);
+  }
+
+  .drag-handle-grip {
+    cursor: grab;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .drag-handle-grip:active {
+    cursor: grabbing;
   }
 
   .palette-footer-row {
@@ -2716,7 +2859,6 @@
     background: color-mix(in srgb, var(--brand-primary) 20%, transparent);
     border-color: var(--brand-primary);
     color: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--brand-primary) 30%, transparent);
   }
 
   .cvd-sub-badge {
@@ -2775,7 +2917,6 @@
   .cvd-matrix-col-active {
     border-color: color-mix(in srgb, var(--brand-primary) 60%, transparent);
     background: color-mix(in srgb, var(--brand-primary) 5%, transparent);
-    box-shadow: 0 0 16px color-mix(in srgb, var(--brand-primary) 15%, transparent);
   }
 
   .cvd-col-header {
@@ -3333,27 +3474,189 @@
     .mockup-content-grid {
       grid-template-columns: 1fr;
     }
-    .cvd-modes-buttons {
-      grid-template-columns: repeat(3, 1fr);
-    }
     .cvd-matrix-grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: 768px) {
+    .studio-wrapper {
+      gap: 16px;
+      margin: 8px 0 48px 0;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .studio-top-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding: 10px 12px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .toolbar-left, .toolbar-right {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-start;
+    }
+
+    .health-status-badge, .gamut-summary-pill, .btn-action-pill {
+      font-size: 11px;
+      padding: 5px 10px;
+      white-space: normal;
+      text-align: center;
+    }
+
+    .wheel-card-box, .palette-card-box {
+      padding: 14px;
+      gap: 14px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .wheel-outer-container {
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+    }
+
+    .wheel-interactive-stage {
+      width: min(240px, 68vw);
+      height: min(240px, 68vw);
+      margin: 0 auto;
+    }
+
+    .base-control-bar {
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .base-buttons-row {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
     .presets-grid {
       grid-template-columns: 1fr;
     }
+
     .cvd-modes-buttons {
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
     }
+
+    .cvd-mode-btn {
+      flex-shrink: 0;
+      white-space: nowrap;
+      scroll-snap-align: start;
+      padding: 6px 10px;
+    }
+
+    .cvd-matrix-panel {
+      padding: 14px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
     .cvd-matrix-grid {
       grid-template-columns: 1fr;
     }
-    .toolbar-left, .toolbar-right {
+
+    .ui-showcase-panel {
+      padding: 14px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .mockup-canvas-wrapper {
+      padding: 14px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .mockup-app-bar {
+      padding: 8px 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mockup-nav-links {
+      display: none;
+    }
+
+    .mockup-kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .mockup-content-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .feature-action-row {
+      flex-direction: column;
       width: 100%;
-      justify-content: space-between;
+    }
+
+    .mockup-btn-brand, .mockup-btn-outline {
+      width: 100%;
+      text-align: center;
+    }
+
+    .form-input-wrapper {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .mockup-input-btn {
+      width: 100%;
+    }
+
+    .form-switches-row {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .contrast-gates-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .studio-card {
+      padding: 14px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .code-viewer-container {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .swatch-card-header {
+      gap: 6px;
+    }
+
+    .swatch-solid-hex {
+      font-size: 13px;
+    }
+
+    .swatch-action-pill {
+      font-size: 10px;
+      padding: 4px 8px;
     }
   }
 </style>

@@ -73,7 +73,7 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     justify-content: center;
     color: var(--text-on-accent, #FFFFFF);
-    box-shadow: 0 0 16px var(--brand-glow);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-base, #000000) 25%, transparent);
   }
 
   .brand-meta {
@@ -152,6 +152,26 @@ const currentPath = Astro.url.pathname;
   @media (max-width: 860px) {
     .nav-links, .engine-status {
       display: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .header-container {
+      height: 56px;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+    }
+    .brand-title {
+      font-size: 15px;
+    }
+    .brand-subtitle {
+      display: none;
+    }
+    .github-btn {
+      padding: 6px 10px;
+      font-size: 12px;
     }
   }
 </style>

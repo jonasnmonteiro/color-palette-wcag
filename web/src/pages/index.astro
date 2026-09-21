@@ -9,7 +9,7 @@ import '../styles/global.css';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Colorust Studio - Perceptual OKLCH Palette Generator & WCAG/APCA Auditor</title>
+  <title>Colorust Studio | Perceptual OKLCH Palette Generator & WCAG/APCA Auditor</title>
   <meta name="description" content="Ultra-fast perceptual color science suite, OKLCH palette generator, WCAG 2.1 & WCAG 3.0 APCA contrast auditor, and multi-format design token exporter." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -74,7 +74,6 @@ import '../styles/global.css';
     height: 6px;
     border-radius: 50%;
     background: var(--brand-light, #60A5FA);
-    box-shadow: 0 0 8px var(--brand-light, #60A5FA);
   }
 
   .hero-title {
@@ -116,8 +115,23 @@ import '../styles/global.css';
   }
 
   @media (max-width: 768px) {
+    .hero-section {
+      padding: 16px 0 6px 0;
+    }
+    .hero-badge {
+      margin-bottom: 8px;
+      font-size: 11px;
+      padding: 4px 10px;
+    }
     .hero-title {
-      font-size: 32px;
+      font-size: 22px;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .hero-desc {
+      font-size: 12px;
+      line-height: 1.4;
+      display: none;
     }
     .footer-container {
       flex-direction: column;
